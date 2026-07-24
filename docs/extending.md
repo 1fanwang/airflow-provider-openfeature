@@ -52,19 +52,6 @@ A **proprietary or in-house engine** follows the same shape. Keep that adapter i
 depends on this package; it implements `AbstractProvider` like any other backend and never lands
 here. `providers/inhouse.py` is the public template for that pattern.
 
-## Engaging each community
-
-| Community | What to contribute |
-|---|---|
-| OpenFeature (CNCF) | The anchor. Get listed on their ecosystem page; contribute the Airflow exposure hook; show Airflow as a consumer in their docs. |
-| Airflow (ASF) | Register on the [Ecosystem page](./ecosystem-entry.md) now. A dev-list `[DISCUSS]` for an in-tree provider comes later, per `ACCEPTING_PROVIDERS`, only with traction and a sponsor. |
-| flagd | The reference backend, same CNCF family. Use it as the canonical demo; contribute the Airflow example. |
-| GrowthBook, Unleash, Flagsmith | Each ships an OpenFeature provider. Upstream the fixes you hit while wiring them, plus a short "using X with Airflow" doc. This is the highest-signal contribution: a fix in the provider helps every consumer, Airflow included. |
-| Commercial (LaunchDarkly, Statsig, ...) | Use their own OpenFeature provider, or a thin adapter. Do not over-invest. |
-
-The strongest engagement is upstreaming real fixes to the provider repos you exercise, not writing
-more adapters here. Writing to the standard is what earns the integration.
-
 ## Rules that keep it extensible
 
 - Never hardcode a backend. The core imports only `openfeature-sdk`.

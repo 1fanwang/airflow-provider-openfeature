@@ -1,7 +1,7 @@
 # Publishing
 
 `airflow-provider-openfeature` is a standard PEP 517 (hatchling) package. Airflow discovers it at
-runtime via the `apache_airflow_provider` / `airflow.policy` / `airflow.plugins` entry points — no
+runtime via the `apache_airflow_provider` / `airflow.policy` / `airflow.plugins` entry points, no
 special packaging beyond a normal wheel.
 
 ## Build + verify
@@ -11,7 +11,7 @@ python -m build            # -> dist/airflow_provider_openfeature-<v>-py3-none-a
 twine check dist/*         # metadata + README render check
 ```
 
-The wheel ships only `openfeature_airflow/` — it must NOT contain `airflow/` (that would clobber
+The wheel ships only `openfeature_airflow/`, it must NOT contain `airflow/` (that would clobber
 apache-airflow's namespace). Verify:
 
 ```bash
@@ -21,7 +21,7 @@ python -c "import zipfile,glob; z=zipfile.ZipFile(sorted(glob.glob('dist/*.whl')
 
 ## Release
 
-Version lives in two places — bump both:
+Version lives in two places, bump both:
 - `pyproject.toml` → `[project] version`
 - `src/openfeature_airflow/__init__.py` → `__version__`
 
@@ -45,8 +45,3 @@ twine upload --repository testpypi dist/*
 pip install -i https://test.pypi.org/simple/ airflow-provider-openfeature   # smoke test
 twine upload dist/*                                                          # real PyPI
 ```
-
-## After first release — get it listed
-
-Add the package to the Airflow [Ecosystem page](https://airflow.apache.org/ecosystem/) so users can
-find it. See [`docs/ecosystem-entry.md`](docs/ecosystem-entry.md).

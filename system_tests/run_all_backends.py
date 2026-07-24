@@ -29,6 +29,7 @@ os.environ.setdefault("AIRFLOW__LOGGING__LOGGING_LEVEL", "ERROR")
 os.makedirs(os.path.join(_TMP, "dags"), exist_ok=True)
 
 from openfeature import api  # noqa: E402
+
 from openfeature_airflow.providers.growthbook import GrowthBookProvider  # noqa: E402
 from openfeature_airflow.providers.inhouse import InHouseTreatmentProvider  # noqa: E402
 
@@ -134,13 +135,13 @@ def main():
     results = {}
     print("=" * 78)
     print(f"Multi-backend e2e: {len(POPULATION)} DAGs, canary cohort = {len(CANARY)} -> canary_pool")
-    print(f"Same DAG population, same task_policy; only the OpenFeature provider changes.")
+    print("Same DAG population, same task_policy; only the OpenFeature provider changes.")
     print("=" * 78)
     for name, factory in BACKENDS:
         try:
             factory()
         except Exception as exc:
-            print(f"\n[{name}] SKIPPED — backend not reachable: {type(exc).__name__}: {str(exc)[:80]}")
+            print(f"\n[{name}] SKIPPED, backend not reachable: {type(exc).__name__}: {str(exc)[:80]}")
             continue
         pools = _parse(population_file)
         n_canary = sum(1 for p in pools.values() if p == "canary_pool")
@@ -159,7 +160,7 @@ def main():
         print(f"    all backends produced byte-identical placement for all {len(POPULATION)} DAGs: {identical}")
         assert identical, "backends disagreed on placement"
 
-    # exposure capture (the measurement half) — sample 3 canary + 2 non-canary
+    # exposure capture (the measurement half), sample 3 canary + 2 non-canary
     from openfeature_airflow.listener import emit_exposure
 
     print("\n" + "=" * 78)
@@ -169,7 +170,7 @@ def main():
         print(f"    {did}: {exp}")
 
     print("\n" + "=" * 78)
-    print("ALL BACKENDS GATE IDENTICALLY — e2e OK")
+    print("ALL BACKENDS GATE IDENTICALLY, e2e OK")
     print("=" * 78)
     return 0
 

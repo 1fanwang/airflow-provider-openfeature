@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write  # trusted publishing (OIDC) — no API token stored in the repo
+      id-token: write  # trusted publishing (OIDC), no API token stored in the repo
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

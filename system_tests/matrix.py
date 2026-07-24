@@ -153,8 +153,8 @@ def run(dag_id, backend):
 
 
 def placement(dag_id):
-    from airflow.settings import Session
     from airflow.models.taskinstance import TaskInstance
+    from airflow.settings import Session
     s = Session()
     ti = s.query(TaskInstance).filter(TaskInstance.dag_id == dag_id).order_by(TaskInstance.start_date.desc()).first()
     s.close()
@@ -186,7 +186,7 @@ def main():
                 ("in-house (in-proc)", "inhouse", False)]
 
     print("=" * 82)
-    print("EXECUTION-LEVEL MATRIX — real data -> real `airflow dags test` -> pool+queue from the DB")
+    print("EXECUTION-LEVEL MATRIX, real data -> real `airflow dags test` -> pool+queue from the DB")
     print(f"cohort {sorted(COHORT)}: UC1 pool->{CANARY_POOL}, UC2 queue->{K8S_QUEUE};  others -> defaults")
     print("=" * 82)
     print(f"{'backend':<22}{'net':<6}{'UC1 pool (in/out)':<26}{'UC2 queue (in/out)':<26}ok")

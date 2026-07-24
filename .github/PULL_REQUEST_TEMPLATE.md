@@ -4,7 +4,7 @@
 
 ## What changed
 
-<!-- The conceptual delta, not a file list — the diff shows the files. -->
+<!-- The conceptual delta, not a file list, the diff shows the files. -->
 
 ## How it was tested
 

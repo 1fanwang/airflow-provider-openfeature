@@ -26,8 +26,7 @@ gradual rollout of pools, queues, and behavior) against any backend: flagd, Grow
 Statsig, or an in-house engine, through one vendor-neutral API. Installing changes nothing until you
 opt in.
 
-> Third-party provider (not in the Airflow monorepo). Structured to be listed on the Airflow
-> [Ecosystem page](https://airflow.apache.org/ecosystem/) and donated to the community later.
+> A third-party provider, not part of the Apache Airflow monorepo.
 
 <p align="center">
   <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then a kill-switch rollback" width="760">
@@ -200,10 +199,7 @@ python system_tests/real_data_flow.py                                           
 
 ## Status
 
-Alpha (0.1.0). The path to a community listing: publish to PyPI, add it to the Airflow Ecosystem page,
-and gather usage. An in-tree provider would come later, with traction and a committer sponsor, through
-a dev-list `[DISCUSS]` per
-[ACCEPTING_PROVIDERS](https://github.com/apache/airflow/blob/main/providers/ACCEPTING_PROVIDERS.rst).
+Alpha (0.1.0). The API may change before 1.0.
 
 ## License
 

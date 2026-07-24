@@ -77,8 +77,8 @@ def env():
 def run_and_read():
     subprocess.run(["airflow", "dags", "test", DAG_ID], env=env(), check=True,
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    from airflow.settings import Session
     from airflow.models.taskinstance import TaskInstance
+    from airflow.settings import Session
     s = Session()
     ti = s.query(TaskInstance).filter(TaskInstance.dag_id == DAG_ID).order_by(TaskInstance.start_date.desc()).first()
     s.close()
@@ -107,7 +107,7 @@ def main():
         print("flagd failed to start (Docker?)"); sys.exit(1)
 
     print("=" * 60)
-    print("Kill switch — flip one flag, the cohort reverts, no redeploy")
+    print("Kill switch, flip one flag, the cohort reverts, no redeploy")
     print("=" * 60)
     pool_before, state_before = run_and_read()
     print(f"  RUN 1 (flag targets {DAG_ID}):        pool={pool_before!r} state={state_before!r}")
@@ -115,7 +115,7 @@ def main():
     write_flags(OFF)   # the kill switch: empty the cohort in the config flagd watches
     time.sleep(4)      # flagd hot-reloads the mounted file
     pool_after, state_after = run_and_read()
-    print(f"  ...flipped the flag (cohort emptied); flagd hot-reloaded...")
+    print("  ...flipped the flag (cohort emptied); flagd hot-reloaded...")
     print(f"  RUN 2 (flag flipped):                 pool={pool_after!r} state={state_after!r}")
 
     subprocess.run(["docker", "rm", "-f", "flagd-ks"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

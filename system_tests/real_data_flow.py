@@ -147,8 +147,8 @@ def run_task(dag_id, backend):
 
 
 def pool_of(dag_id):
-    from airflow.settings import Session
     from airflow.models.taskinstance import TaskInstance
+    from airflow.settings import Session
     s = Session()
     ti = (s.query(TaskInstance).filter(TaskInstance.dag_id == dag_id)
           .order_by(TaskInstance.start_date.desc()).first())

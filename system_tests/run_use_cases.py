@@ -77,7 +77,7 @@ def main():
 
     placements = _parse(_write_population())
 
-    # UC1 — Airflow 2->3 migration (pool)
+    # UC1, Airflow 2->3 migration (pool)
     mig_ok = all(
         (placements[d][0] == ("airflow_3x" if d in MIG_SET else "airflow_2x")) for d in POPULATION
     )
@@ -85,7 +85,7 @@ def main():
     print(f"\nUC1  2->3 migration        {n3x}/30 DAGs on airflow_3x pool, rest airflow_2x   ok={mig_ok}")
     assert mig_ok
 
-    # UC2 — Kubernetes worker migration (queue)
+    # UC2, Kubernetes worker migration (queue)
     nks_ok = all(
         (placements[d][1] == ("kubernetes" if d in K8S_WORKER_SET else "default")) for d in POPULATION
     )
@@ -93,13 +93,13 @@ def main():
     print(f"UC2  K8s worker migration  {nk8s}/30 DAGs on the kubernetes queue                ok={nks_ok}")
     assert nks_ok
 
-    # UC3 — KubernetesExecutor concurrent pods (code-path gate, by cluster)
+    # UC3, KubernetesExecutor concurrent pods (code-path gate, by cluster)
     enabled_clusters = [c for c in CLUSTERS if flag_enabled("airflow.executor.k8s_concurrent_pod_creation", c, cluster_id=c)]
     uc3_ok = set(enabled_clusters) == CLUSTER_SET
     print(f"UC3  k8s concurrent pods   {len(enabled_clusters)}/20 clusters enabled (code-path gate)      ok={uc3_ok}")
     assert uc3_ok
 
-    # UC4 — Disruption checkpointing (code-path gate, by task cohort)
+    # UC4, Disruption checkpointing (code-path gate, by task cohort)
     ckpt_on = [d for d in POPULATION if flag_enabled("airflow.task.resumable_checkpointing", f"{d}:only", dag_id=d)]
     uc4_ok = set(ckpt_on) == CKPT_SET
     print(f"UC4  disruption checkpoint {len(ckpt_on)}/30 tasks get resumable checkpointing (gate)   ok={uc4_ok}")
@@ -107,7 +107,7 @@ def main():
 
     # Backend portability: UC1 (migration routing) is identical on GrowthBook / in-house / Statsig
     print("\n" + "-" * 78)
-    print("Backend portability of UC1 (2->3 migration routing) — same policy, other backends:")
+    print("Backend portability of UC1 (2->3 migration routing), same policy, other backends:")
     from openfeature_airflow.providers.growthbook import GrowthBookProvider
     from openfeature_airflow.providers.inhouse import InHouseTreatmentProvider
 
@@ -142,7 +142,7 @@ def main():
     assert identical
 
     print("\n" + "=" * 78)
-    print("ALL FOUR ORIGINAL USE CASES GATED LIVE; migration routing backend-portable — OK")
+    print("ALL FOUR ORIGINAL USE CASES GATED LIVE; migration routing backend-portable, OK")
     print("=" * 78)
     return 0
 
