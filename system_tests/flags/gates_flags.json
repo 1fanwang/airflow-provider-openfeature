@@ -1,0 +1,22 @@
+{
+  "flags": {
+    "airflow.task.pool": {
+      "state": "ENABLED",
+      "variants": { "canary": "canary_pool", "default": "default_pool" },
+      "defaultVariant": "default",
+      "targeting": { "if": [ { "in": [ { "var": "dag_id" }, ["dag_000", "dag_001"] ] }, "canary", "default" ] }
+    },
+    "airflow.executor.k8s_concurrent_pod_creation": {
+      "state": "ENABLED",
+      "variants": { "on": true, "off": false },
+      "defaultVariant": "off",
+      "targeting": { "if": [ { "in": [ { "var": "cluster_id" }, ["cluster_00", "cluster_01"] ] }, "on", "off" ] }
+    },
+    "airflow.task.resumable_checkpointing": {
+      "state": "ENABLED",
+      "variants": { "on": true, "off": false },
+      "defaultVariant": "off",
+      "targeting": { "if": [ { "in": [ { "var": "dag_id" }, ["dag_000", "dag_001"] ] }, "on", "off" ] }
+    }
+  }
+}

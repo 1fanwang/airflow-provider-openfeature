@@ -1,0 +1,8 @@
+airflow-provider-openfeature
+Copyright 2026 The airflow-provider-openfeature contributors
+
+Licensed under the Apache License, Version 2.0. See the LICENSE file.
+
+This project integrates Apache Airflow with OpenFeature. Apache Airflow and the
+Apache feather logo are trademarks of The Apache Software Foundation. This
+project is not affiliated with or endorsed by The Apache Software Foundation.

@@ -1,0 +1,70 @@
+{
+  "flags": {
+    "airflow.task.pool": {
+      "state": "ENABLED",
+      "variants": {
+        "canary": "canary_pool",
+        "default": "default_pool"
+      },
+      "defaultVariant": "default",
+      "targeting": {
+        "if": [
+          {
+            "in": [
+              {
+                "var": "dag_id"
+              },
+              [
+                "mig_dag_000",
+                "mig_dag_001",
+                "mig_dag_002",
+                "mig_dag_003",
+                "mig_dag_004",
+                "mig_dag_005",
+                "mig_dag_006",
+                "mig_dag_007",
+                "mig_dag_008",
+                "mig_dag_009"
+              ]
+            ]
+          },
+          "canary",
+          "default"
+        ]
+      }
+    },
+    "airflow.rollout.ready": {
+      "state": "ENABLED",
+      "variants": {
+        "on": true,
+        "off": false
+      },
+      "defaultVariant": "off",
+      "targeting": {
+        "if": [
+          {
+            "in": [
+              {
+                "var": "dag_id"
+              },
+              [
+                "mig_dag_000",
+                "mig_dag_001",
+                "mig_dag_002",
+                "mig_dag_003",
+                "mig_dag_004",
+                "mig_dag_005",
+                "mig_dag_006",
+                "mig_dag_007",
+                "mig_dag_008",
+                "mig_dag_009"
+              ]
+            ]
+          },
+          "on",
+          "off"
+        ]
+      }
+    }
+  }
+}

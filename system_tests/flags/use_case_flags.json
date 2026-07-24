@@ -1,0 +1,136 @@
+{
+  "flags": {
+    "airflow.task.pool": {
+      "state": "ENABLED",
+      "variants": {
+        "v3x": "airflow_3x",
+        "v2x": "airflow_2x"
+      },
+      "defaultVariant": "v2x",
+      "targeting": {
+        "if": [
+          {
+            "in": [
+              {
+                "var": "dag_id"
+              },
+              [
+                "dag_000",
+                "dag_001",
+                "dag_002",
+                "dag_003",
+                "dag_004",
+                "dag_005",
+                "dag_006",
+                "dag_007",
+                "dag_008",
+                "dag_009",
+                "dag_010",
+                "dag_011",
+                "dag_012",
+                "dag_013",
+                "dag_014"
+              ]
+            ]
+          },
+          "v3x",
+          "v2x"
+        ]
+      }
+    },
+    "airflow.task.queue": {
+      "state": "ENABLED",
+      "variants": {
+        "k8s": "kubernetes",
+        "celery": "default"
+      },
+      "defaultVariant": "celery",
+      "targeting": {
+        "if": [
+          {
+            "in": [
+              {
+                "var": "dag_id"
+              },
+              [
+                "dag_000",
+                "dag_001",
+                "dag_002",
+                "dag_003",
+                "dag_004",
+                "dag_005",
+                "dag_006",
+                "dag_007",
+                "dag_008",
+                "dag_009"
+              ]
+            ]
+          },
+          "k8s",
+          "celery"
+        ]
+      }
+    },
+    "airflow.executor.k8s_concurrent_pod_creation": {
+      "state": "ENABLED",
+      "variants": {
+        "on": true,
+        "off": false
+      },
+      "defaultVariant": "off",
+      "targeting": {
+        "if": [
+          {
+            "in": [
+              {
+                "var": "cluster_id"
+              },
+              [
+                "cluster-00",
+                "cluster-01",
+                "cluster-02",
+                "cluster-03",
+                "cluster-04"
+              ]
+            ]
+          },
+          "on",
+          "off"
+        ]
+      }
+    },
+    "airflow.task.resumable_checkpointing": {
+      "state": "ENABLED",
+      "variants": {
+        "on": true,
+        "off": false
+      },
+      "defaultVariant": "off",
+      "targeting": {
+        "if": [
+          {
+            "in": [
+              {
+                "var": "dag_id"
+              },
+              [
+                "dag_020",
+                "dag_021",
+                "dag_022",
+                "dag_023",
+                "dag_024",
+                "dag_025",
+                "dag_026",
+                "dag_027",
+                "dag_028",
+                "dag_029"
+              ]
+            ]
+          },
+          "on",
+          "off"
+        ]
+      }
+    }
+  }
+}

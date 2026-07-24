@@ -1,0 +1,23 @@
+services:
+  unleash-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: unleash
+      POSTGRES_USER: unleash
+      POSTGRES_PASSWORD: unleash
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "unleash"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  unleash:
+    image: unleashorg/unleash-server:latest
+    ports: ["4242:4242"]
+    environment:
+      DATABASE_URL: postgres://unleash:unleash@unleash-db/unleash
+      DATABASE_SSL: "false"
+      INIT_ADMIN_API_TOKENS: "*:*.unleash-insecure-admin-api-token"
+      INIT_CLIENT_API_TOKENS: "default:development.unleash-insecure-api-token"
+    depends_on:
+      unleash-db:
+        condition: service_healthy

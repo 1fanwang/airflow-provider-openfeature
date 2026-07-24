@@ -1,0 +1,10 @@
+{
+  "flags": {
+    "ml.ranking_model": {
+      "state": "ENABLED",
+      "variants": { "v1": "ranker_v1", "v2": "ranker_v2" },
+      "defaultVariant": "v1",
+      "targeting": { "fractional": [["v1", 50], ["v2", 50]] }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: OpenFeature documentation
+    url: https://openfeature.dev/docs
+    about: How the vendor-neutral evaluation API and providers work
+  - name: Airflow cluster policies
+    url: https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html
+    about: How Airflow cluster policies and plugins load

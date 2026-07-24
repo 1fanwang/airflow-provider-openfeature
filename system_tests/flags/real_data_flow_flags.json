@@ -1,0 +1,16 @@
+{
+  "flags": {
+    "airflow.task.pool": {
+      "state": "ENABLED",
+      "variants": { "canary": "canary_pool", "default": "default_pool" },
+      "defaultVariant": "default",
+      "targeting": {
+        "if": [
+          { "in": [{ "var": "dag_id" }, ["dag_000", "dag_001"]] },
+          "canary",
+          "default"
+        ]
+      }
+    }
+  }
+}
