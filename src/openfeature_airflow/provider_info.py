@@ -11,8 +11,7 @@ def get_provider_info() -> dict[str, Any]:
     return {
         "package-name": "airflow-provider-openfeature",
         "name": "OpenFeature",
-        "description": "Evaluate feature flags and run progressive delivery in Airflow "
-        "via the vendor-neutral OpenFeature API.",
+        "description": "Feature flags and progressive delivery for Airflow, via OpenFeature.",
         "versions": [__version__],
         "connection-types": [
             {

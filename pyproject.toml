@@ -21,7 +21,7 @@ build-backend = "hatchling.build"
 [project]
 name = "airflow-provider-openfeature"
 version = "0.1.0"
-description = "Airflow-native OpenFeature integration: evaluate feature flags and run progressive delivery against any backend."
+description = "Feature flags and progressive delivery for Apache Airflow, via OpenFeature."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "Apache-2.0"
