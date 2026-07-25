@@ -96,3 +96,32 @@ model version, a different join strategy, a library upgrade, a move to a new poo
 across a cohort, measure the outcome, keep the numbers honest with a guardrail, and revert with a flag
 instead of a deploy. Swap Unleash for flagd, GrowthBook, Statsig, LaunchDarkly, or an in-house engine
 without touching the DAG, since it all goes through OpenFeature.
+
+---
+
+## Second example: evaluate an executor change for a regression
+
+Same shape, applied to the platform itself instead of a DAG's logic.
+
+**The problem.** KubernetesExecutor creates worker pods one at a time. When a burst of tasks is queued,
+each pod waits behind the previous pod's create call, so **task queued latency** climbs with the burst
+size. [apache/airflow#68480](https://github.com/apache/airflow/pull/68480) adds opt-in concurrent pod
+creation. Before turning it on, the platform team wants to know: does it actually lower queued latency,
+and does it regress anything?
+
+**The check.** Gate it behind `airflow.executor.k8s_concurrent_pod_creation`, then run both arms on a
+real cluster with the same call the executor uses (`create_namespaced_pod`), and measure queued latency:
+
+- baseline (flag off): create a burst of pods sequentially.
+- treatment (flag on, #68480): create the same burst concurrently.
+
+[`k8s_async_case_study.py`](../../system_tests/case_study/k8s_async_case_study.py) reads the flag
+through this provider from flagd, then measures both:
+
+![Evaluating #68480 for a queued-latency regression on a real cluster](img/k8s-async.png)
+
+Concurrent creation cuts p95 queued latency (30-55% on a local kind cluster; the gap widens with burst
+size and real API latency, which is where #68480's own p99 12.3s → 1.1s benchmark comes from), every
+pod still reaches Running, and the regression check passes. Verdict: safe to ramp behind the flag. If
+the treatment had been worse, the same run would have said so, and the flag stays off.
+

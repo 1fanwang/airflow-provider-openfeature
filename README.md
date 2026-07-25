@@ -16,11 +16,12 @@ and roll it back in seconds. No DAG edits, no redeploy.
 
 </div>
 
-Feature flags let you change what your DAGs do at runtime. Ramp a new implementation, A/B a model,
-gate a behavior, or move a cohort of tasks to a different pool or executor, all without editing DAGs
-or redeploying, and roll back by flipping the flag. This provider brings that to Airflow through
-[OpenFeature](https://openfeature.dev), so it works with the flag backend you already run: flagd,
-LaunchDarkly, GrowthBook, Unleash, Statsig, or an in-house engine.
+Feature flags let you control how your Airflow platform behaves at runtime, across many DAGs, without
+editing them or redeploying. A platform team can move a cohort of tasks to a different pool, queue, or
+executor, ramp a worker or executor migration, or flip a kill switch during an incident, centrally and
+without touching anyone's DAG. A DAG author can gate a code path or A/B a model inside a task. Both go
+through [OpenFeature](https://openfeature.dev), so it works with the flag backend you already run:
+flagd, LaunchDarkly, GrowthBook, Unleash, Statsig, or an in-house engine.
 
 <p align="center">
   <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then flipping the kill switch" width="760">
@@ -89,16 +90,43 @@ executor, each routed task runs as a real pod, and ramping the flag grows the co
   <img src="docs/demo-k8s-canary.png" alt="A flag routes 2 then 7 of 12 DAGs to the kubernetes executor; each becomes a real pod on a kind cluster" width="760">
 </p>
 
-## A real rollout, start to finish
+## Worked example: canary a pipeline change, end to end
 
-[**docs/case-study**](docs/case-study/) walks a data team through canarying a faster aggregation in a
-nightly revenue ETL: put the rewrite behind a flag, ramp it across regions from the Unleash UI, and
-check at every step that it runs ~89% faster and that the revenue still matches the old code to the
-cent. Real Airflow, a real Unleash backend, real screenshots.
+A nightly `revenue_rollup` ETL is missing its SLA. An engineer has a faster rewrite of the aggregation
+(`rollup_v2`), but it feeds finance dashboards, so shipping a wrong total to every region at once is not
+an option. Put the rewrite behind a flag and ramp it across regions instead.
+
+**In the DAG**, the task reads the flag through this provider, runs the chosen path, and records the
+outcome. There is no rollout logic in the DAG; the cohort lives in the backend.
+
+```python
+from openfeature_airflow.gate import flag_enabled
+from openfeature_airflow.measure import track_outcome
+
+use_v2 = flag_enabled("revenue_rollup.use_fast_agg", region)      # the backend decides the cohort
+result = (rollup_v2 if use_v2 else rollup_v1)(shard)              # run the chosen implementation
+track_outcome("rollup_ms", region, value=elapsed_ms, variant="v2" if use_v2 else "v1")
+```
+
+**In the backend** (here Unleash), the rollout is a dial. Stickiness on the region key keeps a region
+in its cohort as you raise the percentage.
+
+<p align="center">
+  <img src="docs/case-study/img/unleash-flag.png" alt="The revenue_rollup.use_fast_agg feature flag in the Unleash UI" width="49%">
+  <img src="docs/case-study/img/unleash-rollout.png" alt="The gradual-rollout strategy set to 50% in the Unleash UI" width="49%">
+</p>
+
+**The result:** ramping 0 → 100% while Airflow reads the flag on each run, `v2` comes out about **89%
+faster** and the revenue stays **identical to the cent** at every step. A wrong total would trip the
+guardrail, and the fix would be one dial back to 0%, with no redeploy.
 
 <p align="center">
   <img src="docs/case-study/img/run.png" alt="Ramping the revenue-rollup canary 0 to 100% across regions, 89% faster, revenue identical at every step" width="760">
 </p>
+
+The full walkthrough, plus a second example that evaluates the KubernetesExecutor async pod-creation
+change ([#68480](https://github.com/apache/airflow/pull/68480)) for a queued-latency regression, is in
+[**docs/case-study**](docs/case-study/).
 
 ## Examples
 
