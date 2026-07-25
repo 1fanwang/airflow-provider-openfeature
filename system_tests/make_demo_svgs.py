@@ -26,7 +26,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
 _DOCS = os.path.join(_REPO, "docs")
 
-_DROP = re.compile(r"(fork_posix|ev_poll_posix|FD from fork parent|WARNING|Deprecat|category=|setup plugin|INFO -|UserWarning|warnings\.warn)")
+_DROP = re.compile(r"(fork_posix|ev_poll_posix|FD from fork parent|WARNING|Deprecat|category=|setup plugin|INFO -|UserWarning|warnings\.warn|already have \d+ instance|FutureWarning|parser\.py|log_filename_template|instanceId:|please double check|instantiated\.)")
 _GOOD = re.compile(r"\b(True|PASS|OK|success)\b")
 _BAD = re.compile(r"\b(False|FAIL|error)\b")
 

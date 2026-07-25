@@ -6,8 +6,7 @@
 and roll it back in seconds. No DAG edits, no redeploy.
 
 [![CI](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml)
-[![Publish](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/publish.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/publish.yml)
-[![License](https://img.shields.io/github/license/1fanwang/airflow-provider-openfeature)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 [![Python](https://img.shields.io/badge/python-3.9%E2%80%933.12-blue?logo=python&logoColor=white)](pyproject.toml)
 [![Airflow](https://img.shields.io/badge/Apache%20Airflow-2.11%20%7C%203.3-017CEE?logo=apacheairflow&logoColor=white)](https://airflow.apache.org)
@@ -90,6 +89,17 @@ executor, each routed task runs as a real pod, and ramping the flag grows the co
   <img src="docs/demo-k8s-canary.png" alt="A flag routes 2 then 7 of 12 DAGs to the kubernetes executor; each becomes a real pod on a kind cluster" width="760">
 </p>
 
+## A real rollout, start to finish
+
+[**docs/case-study**](docs/case-study/) walks a data team through canarying a faster aggregation in a
+nightly revenue ETL: put the rewrite behind a flag, ramp it across regions from the Unleash UI, and
+check at every step that it runs ~89% faster and that the revenue still matches the old code to the
+cent. Real Airflow, a real Unleash backend, real screenshots.
+
+<p align="center">
+  <img src="docs/case-study/img/run.png" alt="Ramping the revenue-rollup canary 0 to 100% across regions, 89% faster, revenue identical at every step" width="760">
+</p>
+
 ## Examples
 
 Runnable templates in [`example_dags/`](example_dags/); the patterns, mapped to the standard toggle
@@ -156,6 +166,7 @@ See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
 ## Docs
 
 - [Getting started](docs/getting-started.md): a 5-minute walkthrough on real Airflow.
+- [Case study](docs/case-study/): canary a faster pipeline step end to end, with a real Unleash backend.
 - [Use cases](docs/use-cases.md): the toggle taxonomy mapped to Airflow, with recipes.
 - [Measurement](docs/measurement.md): closing the loop with your experiment platform or warehouse.
 - [Architecture](docs/architecture.md): the flow and the surfaces it registers.
@@ -168,15 +179,39 @@ Everything goes through the OpenFeature evaluation API, so the backend is a swap
 three Airflow surfaces, auto-discovered via entry points; the backend decides who is in which cohort.
 
 ```mermaid
-flowchart LR
-    author["DAG author code"] --> hook["OpenFeatureHook / sensor / gate"]
-    policy["Cluster policy<br/>(task_policy)"] --> place["placement policy"]
-    runs["Completed task"] --> listen["exposure listener"]
-    hook --> API[["OpenFeature<br/>evaluation API"]]
-    place --> API
-    API --> flagd & GrowthBook & Unleash & inhouse["in-house engine"]
-    listen --> measure["exposure + outcome to<br/>warehouse / experiment platform"]
+flowchart TB
+    subgraph airflow["Airflow"]
+        author["DAG / task code"]
+        parse["parse & schedule<br/>(task_policy)"]
+        done["task finished"]
+    end
+    subgraph pkg["openfeature_airflow"]
+        hook["hook / sensor / gate"]
+        policy["placement policy"]
+        listener["exposure listener"]
+    end
+    api[["OpenFeature<br/>evaluation API"]]
+    subgraph backends["Any OpenFeature backend"]
+        flagd["flagd"]
+        gb["GrowthBook"]
+        unleash["Unleash"]
+        inhouse["in-house engine"]
+    end
+    measure["warehouse /<br/>experiment platform"]
+
+    author --> hook --> api
+    parse --> policy --> api
+    done --> listener --> api
+    api --> flagd & gb & unleash & inhouse
+    listener --> measure
 ```
+
+It gives you two independent capabilities, both no-ops until you turn them on in config:
+
+- **Placement policy.** A cluster policy consults a flag and overrides a task's `pool` / `queue` /
+  `executor` / `priority_weight` for its cohort. A rollout is a backend config change, not a DAG edit.
+- **In-DAG evaluation.** The hook, sensor, and gate read a flag for a stable entity inside a task, and
+  the exposure listener records which cohort each run landed in, so you can measure it.
 
 | Surface | Entry point | Purpose |
 |---|---|---|
@@ -186,6 +221,31 @@ flowchart LR
 
 The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
 `airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`.
+
+### How a ramp reaches a task
+
+```mermaid
+sequenceDiagram
+    participant Eng as Platform engineer
+    participant BE as Flag backend
+    participant Sched as Airflow parse/schedule
+    participant Pol as placement policy
+    participant OF as OpenFeature API
+    participant TI as TaskInstance
+
+    Eng->>BE: set airflow.task.pool cohort (or a 10% ramp)
+    Sched->>Pol: task_policy(task)
+    Pol->>OF: get_string(airflow.task.pool, entity=dag_id:task_id)
+    OF->>BE: resolve(entity, context)
+    BE-->>OF: "canary_pool" (in cohort) or default
+    OF-->>Pol: value
+    Pol->>TI: task.pool = canary_pool
+    Note over TI: task runs in the flag-driven pool
+```
+
+The entity is bucketed deterministically, so a task lands in the same cohort every parse until you
+change the backend config. Widen or revert by editing the flag; no redeploy.
+[`docs/architecture.md`](docs/architecture.md) has the in-DAG exposure sequence and the version notes.
 
 ## Status
 

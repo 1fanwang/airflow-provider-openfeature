@@ -1,0 +1,26 @@
+services:
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: gbpassword
+    volumes:
+      - gb-mongo:/data/db
+  growthbook:
+    image: growthbook/growthbook:latest
+    ports:
+      - "3000:3000"
+      - "3100:3100"
+    depends_on:
+      - mongo
+    environment:
+      MONGODB_URI: "mongodb://root:gbpassword@mongo:27017/growthbook?authSource=admin"
+      JWT_SECRET: case-study-jwt-secret
+      ENCRYPTION_KEY: case-study-encryption-key
+      APP_ORIGIN: "http://localhost:3000"
+      API_HOST: "http://localhost:3100"
+    volumes:
+      - gb-uploads:/usr/local/src/app/packages/back-end/uploads
+volumes:
+  gb-mongo:
+  gb-uploads:
