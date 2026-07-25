@@ -53,6 +53,25 @@ Every non-trivial change lands with a test. Provider adapters get a unit test wi
 `importorskip`'d SDK. Behavior that touches real task execution gets a `system_tests/` driver with raw
 evidence in `E2E.md`, not a stamp.
 
+## Code and docs move together
+
+A change to behavior, the flag contract, the entry points, the placement dimensions, or the examples is
+not complete until the docs that describe it change in the same commit. That means the README
+(What-you-get, How-it-works, the well-known flag list), `docs/architecture.md`, `docs/use-cases.md`,
+`docs/measurement.md`, the example DAGs, and this file. A PR that changes a public contract but not its
+docs will be sent back.
+
+Prefer generating docs from code over hand-writing them, so they cannot drift:
+
+- The demo images (`docs/demo*.svg`, `docs/case-study/img/*`) are rendered from real runs by
+  `system_tests/make_demo_svgs.py` and `make_demo_gif.py`. Regenerate them; do not hand-edit an image or
+  paste numbers a run did not produce.
+- `system_tests/E2E.md` holds captured real output, not prose claims. Update it by re-running the driver.
+- The example DAGs are executed and checked by `system_tests/verify_examples_e2e.py`; if you change an
+  example or the behavior it shows, re-run it and keep its output truthful.
+- If you change the well-known flag keys or the placement dimensions in `policy.py`, update the flag
+  list in the README and `docs/architecture.md` to match in the same change.
+
 ## Adding a backend
 
 Only when a backend has no OpenFeature provider, or you want a convenience wrapper. Implement

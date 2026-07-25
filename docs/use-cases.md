@@ -123,6 +123,22 @@ wait = FeatureFlagSensor(task_id="wait_for_rollout", flag_key="feature.new_path"
 Enable a new library, code path, or risky setting for a cohort of runs before it becomes the default,
 using the same boolean gate as case 6.
 
+### 9. AI and agent pipelines
+
+Model training, batch inference, and LLM/agent workflows on Airflow are where flag-driven experiments
+pay off most, since the whole point of the pipeline is to compare versions and measure the result:
+
+- **A/B a model, prompt, or retrieval strategy** across a cohort of runs (case 6), then read which wins
+  on accuracy, latency, or cost from the exposure plus outcome, instead of shipping a guess.
+- **Ramp a new agent tool or reasoning path** (case 8) to a fraction of runs before it becomes the default.
+- **Kill switch an expensive or misbehaving model call** (case 5) the moment cost or quality drifts, with
+  no redeploy.
+- **Trade cost for quality by cohort** by routing some runs to a smaller model and measuring the gap with
+  `track_outcome`, so the tradeoff is a number rather than an argument.
+
+Assignment and measurement here are the same primitives as any other experiment, so an AI pipeline gets
+the assign → expose → measure loop without standing up a separate experimentation stack.
+
 ## Permission
 
 Gate a feature per team, tenant, or dataset by targeting on evaluation-context attributes: pass them as

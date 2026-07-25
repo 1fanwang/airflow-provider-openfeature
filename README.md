@@ -137,18 +137,12 @@ track_outcome("rollup_ms", region, value=elapsed_ms, variant="v2" if use_v2 else
 ```
 
 **In the backend** (here Unleash), the rollout is a dial. Stickiness on the region key keeps a region
-in its cohort as you raise the percentage.
+in its cohort as you raise the percentage. The provider reads any backend identically, so the same flag
+drives it from GrowthBook, Statsig, or flagd with a one-line change.
 
 <p align="center">
   <img src="docs/case-study/img/unleash-flag.png" alt="The revenue_rollup.use_fast_agg feature flag in the Unleash UI" width="49%">
   <img src="docs/case-study/img/unleash-rollout.png" alt="The gradual-rollout strategy set to 50% in the Unleash UI" width="49%">
-</p>
-
-The same flag, the same 50%-by-region rollout, in a second real backend (GrowthBook). The provider
-reads either identically, so the backend is a one-line swap:
-
-<p align="center">
-  <img src="docs/case-study/img/growthbook-flag.png" alt="The same revenue_rollup.use_fast_agg flag with a 50% rollout by region in the GrowthBook UI" width="760">
 </p>
 
 **The result:** ramping 0 → 100% while Airflow reads the flag on each run, `v2` comes out about **89%
@@ -241,6 +235,9 @@ See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
 - [Architecture](docs/architecture.md): the flow and the surfaces it registers.
 - [Extending](docs/extending.md): add a backend.
 - [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md).
+
+These docs also build into a site: `pip install -e ".[docs]"` then `mkdocs serve` (or see
+[`mkdocs.yml`](mkdocs.yml)); `.github/workflows/docs.yml` publishes it to GitHub Pages.
 
 ## How it works
 

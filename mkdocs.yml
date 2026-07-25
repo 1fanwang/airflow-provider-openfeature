@@ -1,0 +1,51 @@
+site_name: airflow-provider-openfeature
+site_description: Feature flags and progressive delivery for Apache Airflow, through OpenFeature.
+site_url: https://1fanwang.github.io/airflow-provider-openfeature/
+repo_url: https://github.com/1fanwang/airflow-provider-openfeature
+repo_name: 1fanwang/airflow-provider-openfeature
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: blue
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - scheme: slate
+      primary: blue
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+plugins:
+  - search
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Use cases: use-cases.md
+  - Case study: case-study/README.md
+  - Measurement: measurement.md
+  - Architecture: architecture.md
+  - Extending: extending.md
