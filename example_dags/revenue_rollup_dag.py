@@ -54,7 +54,8 @@ def rollup_region(region: str, **_):
 
     track_outcome("rollup_ms", region, value=round(elapsed_ms, 2),
                   variant="v2" if use_v2 else "v1", region=region)
-    return result
+    # XCom serializes the return as JSON; stringify the (region, date) keys (tuples aren't JSON keys)
+    return {f"{r}|{d}": v for (r, d), v in result.items()}
 
 
 def _extract(region: str):
