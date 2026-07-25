@@ -21,7 +21,8 @@ editing them or redeploying. A platform team can move a cohort of tasks to a dif
 executor, ramp a worker or executor migration, or flip a kill switch during an incident, centrally and
 without touching anyone's DAG. A DAG author can gate a code path or A/B a model inside a task. Both go
 through [OpenFeature](https://openfeature.dev), so it works with the flag backend you already run:
-flagd, LaunchDarkly, GrowthBook, Unleash, Statsig, or an in-house engine.
+[flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io),
+[Unleash](https://www.getunleash.io), [Statsig](https://statsig.com), or an in-house engine.
 
 <p align="center">
   <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then flipping the kill switch" width="760">
@@ -52,12 +53,13 @@ brings the same four moves to data pipelines:
 - **Kill switch.** Turn a misbehaving feature off during an incident with a flag change, not a redeploy.
 - **Target.** Enable something for one team, tenant, or dataset before everyone else.
 
-Those are the standard toggle categories (release, experiment, ops, permission). The Airflow-specific
-part: the same flag can also move a task's `pool`, `queue`, or `executor`, so you canary infrastructure
-(a worker migration, a new executor) the same way you canary a feature. Container-canary tools like
-Argo Rollouts and Flagger shift HTTP traffic between versions and, by their own docs, don't handle
-queue workers; Airflow schedules from a pull queue, so a scheduler-level flag is how you ramp a cohort
-of DAGs.
+Those are the standard [toggle categories](https://martinfowler.com/articles/feature-toggles.html)
+(release, experiment, ops, permission). The Airflow-specific part: the same flag can also move a task's
+`pool`, `queue`, or `executor`, so you canary infrastructure (a worker migration, a new executor) the
+same way you canary a feature. Container-canary tools like
+[Argo Rollouts](https://argo-rollouts.readthedocs.io/en/stable/) and [Flagger](https://flagger.app/)
+shift HTTP traffic between versions and, by their own docs, don't handle queue workers; Airflow
+schedules from a pull queue, so a scheduler-level flag is how you ramp a cohort of DAGs.
 
 ## What you get
 
@@ -71,14 +73,20 @@ of DAGs.
 
 ## See it run
 
-Airflow decides how each task runs from a few settings: its **pool** (a named cap on how many tasks run
-at once), its **queue** (which set of workers picks the task up), and its **executor** (whether the task
-runs on a shared worker or gets its own Kubernetes pod). Normally you change these by editing DAGs or
-redeploying, and the change hits every DAG at once.
+Airflow decides how each task runs from a few settings: its
+[**pool**](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/pools.html)
+(a named cap on how many tasks run at once), its
+[**queue**](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/executor/celery.html)
+(which set of workers picks the task up), and its
+[**executor**](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/executor/index.html)
+(whether the task runs on a shared worker or gets its own
+[Kubernetes pod](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)).
+Normally you change these by editing DAGs or redeploying, and the change hits every DAG at once.
 
 **Change them with a flag instead, for a cohort.** A *cohort* is just the subset you pick: by name, by
-team, or by a percentage that you ramp. A cluster policy reads the flag and applies the setting to that
-subset, so there is no rollout logic in the DAG itself:
+team, or by a percentage that you ramp. A
+[cluster policy](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html)
+reads the flag and applies the setting to that subset, so there is no rollout logic in the DAG itself:
 
 ```python
 # a large fan-out you would rather move a few at a time (full DAG in example_dags/)
@@ -195,8 +203,10 @@ enable_exposure_listener = True  # record which cohort each run landed in
 
 Bundled adapters for backends whose OpenFeature provider needs a nudge: `providers.growthbook`,
 `providers.unleash`, `providers.statsig`, `providers.inhouse` (template for a proprietary engine), and
-`providers.fractional` (dependency-free deterministic %-rollout for testing). flagd, LaunchDarkly,
-Flagsmith and others ship their own OpenFeature providers; use those directly.
+`providers.fractional` (dependency-free deterministic %-rollout for testing).
+[flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com),
+[Flagsmith](https://www.flagsmith.com) and [others](https://openfeature.dev/ecosystem/) ship their own
+OpenFeature providers; use those directly.
 
 ## Gate a task, or measure an outcome
 
