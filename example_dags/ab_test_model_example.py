@@ -15,7 +15,11 @@ from __future__ import annotations
 import datetime
 
 from airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
+
+try:
+    from airflow.providers.standard.operators.python import PythonOperator
+except ImportError:  # Airflow 2.x
+    from airflow.operators.python import PythonOperator
 
 
 def train_and_record(**context):

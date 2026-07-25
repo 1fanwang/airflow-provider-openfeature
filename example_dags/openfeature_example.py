@@ -5,7 +5,11 @@ from __future__ import annotations
 import datetime
 
 from airflow import DAG
-from airflow.providers.standard.operators.empty import EmptyOperator
+
+try:
+    from airflow.providers.standard.operators.empty import EmptyOperator
+except ImportError:  # Airflow 2.x
+    from airflow.operators.empty import EmptyOperator
 
 from openfeature_airflow.sensors.feature_flag import FeatureFlagSensor
 

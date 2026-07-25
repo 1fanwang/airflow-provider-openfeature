@@ -18,7 +18,11 @@ from __future__ import annotations
 import datetime
 
 from airflow import DAG
-from airflow.providers.standard.operators.empty import EmptyOperator
+
+try:
+    from airflow.providers.standard.operators.empty import EmptyOperator
+except ImportError:  # Airflow 2.x
+    from airflow.operators.empty import EmptyOperator
 
 with DAG(
     dag_id="migration_2to3_example",
