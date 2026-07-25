@@ -22,7 +22,8 @@ class GrowthBookProvider(AbstractProvider):
     """
 
     def __init__(
-        self, features: dict | None = None, api_host: str = "", client_key: str = "", hash_attribute: str = "id"
+        self, features: dict | None = None, api_host: str = "", client_key: str = "", hash_attribute: str = "id",
+        on_track=None,
     ) -> None:
         from growthbook import GrowthBook
 
@@ -34,6 +35,7 @@ class GrowthBookProvider(AbstractProvider):
         else:
             raise ValueError("GrowthBookProvider needs either features= or api_host+client_key")
         self._hash_attr = hash_attribute
+        self._on_track = on_track  # callback(metric, entity, value, attrs): write the outcome to your warehouse
 
     def get_metadata(self) -> Metadata:
         return Metadata(name="GrowthBookProvider")
@@ -77,4 +79,18 @@ class GrowthBookProvider(AbstractProvider):
         return FlagResolutionDetails(
             value=r.value if r.value is not None else default_value, reason=Reason.TARGETING_MATCH
         )
+
+    def track(self, tracking_event_name, evaluation_context=None, tracking_event_details=None):
+        """Hand the outcome to your GrowthBook tracking callback (GrowthBook measures in the warehouse)."""
+        if self._on_track is None:
+            return
+        try:
+            self._on_track(
+                tracking_event_name,
+                entity_of(evaluation_context),
+                getattr(tracking_event_details, "value", None),
+                getattr(tracking_event_details, "attributes", None) or {},
+            )
+        except Exception:
+            pass
 

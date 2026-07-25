@@ -1,0 +1,16 @@
+{
+  "flags": {
+    "experiment.compute.fastpath": {
+      "state": "ENABLED",
+      "variants": { "on": true, "off": false },
+      "defaultVariant": "off",
+      "targeting": {
+        "fractional": [
+          { "var": "dag_id" },
+          ["on", 50],
+          ["off", 50]
+        ]
+      }
+    }
+  }
+}

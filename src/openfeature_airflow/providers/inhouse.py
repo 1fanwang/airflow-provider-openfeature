@@ -36,6 +36,7 @@ class InHouseTreatmentProvider(AbstractProvider):
 
     def __init__(self, string_flags: dict | None = None) -> None:
         self._flags = string_flags or {}
+        self.tracked: list[dict] = []  # outcomes captured via track(), for a warehouse export/demo
 
     def get_metadata(self) -> Metadata:
         return Metadata(name="InHouseTreatmentProvider")
@@ -78,4 +79,17 @@ class InHouseTreatmentProvider(AbstractProvider):
 
     def resolve_object_details(self, flag_key, default_value, evaluation_context=None):
         return FlagResolutionDetails(value=default_value, reason=Reason.DEFAULT)
+
+    def track(self, tracking_event_name, evaluation_context=None, tracking_event_details=None):
+        """Capture an outcome the way an in-house engine would ship it to its warehouse."""
+        from openfeature_airflow.providers.fractional import entity_of
+
+        self.tracked.append(
+            {
+                "metric": tracking_event_name,
+                "entity": entity_of(evaluation_context),
+                "value": getattr(tracking_event_details, "value", None),
+                "attrs": getattr(tracking_event_details, "attributes", None) or {},
+            }
+        )
 

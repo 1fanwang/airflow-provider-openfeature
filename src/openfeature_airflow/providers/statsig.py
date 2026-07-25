@@ -55,3 +55,14 @@ class StatsigProvider(AbstractProvider):
 
     def resolve_object_details(self, flag_key, default_value, evaluation_context=None):
         return FlagResolutionDetails(value=default_value, reason=Reason.DEFAULT)
+
+    def track(self, tracking_event_name, evaluation_context=None, tracking_event_details=None):
+        """Forward an experiment outcome to Statsig as a logged event (shows up in Pulse/metrics)."""
+        try:
+            from statsig import StatsigEvent
+
+            value = getattr(tracking_event_details, "value", None)
+            meta = {k: str(v) for k, v in (getattr(tracking_event_details, "attributes", None) or {}).items()}
+            self._sg.log_event(StatsigEvent(self._user(evaluation_context), tracking_event_name, value, meta))
+        except Exception:  # never break a task on outcome emission
+            pass

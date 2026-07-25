@@ -163,3 +163,41 @@ $ pytest tests/ -q
 
 A proprietary in-house engine drives the same policy identically and emits its own exposure event; that
 adapter is kept in a private repo. `InHouseTreatmentProvider` is the public template.
+
+## Measure loop: assign -> run -> measure -> read out
+
+`system_tests/measure_loop.py` closes the loop. A DAG population is split into a `fastpath` cohort and a
+`control` cohort; each task does cohort-dependent work, times itself, and reports the duration through
+`track_outcome`. The outcome is read back from **each backend's own readout surface**, and the
+control-vs-fastpath lift is printed from the measured durations (nothing synthetic).
+
+```
+$ PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/measure_loop.py
+
+[flagd (gRPC container)]  readout: no native analytics -> OTEL/StatsD warehouse (openfeature.outcome.* metric)
+    cohort      runs    mean ms   median ms
+    control        8       69.2        70.2
+    fastpath       8       22.4        23.0
+    -> fastpath 67.7% faster (measured)
+
+[Statsig (server SDK, real log_event)]  readout: 16 events -> sg.log_event (Pulse/metrics in a hosted project)
+    cohort      runs    mean ms   median ms
+    control        8       74.1        69.1
+    fastpath       8       21.7        21.5
+    -> fastpath 70.7% faster (measured)
+
+[in-house engine (template)]  readout: 16 outcomes -> provider.tracked (warehouse export)
+    control 67.8 ms  vs  fastpath 23.2 ms   -> 65.8% faster (measured)
+
+readout proven for: ['flagd', 'statsig', 'in-house']
+```
+
+- **flagd** has no analytics, so the outcome rides the `openfeature.outcome.*` StatsD/OTEL metric into
+  your warehouse (Grafana/Prometheus).
+- **Statsig** receives the outcome through the real server SDK's `log_event` (captured here; in a hosted
+  project it shows up in Pulse/metrics).
+- **in-house** engines get the outcome on a `tracked` export list.
+
+`track_outcome` routes through the OpenFeature tracking API, so a provider that implements `track()`
+(Statsig, GrowthBook, LaunchDarkly) receives it, and the tagged metric covers backends that don't.
+
