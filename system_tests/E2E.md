@@ -33,12 +33,14 @@ $ python system_tests/verify_examples_e2e.py
 [kubernetes_executor_rollout_example] exit=0  tasks=20  all success: True
 [executor placement]  policy sets task.executor on a regular operator: True
 [mapped-task safety]  executor flag on a mapped task does not break DAG parsing: True
+[custom dimension]    a registered custom placement dimension is applied on a real operator: True
 
-9/9 checks passed
+10/10 checks passed
 ALL EXAMPLE DAGS EXECUTE AND BEHAVE AS DOCUMENTED
 ```
 
-This run surfaced a real bug: a mapped operator's `executor` is read-only, so setting
+This driver runs in CI on the Airflow 2.11 and 3.3 matrix (it needs no Docker — the in-house provider is
+in-process), so a regression in an example DAG or the policy fails the build. It surfaced a real bug: a mapped operator's `executor` is read-only, so setting
 `airflow.task.executor` made the policy raise `AirflowClusterPolicyError` and broke DAG parsing for the
 whole file. The policy now skips a placement the operator does not accept, verified by the last two
 checks and by `tests/test_policy.py::TestReadOnlyAttributeIsSkipped`.

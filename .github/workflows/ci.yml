@@ -26,6 +26,8 @@ jobs:
           pip install -e ".[dev,growthbook]"
       - name: Run unit tests
         run: pytest tests/ -q -m "not integration"
+      - name: Run example-DAG e2e (airflow dags test, real execution)
+        run: python system_tests/verify_examples_e2e.py
 
   lint:
     runs-on: ubuntu-latest

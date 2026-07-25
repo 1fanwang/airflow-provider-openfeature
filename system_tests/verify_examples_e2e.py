@@ -144,9 +144,37 @@ def mapped_dag_parses_with_executor_flag() -> bool:
     api.set_provider(InHouseTreatmentProvider(string_flags={"airflow.task.executor": {"default": "LocalExecutor"}}))
     import airflow.settings as s
     s.task_policy = lambda t: apply_placement(t)
-    bag = DagBag(dag_folder=f"{HOME}/dags", include_examples=False, safe_mode=False)
+    try:
+        bag = DagBag(dag_folder=f"{HOME}/dags", include_examples=False, safe_mode=False)
+    except TypeError:  # Airflow 3.x dropped include_examples
+        bag = DagBag(dag_folder=f"{HOME}/dags")
     dag = bag.get_dag("kubernetes_executor_rollout_example")
     return dag is not None and not bag.import_errors
+
+
+def custom_dimension_on_real_task() -> bool:
+    """A registered custom placement dimension is applied by the policy on a real Airflow operator."""
+    import datetime
+
+    from airflow import DAG
+    from openfeature import api
+
+    from openfeature_airflow import policy
+    from openfeature_airflow.providers.inhouse import InHouseTreatmentProvider
+    try:
+        from airflow.providers.standard.operators.empty import EmptyOperator
+    except ImportError:
+        from airflow.operators.empty import EmptyOperator
+
+    policy.register_placement("airflow.task.doc_md", lambda t, v: setattr(t, "doc_md", v))
+    try:
+        api.set_provider(InHouseTreatmentProvider(string_flags={"airflow.task.doc_md": {"default": "canary-note"}}))
+        with DAG("custom_dim_probe", schedule=None, start_date=datetime.datetime(2024, 1, 1)):
+            t = EmptyOperator(task_id="run")
+        policy.apply_placement(t)
+        return getattr(t, "doc_md", None) == "canary-note"
+    finally:
+        policy._DIMENSIONS.pop()
 
 
 def main():
@@ -182,6 +210,9 @@ def main():
     mapped_ok = mapped_dag_parses_with_executor_flag()
     print(f"[mapped-task safety]  executor flag on a mapped task does not break DAG parsing: {mapped_ok}")
     checks.append(mapped_ok)
+    custom_ok = custom_dimension_on_real_task()
+    print(f"[custom dimension]    a registered custom placement dimension is applied on a real operator: {custom_ok}")
+    checks.append(custom_ok)
 
     ok = all(checks)
     print("\n" + "=" * 84)

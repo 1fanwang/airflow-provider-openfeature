@@ -50,6 +50,32 @@ A **proprietary or in-house engine** follows the same shape. Keep that adapter i
 depends on this package; it implements `AbstractProvider` like any other backend and never lands
 here. `providers/inhouse.py` is the public template for that pattern.
 
+## Custom placement dimensions
+
+The policy ships four flag-driven dimensions (`pool`, `queue`, `executor`, `priority_weight`). If your
+operators carry other attributes you want to ramp behind a flag — a Spark version, a checkpoint toggle,
+a routing key — register your own dimension. `register_placement(flag_key, setter, kind=...)` adds it to
+the same policy pass; `setter(task, value)` runs when the flag resolves for a task's cohort:
+
+```python
+# in airflow_local_settings.py or a bootstrap
+from openfeature_airflow.policy import register_placement
+
+# a string dimension: set an operator attribute from the flag's value
+register_placement("airflow.task.spark_version", lambda t, v: setattr(t, "spark_version", v))
+
+# a boolean, expressed as a "true"/"false" variant the setter coerces
+register_placement("airflow.task.enable_checkpoint",
+                   lambda t, v: setattr(t, "enable_checkpoint", v == "true"))
+
+# a number dimension reads an integer flag
+register_placement("airflow.task.retries", lambda t, v: setattr(t, "retries", v), kind="number")
+```
+
+A setter that raises is skipped, so a bad dimension never breaks DAG parsing. This turns a change that
+used to be an in-operator `if flag_enabled(...)` into a policy the platform team ramps centrally, with
+no DAG edits.
+
 ## Rules that keep it extensible
 
 - Never hardcode a backend. The core imports only `openfeature-sdk`.

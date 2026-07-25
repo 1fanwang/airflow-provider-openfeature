@@ -3,16 +3,23 @@
 Registered on the ``airflow.policy`` entry point so it loads automatically, but it is a no-op unless
 ``[openfeature] enable_policy = True`` is set -- installing the package changes nothing by default.
 
-When enabled, it consults the globally-registered OpenFeature provider and, for each task, overrides
-``pool`` / ``queue`` / ``executor`` when the corresponding flag resolves to a value for that task's
-cohort. The backend (flagd, GrowthBook, Unleash, an in-house engine, ...) decides who is in which
-cohort -- canary %, targeting rule, blue-green -- so a rollout is a backend config change, not a code
-change. Keyed on ``dag_id:task_id``.
+When enabled, it consults the globally-registered OpenFeature provider and, for each task, applies every
+registered placement dimension whose flag resolves to a value for that task's cohort. The four built-in
+dimensions cover ``pool`` / ``queue`` / ``executor`` / ``priority_weight``; register more with
+``register_placement`` to flag-drive any operator attribute. The backend (flagd, GrowthBook, Unleash, an
+in-house engine, ...) decides who is in which cohort -- canary %, targeting rule, blue-green -- so a
+rollout is a backend config change, not a code change. Keyed on ``dag_id:task_id``.
 """
 
 from __future__ import annotations
 
+import logging
+from dataclasses import dataclass
+from typing import Callable
+
 from airflow.policies import hookimpl
+
+log = logging.getLogger(__name__)
 
 # Well-known flags the default policy consults. A backend maps these to its own flags/experiments.
 FLAG_POOL = "airflow.task.pool"
@@ -29,36 +36,69 @@ def _entity(task) -> str:
 
 
 def _try_set(task, attr: str, value) -> None:
-    """Set an attribute, skipping task types where it is read-only (e.g. a mapped task's executor).
-
-    A cluster policy that raises breaks DAG parsing for the whole file, so a placement that a
-    particular operator does not accept is skipped, never fatal.
-    """
+    """Set an attribute, skipping task types where it is read-only (e.g. a mapped task's executor)."""
     try:
         setattr(task, attr, value)
     except AttributeError:
         pass
 
 
+@dataclass
+class PlacementDimension:
+    """A flag-driven placement: when ``flag_key`` resolves for a task's cohort, run ``setter(task, value)``.
+
+    ``kind`` selects the resolver: ``"string"`` reads a variant, ``"number"`` reads an integer.
+    """
+
+    flag_key: str
+    setter: Callable[[object, object], None]
+    kind: str = "string"
+
+
+_DIMENSIONS: list[PlacementDimension] = []
+
+
+def register_placement(flag_key: str, setter: Callable[[object, object], None], *, kind: str = "string") -> None:
+    """Add a custom flag-driven placement dimension the policy applies alongside the built-ins.
+
+    ``setter(task, value)`` runs when ``flag_key`` resolves to a value for the task's cohort; use it to
+    set any operator attribute (a canary executor, a Spark version, an ``enable_checkpoint`` boolean via
+    ``lambda t, v: setattr(t, "enable_checkpoint", v == "true")``). ``kind`` is ``"string"`` (a variant)
+    or ``"number"`` (an int). Call it from ``airflow_local_settings`` or a bootstrap. A setter that
+    raises is skipped, so a policy never breaks DAG parsing.
+    """
+    _DIMENSIONS.append(PlacementDimension(flag_key, setter, kind))
+
+
+def _attr(name: str) -> Callable[[object, object], None]:
+    return lambda task, value: _try_set(task, name, value)
+
+
+register_placement(FLAG_POOL, _attr("pool"))
+register_placement(FLAG_QUEUE, _attr("queue"))
+register_placement(FLAG_EXECUTOR, _attr("executor"))
+register_placement(FLAG_PRIORITY_WEIGHT, _attr("priority_weight"), kind="number")
+
+
 def apply_placement(task) -> None:
-    """Override pool/queue/executor/priority for this task's cohort from the registered OpenFeature provider."""
+    """Apply every registered placement dimension whose flag resolves for this task's cohort."""
     from openfeature_airflow.gate import number, variant
 
     entity = _entity(task)
     attrs = {"dag_id": getattr(task, "dag_id", ""), "task_id": getattr(task, "task_id", "")}
-
-    pool = variant(FLAG_POOL, entity, _UNSET, **attrs)
-    if pool != _UNSET:
-        _try_set(task, "pool", pool)
-    queue = variant(FLAG_QUEUE, entity, _UNSET, **attrs)
-    if queue != _UNSET:
-        _try_set(task, "queue", queue)
-    executor = variant(FLAG_EXECUTOR, entity, _UNSET, **attrs)
-    if executor != _UNSET:
-        _try_set(task, "executor", executor)
-    priority = number(FLAG_PRIORITY_WEIGHT, entity, _UNSET_INT, **attrs)
-    if priority != _UNSET_INT:
-        _try_set(task, "priority_weight", priority)
+    for dim in _DIMENSIONS:
+        try:
+            if dim.kind == "number":
+                value = number(dim.flag_key, entity, _UNSET_INT, **attrs)
+                if value == _UNSET_INT:
+                    continue
+            else:
+                value = variant(dim.flag_key, entity, _UNSET, **attrs)
+                if value == _UNSET:
+                    continue
+            dim.setter(task, value)
+        except Exception as exc:  # a cluster policy must never break DAG parsing
+            log.debug("openfeature placement %s skipped: %s", dim.flag_key, exc)
 
 
 def _policy_enabled() -> bool:

@@ -10,6 +10,8 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 ### Added
 - OpenFeature-backed cluster policy for flag-driven `pool` / `queue` / `executor` / `priority_weight`
   placement, keyed on `dag_id:task_id` and gated behind `[openfeature] enable_policy`.
+- `register_placement(flag_key, setter, kind=...)` to add custom flag-driven placement dimensions for any
+  operator attribute, applied in the same policy pass as the built-ins.
 - Author-facing `OpenFeatureHook`, `FeatureFlagSensor`, and a code-path `gate` for evaluating flags
   inside DAGs.
 - Exposure listener that records the resolved cohort/variant for measurement.

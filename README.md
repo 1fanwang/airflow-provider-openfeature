@@ -288,7 +288,9 @@ It gives you two independent capabilities, both no-ops until you turn them on in
 | exposure listener | `airflow.plugins` | emit the resolved cohort for measurement |
 
 The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
-`airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`. The entity is bucketed
+`airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`. Register your own
+flag-driven dimensions for any operator attribute (a Spark version, a checkpoint toggle) with
+`register_placement` — see [docs/extending.md](docs/extending.md). The entity is bucketed
 deterministically, so a task lands in the same cohort every parse until the backend config changes.
 [`docs/architecture.md`](docs/architecture.md) has the step-by-step ramp and exposure sequence diagrams
 and the Airflow version notes.

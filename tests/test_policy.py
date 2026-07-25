@@ -192,3 +192,57 @@ class TestReadOnlyAttributeIsSkipped:
         apply_placement(t)  # a read-only executor must not raise a policy error
         assert t.pool == "canary_pool"  # the other placements still apply
 
+
+class TestCustomPlacementDimension:
+    def test_custom_string_dimension_applies(self):
+        from openfeature_airflow import policy
+
+        policy.register_placement("airflow.task.spark_version", lambda t, v: setattr(t, "spark_version", v))
+        try:
+            api.set_provider(InHouseTreatmentProvider(string_flags={"airflow.task.spark_version": {"default": "3.5"}}))
+            t = _Task("d1", "x")
+            t.spark_version = None
+            apply_placement(t)
+            assert t.spark_version == "3.5"
+        finally:
+            policy._DIMENSIONS.pop()
+
+    def test_custom_boolean_dimension_via_coerce(self):
+        from openfeature_airflow import policy
+
+        policy.register_placement(
+            "airflow.task.enable_checkpoint", lambda t, v: setattr(t, "enable_checkpoint", v == "true")
+        )
+        try:
+            api.set_provider(
+                InHouseTreatmentProvider(string_flags={"airflow.task.enable_checkpoint": {"default": "true"}})
+            )
+            t = _Task("d1", "x")
+            t.enable_checkpoint = False
+            apply_placement(t)
+            assert t.enable_checkpoint is True
+        finally:
+            policy._DIMENSIONS.pop()
+
+    def test_custom_setter_that_raises_is_skipped(self):
+        from openfeature_airflow import policy
+
+        def _boom(task, value):
+            raise RuntimeError("bad setter")
+
+        policy.register_placement("airflow.task.explodes", _boom)
+        try:
+            api.set_provider(
+                InHouseTreatmentProvider(
+                    string_flags={
+                        "airflow.task.explodes": {"default": "x"},
+                        "airflow.task.pool": {"default": "canary_pool"},
+                    }
+                )
+            )
+            t = _Task("d1", "x")
+            apply_placement(t)  # a raising custom setter must not break the policy
+            assert t.pool == "canary_pool"  # later dimensions still apply
+        finally:
+            policy._DIMENSIONS.pop()
+
