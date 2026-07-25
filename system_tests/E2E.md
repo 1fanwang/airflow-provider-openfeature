@@ -33,7 +33,7 @@ Full path: flag config → flagd daemon → gRPC → OpenFeature provider → `t
 `TaskInstance` → executed in the flag-driven pool. Run via `airflow dags test dag_003` against a real
 metadata DB, pool read back from the `task_instance` table.
 
-Which backends genuinely flow eval data over the wire:
+Which backends flow eval data over the wire:
 
 | Backend | Data flow | How it's proven here |
 |---|---|---|
@@ -129,7 +129,7 @@ $ PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/run_all_backends.p
 [Statsig (SDK, local mode)]   canary_pool: 10  default_pool: 20  matches expected cohort: True
 
 IDENTICAL-GATING CHECK across 5 live backends:
-    all backends produced byte-identical placement for all 30 DAGs: True
+    all backends produced identical placement for all 30 DAGs: True
 ```
 
 ## 3. Airflow-native install (the wheel, entry points)

@@ -1,6 +1,6 @@
 # Documentation
 
-Start with the [project README](../README.md) for the pitch and quickstart. These pages go deeper.
+Start with the [project README](../README.md). These pages go deeper.
 
 | Page | Read when |
 |---|---|

@@ -1,6 +1,6 @@
 # Architecture
 
-Everything routes through the vendor-neutral [OpenFeature](https://openfeature.dev) evaluation API.
+Everything goes through the [OpenFeature](https://openfeature.dev) evaluation API.
 This package adds three Airflow surfaces on top of it; the backend decides who is in which cohort, so
 swapping flagd for GrowthBook, Unleash, or an in-house engine changes no Airflow code.
 
@@ -36,7 +36,7 @@ flowchart TB
 
 Two independent capabilities:
 
-- **Placement policy** (`policy.py`), the progressive-delivery half. A cluster policy consults a flag
+- **Placement policy** (`policy.py`). A cluster policy consults a flag
   and overrides a task's `pool` / `queue` / `executor` for its cohort. A rollout is a backend config
   change, not a DAG edit.
 - **In-DAG evaluation** (`hooks/`, `sensors/`, `gate.py`), read a flag for a deterministic entity

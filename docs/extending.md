@@ -1,17 +1,15 @@
-# Extending this, and engaging the wider ecosystem
+# Extending this
 
 The short version: **integrate the standard once, not each vendor.** OpenFeature is already the
-pluggable layer. This package targets the OpenFeature provider and evaluation API, so any backend
-that ships an OpenFeature provider works here with no code in this repo, flagd, GrowthBook, Unleash,
-Flagsmith, LaunchDarkly, ConfigCat, Split, and others. That is the point: many communities, one
-seam.
+pluggable layer. This package targets the OpenFeature provider and evaluation API, so any backend with
+an OpenFeature provider works here with no code in this repo: flagd, GrowthBook, Unleash, Flagsmith,
+LaunchDarkly, ConfigCat, Split. One integration, every backend.
 
-So "deep integration with everything" is a trap when read as N bilateral integrations. Depth belongs
-in two places only:
+Depth belongs in two places:
 
 1. **The standard (OpenFeature).** Contribute exposure hooks, examples, and an ecosystem listing.
-2. **The Airflow seam.** The policy, the listener, and the hook/sensor, the part OpenFeature does
-   not have, and what makes flags mean something at the platform level.
+2. **The Airflow side.** The policy, the listener, and the hook/sensor. This is what makes a flag mean
+   something at the platform level, and OpenFeature does not provide it.
 
 Per-vendor specifics (GrowthBook stickiness, LaunchDarkly contexts, a custom bucketing salt) ride
 through OpenFeature's evaluation context. They do not get special-cased in this code.
@@ -61,8 +59,7 @@ here. `providers/inhouse.py` is the public template for that pattern.
 - Config-gated no-ops plus entry-point discovery: installing changes nothing until a flag turns it
   on.
 
-## The tension, resolved
+## Deep and pluggable at once
 
-You cannot be bilaterally deep with every vendor and stay pluggable. Put the depth in the standard
-and the Airflow seam, let per-vendor detail pass through the evaluation context, and you get both.
-One seam, many plugs.
+You can't be deep with every vendor and stay pluggable. Put the depth in the standard and the Airflow
+side, and let per-vendor detail pass through the evaluation context.

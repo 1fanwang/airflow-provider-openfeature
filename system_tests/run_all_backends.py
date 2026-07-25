@@ -157,7 +157,7 @@ def main():
     if len(live) >= 2:
         first = results[live[0]]
         identical = all(results[b] == first for b in live[1:])
-        print(f"    all backends produced byte-identical placement for all {len(POPULATION)} DAGs: {identical}")
+        print(f"    all backends produced identical placement for all {len(POPULATION)} DAGs: {identical}")
         assert identical, "backends disagreed on placement"
 
     # exposure capture (the measurement half), sample 3 canary + 2 non-canary

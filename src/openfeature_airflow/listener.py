@@ -1,4 +1,4 @@
-"""Cohort/variant exposure -- the measurement half.
+"""Cohort/variant exposure: record which cohort each task landed in, for measurement.
 
 ``emit_exposure`` logs a structured exposure line and increments an ``openfeature.exposure`` metric,
 so a downstream experiment platform can join the cohort assignment to task metrics. It is also wired

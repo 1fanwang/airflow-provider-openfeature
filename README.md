@@ -23,7 +23,7 @@
 
 Evaluate feature flags in DAGs and run **progressive delivery of the platform** (canary, blue-green,
 gradual rollout of pools, queues, and behavior) against any backend: flagd, GrowthBook, Unleash,
-Statsig, or an in-house engine, through one vendor-neutral API. Installing changes nothing until you
+Statsig, or an in-house engine, through one API. Installing changes nothing until you
 opt in.
 
 > A third-party provider, not part of the Apache Airflow monorepo.
@@ -66,12 +66,11 @@ cohort, so a rollout becomes a backend config change: ramp 1% → 100%, watch, a
 flipping the flag. No DAG edits, no redeploy. Deployment tools like Argo Rollouts or Flagger gate
 containers; they can't express a cohort keyed by `dag_id`, `pool`, or `queue`. A flag can.
 
-**Experimenting inside a DAG means hand-rolling config plumbing.** The hook, sensor, and code-path
-gate let a task read a flag for a deterministic entity, and the exposure listener records which
-cohort each run landed in, so the result is measurable in whatever experimentation platform you
-already use.
+**Experimenting inside a DAG means writing the config wiring yourself.** The hook, sensor, and gate
+let a task read a flag for a stable entity; the exposure listener records which cohort each run landed
+in, so you can measure it in whatever platform you already use.
 
-Both halves speak [OpenFeature](https://openfeature.dev), so the backend (flagd, GrowthBook, Unleash,
+Both halves use [OpenFeature](https://openfeature.dev), so the backend (flagd, GrowthBook, Unleash,
 LaunchDarkly, an in-house engine) is a swap, not a rewrite.
 
 ## Use cases
@@ -99,7 +98,7 @@ The cohort logic lives in the backend, so none of these need a code change to ra
 
 ## Architecture
 
-Everything routes through the vendor-neutral OpenFeature evaluation API, so the backend is a swap.
+Everything goes through the OpenFeature evaluation API, so the backend is a swap.
 The package adds three Airflow surfaces on top; the backend decides who is in which cohort.
 
 ```mermaid
@@ -120,7 +119,7 @@ See [`docs/architecture.md`](docs/architecture.md) for the placement and evaluat
 | Surface | Entry point | Purpose |
 |---|---|---|
 | `OpenFeatureHook`, `FeatureFlagSensor`, `openfeature` connection | `apache_airflow_provider` | evaluate a flag in a task; configure the backend |
-| flag-driven placement policy | `airflow.policy` | override `pool`/`queue`/`executor`/`priority_weight` per cohort (**the progressive-delivery half**) |
+| flag-driven placement policy | `airflow.policy` | override `pool`/`queue`/`executor`/`priority_weight` per cohort |
 | exposure listener | `airflow.plugins` | emit the resolved cohort/variant for measurement |
 
 The policy and listener are **no-ops until enabled** in config, so `pip install` is safe:
@@ -175,7 +174,7 @@ with no code change. Author-facing evaluation (gate a single task) uses the hook
 
 ## Proven across backends, with real data flow
 
-The same DAG population and policy gate byte-identically across flagd, GrowthBook, Unleash, Statsig,
+The same DAG population and policy route identically across flagd, GrowthBook, Unleash, Statsig,
 and an in-house engine. Beyond parse-time gating, real eval data flows over the network into real task
 execution: in [`system_tests/real_data_flow.py`](system_tests/real_data_flow.py), a cohort config
 fetched from a live backend (flagd over gRPC, GrowthBook over HTTP, Statsig over HTTP) decides which
