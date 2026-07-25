@@ -1,0 +1,27 @@
+{
+  "flags": {
+    "airflow.task.executor": {
+      "state": "ENABLED",
+      "variants": {
+        "kubernetes": "kubernetes",
+        "local": "local"
+      },
+      "defaultVariant": "local",
+      "targeting": {
+        "fractional": [
+          {
+            "var": "dag_id"
+          },
+          [
+            "kubernetes",
+            25
+          ],
+          [
+            "local",
+            75
+          ]
+        ]
+      }
+    }
+  }
+}

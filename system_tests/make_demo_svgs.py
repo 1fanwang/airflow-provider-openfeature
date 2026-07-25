@@ -26,7 +26,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _REPO = os.path.dirname(_HERE)
 _DOCS = os.path.join(_REPO, "docs")
 
-_DROP = re.compile(r"(fork_posix|WARNING|Deprecat|category=|setup plugin|INFO -|UserWarning|warnings\.warn)")
+_DROP = re.compile(r"(fork_posix|ev_poll_posix|FD from fork parent|WARNING|Deprecat|category=|setup plugin|INFO -|UserWarning|warnings\.warn)")
 _GOOD = re.compile(r"\b(True|PASS|OK|success)\b")
 _BAD = re.compile(r"\b(False|FAIL|error)\b")
 
@@ -79,6 +79,12 @@ def main() -> int:
         "python system_tests/measure_loop.py",
         [sys.executable, os.path.join(_HERE, "measure_loop.py")],
         "airflow-provider-openfeature · assign → run → measure → read out, real backends",
+    )
+    render(
+        "demo-k8s-canary.svg",
+        "python system_tests/k8s_canary_e2e.py",
+        [sys.executable, os.path.join(_HERE, "k8s_canary_e2e.py")],
+        "airflow-provider-openfeature · KubernetesExecutor canary on a real cluster",
     )
     return 0
 

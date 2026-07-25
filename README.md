@@ -74,6 +74,13 @@ raw output in [`system_tests/E2E.md`](system_tests/E2E.md).
   <img src="docs/demo-measure-loop.png" alt="Assign, run, measure, and read the control-vs-treatment lift back from flagd, Statsig, and an in-house engine" width="760">
 </p>
 
+And the KubernetesExecutor canary on a real cluster: a flag routes a DAG cohort to the kubernetes
+executor, each routed task runs as a real pod, and ramping the flag grows the cohort live.
+
+<p align="center">
+  <img src="docs/demo-k8s-canary.png" alt="A flag routes 2 then 7 of 12 DAGs to the kubernetes executor; each becomes a real pod on a kind cluster" width="760">
+</p>
+
 ## Examples
 
 Runnable templates in [`example_dags/`](example_dags/); the patterns, mapped to the standard toggle
