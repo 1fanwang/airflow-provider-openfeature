@@ -1,6 +1,7 @@
 # Case study: canary a faster pipeline step with a feature flag
 
-A worked example on real Airflow with a real feature-flag backend (Unleash), start to finish. It
+A worked example on real Airflow with a real feature-flag backend ([Unleash](https://www.getunleash.io)),
+start to finish. It
 shows the everyday version of what this provider is for: roll a risky pipeline change out gradually,
 measure it, and keep the escape hatch.
 
@@ -99,8 +100,9 @@ PYTHONPATH="src:system_tests/case_study" python system_tests/case_study/run_case
 The step here is an aggregation rewrite, but the shape is the same for any risky pipeline change: a new
 model version, a different join strategy, a library upgrade, a move to a new pool or executor. Ramp it
 across a cohort, measure the outcome, keep the numbers honest with a guardrail, and revert with a flag
-instead of a deploy. Swap Unleash for flagd, GrowthBook, Statsig, LaunchDarkly, or an in-house engine
-without touching the DAG, since it all goes through OpenFeature.
+instead of a deploy. Swap Unleash for [flagd](https://flagd.dev), [GrowthBook](https://www.growthbook.io),
+[Statsig](https://statsig.com), [LaunchDarkly](https://launchdarkly.com), or an in-house engine without
+touching the DAG, since it all goes through [OpenFeature](https://openfeature.dev).
 
 ---
 
@@ -108,7 +110,8 @@ without touching the DAG, since it all goes through OpenFeature.
 
 Same shape, applied to the platform itself instead of a DAG's logic.
 
-**The problem.** KubernetesExecutor creates worker pods one at a time. When a burst of tasks is queued,
+**The problem.** [KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
+creates worker pods one at a time. When a burst of tasks is queued,
 each pod waits behind the previous pod's create call, so **task queued latency** climbs with the burst
 size. [apache/airflow#68480](https://github.com/apache/airflow/pull/68480) adds opt-in concurrent pod
 creation. Before turning it on, the platform team wants to know: does it actually lower queued latency,
