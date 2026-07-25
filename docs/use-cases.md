@@ -1,90 +1,114 @@
 # Use cases
 
-Concrete recipes. Each is a flag definition in your backend plus, for placement, the policy turned on
-(`[openfeature] enable_policy = True`). Examples use flagd's JSON so they are copy-pasteable; the same
-cohorts express as targeting rules or a percentage ramp in GrowthBook, Unleash, Statsig, or an
-in-house engine. All four placement recipes run end to end in
-[`../system_tests/run_use_cases.py`](../system_tests/run_use_cases.py).
+Feature flags fall into a few well-known categories ([Martin Fowler's toggle taxonomy](https://martinfowler.com/articles/feature-toggles.html),
+[Unleash's flag types](https://docs.getunleash.io/concepts/feature-flags)). This maps them to Airflow,
+where the cohort is a set of DAGs or tasks and the lever is a pool, queue, executor, priority, or a
+code path.
 
-## Platform progressive delivery (the policy)
+| Category | In Airflow | Lever |
+|---|---|---|
+| Release / rollout | Ramp a risky platform change to a cohort of DAGs, then widen | `pool` / `queue` / `executor` |
+| Experiment | A/B a model, query, or algorithm inside a task | in-task gate + exposure |
+| Ops / kill switch | Revert instantly during an incident, no redeploy | any flag, flipped off |
+| Permission | Gate a feature per team, tenant, or dataset | gate on context attributes |
 
-The policy reads `airflow.task.pool`, `airflow.task.queue`, and `airflow.task.executor`, keyed on
-`dag_id:task_id`, and applies whatever the backend returns.
+**Why not deployment canary (Argo Rollouts, Flagger)?** Those shift HTTP traffic between container
+versions and [do not support queue workers](https://argo-rollouts.readthedocs.io/en/stable/concepts/).
+Airflow schedules from a pull queue, so they can't express "route these DAGs to the canary pool." A
+flag evaluated in the scheduler policy can, and it reverts in seconds instead of a redeploy cycle.
 
-### 1. Airflow 2→3 migration
+New here? Walk through [getting-started.md](getting-started.md) first. Runnable versions of these are
+in [`../example_dags/`](../example_dags/); the end-to-end drivers are in
+[`../system_tests/`](../system_tests/).
 
-Route a cohort of DAGs onto a 3.x worker pool, ramp, and roll back by flipping the flag.
+## Placement (the policy)
+
+Enable the policy (`[openfeature] enable_policy = True`) and register a backend. The policy reads
+`airflow.task.pool`, `airflow.task.queue`, `airflow.task.executor`, and `airflow.task.priority_weight`,
+keyed on `dag_id:task_id`, and applies whatever the backend returns. The JSON below is flagd's; the
+same cohort expresses as a targeting rule or a percentage ramp in GrowthBook, Unleash, Statsig, or an
+in-house engine.
+
+### 1. Airflow 2 to 3 migration
+
+Migrating every DAG at once is unsafe, so Airflow's guidance is to stand up a 3.x worker pool and move
+DAGs onto it a cohort at a time. Route the cohort with a flag; ramp by widening it, revert by emptying
+it. No DAG edits.
 
 ```json
-{
-  "flags": {
-    "airflow.task.pool": {
-      "state": "ENABLED",
-      "variants": { "v3": "airflow_3x", "v2": "airflow_2x" },
-      "defaultVariant": "v2",
-      "targeting": { "if": [ { "in": [ { "var": "dag_id" }, ["dag_000", "dag_001"] ] }, "v3", "v2" ] }
-    }
-  }
-}
+{ "flags": { "airflow.task.pool": {
+  "state": "ENABLED",
+  "variants": { "v3": "airflow_3x", "v2": "airflow_2x" },
+  "defaultVariant": "v2",
+  "targeting": { "if": [ { "in": [ { "var": "dag_id" }, ["etl_alpha", "etl_beta"] ] }, "v3", "v2" ] }
+} } }
 ```
 
-Widen the list (or switch to a `fractional` rule) to ramp; empty it to revert. No DAG edits.
+### 2. Kubernetes worker / queue migration
 
-### 2. Kubernetes worker migration
-
-Move a cohort onto a Kubernetes queue gradually.
+Move a cohort onto a Kubernetes queue with a percentage ramp. flagd's `fractional` operator does
+deterministic sticky bucketing, so a DAG that's in the cohort at 20% stays in it at 50%.
 
 ```json
 { "flags": { "airflow.task.queue": {
   "state": "ENABLED",
   "variants": { "k8s": "kubernetes", "celery": "default" },
   "defaultVariant": "celery",
-  "targeting": { "if": [ { "fractionalEvaluation": [ { "var": "dag_id" },
-    [ "k8s", 20 ], [ "celery", 80 ] ] } ] }
+  "targeting": { "fractional": [ ["k8s", 20], ["celery", 80] ] }
 } } }
 ```
 
-### 3. Executor rollout
+### 3. Canary a KubernetesExecutor change
 
-Shift a cohort to `KubernetesExecutor` (Airflow 2.10+/3.x).
+KubernetesExecutor creates pods serially in the scheduler loop; apache/airflow#68480 adds opt-in
+concurrent pod creation. A change like that wants a canary. Enable it on a canary KubernetesExecutor,
+route a cohort there with `airflow.task.executor`, watch `queued_duration`, and flip the flag off to
+revert. Per-task `executor` needs Airflow 3.x (or 2.10+ with multiple executors configured).
 
 ```json
 { "flags": { "airflow.task.executor": {
   "state": "ENABLED",
-  "variants": { "k8s": "KubernetesExecutor", "default": "" },
+  "variants": { "canary": "KubernetesExecutorCanary", "default": "" },
   "defaultVariant": "default",
-  "targeting": { "if": [ { "in": [ { "var": "dag_id" }, ["dag_000"] ] }, "k8s", "default" ] }
+  "targeting": { "if": [ { "in": [ { "var": "dag_id" }, ["etl_alpha"] ] }, "canary", "default" ] }
 } } }
 ```
 
-### 4. Kill switch / instant rollback
+### 4. Priority / SLA and cost
 
-Because placement is a flag, reverting is a config change, not a deploy: set `defaultVariant` back to
-the safe value (or disable the flag) and the next parse places every task on the default. This is the
-backstop for the three rollouts above.
+Raise `airflow.task.priority_weight` for a cohort during a backfill or an incident, or route a cohort
+of heavy tasks to a cheaper pool with the `airflow.task.pool` recipe.
 
-## Experimentation and A/B testing inside DAGs
+### 5. Kill switch
+
+Placement is a flag, so reverting is a config change, not a deploy: empty the cohort or disable the
+flag and the next parse puts every task back on the default. This is what makes the rollouts above
+safe. Knight Capital lost $460M in 45 minutes from a change it had no way to switch off; DORA's 2021
+report ties elite incident recovery to exactly this kind of instant, deploy-free control.
+
+## Experiment (the gate + exposure)
 
 Evaluate a flag for a stable entity inside a task, run the chosen branch, and let the exposure listener
-record the assignment.
+record the assignment. This matches how experimentation platforms work: assign, emit an exposure event,
+and measure downstream in your warehouse.
 
-### 5. A/B a code path
+### 6. A/B a model or algorithm
 
 ```python
 from openfeature_airflow.gate import variant
 
 def choose_model(**context):
     entity = context["dag"].dag_id
-    model = variant("ranking.model_version", entity, default="v1")
-    return train(model)  # "v1" or "v2" per the backend's split
+    return variant("ranking.model_version", entity, default="v1")  # "v1" or "v2" per the split
 ```
 
-Define `ranking.model_version` as a weighted variant flag (say 90/10) in the backend to send 10% of
-runs to `v2`. Enable the exposure listener to measure the two arms.
+Define `ranking.model_version` as a weighted variant (say 90/10) to send 10% of runs to `v2`. Enable
+the exposure listener to record the arm for analysis. Full example:
+`example_dags/ab_test_model_example.py`.
 
-### 6. Wait for a rollout to reach a cohort
+### 7. Wait for a rollout to reach a cohort
 
-Gate a downstream task until a flag turns on for its DAG.
+Hold a downstream task until a flag turns on for its DAG.
 
 ```python
 from openfeature_airflow.sensors.feature_flag import FeatureFlagSensor
@@ -92,13 +116,12 @@ from openfeature_airflow.sensors.feature_flag import FeatureFlagSensor
 wait = FeatureFlagSensor(task_id="wait_for_rollout", flag_key="feature.new_path", conn_id="openfeature")
 ```
 
-### 7. Gradual dependency or behavior rollout
+### 8. Gradual dependency or behavior rollout
 
-Enable a new library, code path, or risky setting (for example disruption checkpointing) for a cohort
-of runs before it becomes the default, using the same boolean gate as case 5.
+Enable a new library, code path, or risky setting for a cohort of runs before it becomes the default,
+using the same boolean gate as case 6.
 
-## Other fits
+## Permission
 
-- Per-tenant, per-team, or per-dataset feature gating (target on evaluation-context attributes).
-- Cost control: route a cohort of heavy tasks to a cheaper pool with the `airflow.task.pool` recipe.
-- Canary a scheduler or worker config to a small cohort, watch the exposure metric, then widen.
+Gate a feature per team, tenant, or dataset by targeting on evaluation-context attributes: pass them as
+`**attributes` to the gate, or read them from the task in the policy.

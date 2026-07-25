@@ -55,6 +55,10 @@ python examples/quickstart.py
 It ramps a canary pool from 0% to 100% across 40 DAGs with the deterministic bucketing the policy
 uses, then flips the flag back to 0 (the kill switch). That is the demo above.
 
+For the full flow against a real DAG and a live backend, follow
+[docs/getting-started.md](docs/getting-started.md): install, point Airflow at flagd, watch a flag move
+a task onto a canary pool, ramp it, then flip the kill switch. About five minutes.
+
 ## Why it's useful
 
 Two problems, one flag API.
@@ -191,9 +195,11 @@ python system_tests/real_data_flow.py                                           
 
 ## Documentation
 
+- [Getting started](docs/getting-started.md): a 5-minute walkthrough: install, flagd, a DAG, ramp, kill switch.
 - [Architecture](docs/architecture.md): the mental model and flow diagrams.
-- [Use cases](docs/use-cases.md): migration routing, worker/executor rollout, A/B testing, kill switch.
+- [Use cases](docs/use-cases.md): the toggle taxonomy mapped to Airflow, with copy-paste recipes.
 - [Extending](docs/extending.md): add a backend, and how the ecosystem plugs in.
+- [Example DAGs](example_dags/): runnable templates for each pattern.
 - [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md): dev setup, invariants, test commands.
 
 ## Status
