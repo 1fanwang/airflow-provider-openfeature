@@ -17,11 +17,11 @@ and roll it back in seconds. No DAG edits, no redeploy.
 
 </div>
 
-Migrating workers, moving to a new executor, or turning on a risky behavior usually means editing DAGs
-or redeploying, and a bad change hits every pipeline at once. This provider puts those changes behind
-a feature flag: a cohort of tasks moves to a canary pool or a new queue, you watch it, and you revert
-by flipping the flag. It works with the flag backend you already run, through
-[OpenFeature](https://openfeature.dev).
+Feature flags let you change what your DAGs do at runtime. Ramp a new implementation, A/B a model,
+gate a behavior, or move a cohort of tasks to a different pool or executor, all without editing DAGs
+or redeploying, and roll back by flipping the flag. This provider brings that to Airflow through
+[OpenFeature](https://openfeature.dev), so it works with the flag backend you already run: flagd,
+LaunchDarkly, GrowthBook, Unleash, Statsig, or an in-house engine.
 
 <p align="center">
   <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then flipping the kill switch" width="760">
@@ -42,13 +42,22 @@ the [5-minute getting-started](docs/getting-started.md).
 
 ## Why you need it
 
-- **Deployment is not release.** Shipping new code and exposing it to traffic should be separate steps.
-  A flag lets you deploy once and roll out gradually.
-- **Roll back in seconds.** A bad rollout reverts with a flag change, not a redeploy. Knight Capital
-  lost $460M in 45 minutes for want of a kill switch.
-- **Container canary tools can't do this.** Argo Rollouts and Flagger shift HTTP traffic between
-  versions; by their own docs they don't support queue workers. Airflow schedules from a pull queue, so
-  a scheduler-level flag is the way to canary a cohort of DAGs.
+Feature flags are the standard way to change software behavior at runtime without shipping code. This
+brings the same four moves to data pipelines:
+
+- **Ramp, don't flip.** Roll a change out to 1% of runs, then 10%, then 100%, checking each step
+  instead of switching everything at once.
+- **Experiment.** A/B two implementations (a model version, a join strategy, a new library) across a
+  cohort of runs and measure which wins, rather than guessing.
+- **Kill switch.** Turn a misbehaving feature off during an incident with a flag change, not a redeploy.
+- **Target.** Enable something for one team, tenant, or dataset before everyone else.
+
+Those are the standard toggle categories (release, experiment, ops, permission). The Airflow-specific
+part: the same flag can also move a task's `pool`, `queue`, or `executor`, so you canary infrastructure
+(a worker migration, a new executor) the same way you canary a feature. Container-canary tools like
+Argo Rollouts and Flagger shift HTTP traffic between versions and, by their own docs, don't handle
+queue workers; Airflow schedules from a pull queue, so a scheduler-level flag is how you ramp a cohort
+of DAGs.
 
 ## What you get
 
@@ -153,8 +162,7 @@ See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
 - [Extending](docs/extending.md): add a backend.
 - [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md).
 
-<details>
-<summary>How it works</summary>
+## How it works
 
 Everything goes through the OpenFeature evaluation API, so the backend is a swap. The package adds
 three Airflow surfaces, auto-discovered via entry points; the backend decides who is in which cohort.
@@ -179,12 +187,9 @@ flowchart LR
 The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
 `airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`.
 
-</details>
-
 ## Status
 
-Alpha (0.1.0). The API may change before 1.0. A third-party provider, not part of the Apache Airflow
-monorepo.
+Alpha (0.1.0). The API may change before 1.0.
 
 ## License
 
