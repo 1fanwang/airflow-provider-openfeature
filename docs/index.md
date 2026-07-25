@@ -4,7 +4,7 @@
 flag, not a redeploy.
 
 Feature flags let you control how your Airflow platform behaves at runtime, across many DAGs, without
-editing them or redeploying. A platform team can move a cohort of tasks to a different pool, queue, or
+editing them or redeploying. A platform team can move a subset of tasks to a different pool, queue, or
 executor, ramp a worker or executor migration, or flip a kill switch during an incident, centrally and
 without touching anyone's DAG. A DAG author can gate a code path or A/B a model inside a task. Both go
 through [OpenFeature](https://openfeature.dev), so it works with the flag backend you already run:

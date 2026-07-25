@@ -20,7 +20,7 @@ with DAG(
     catchup=False,
     tags=["openfeature", "example"],
 ) as dag:
-    # Hold the pipeline until the rollout flag is enabled for this DAG's cohort.
+    # Hold the pipeline until the rollout flag is enabled for this DAG's subset.
     wait_for_rollout = FeatureFlagSensor(
         task_id="wait_for_rollout",
         flag_key="airflow.example.rollout_ready",

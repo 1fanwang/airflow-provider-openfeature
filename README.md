@@ -16,16 +16,15 @@ flag, not a redeploy.
 
 </div>
 
-Feature flags let you control how your Airflow platform behaves at runtime, across many DAGs, without
-editing them or redeploying. A platform team can move a cohort of tasks to a different pool, queue, or
-executor, ramp a worker or executor migration, or flip a kill switch during an incident, centrally and
-without touching anyone's DAG. A DAG author can gate a code path or A/B a model inside a task. Both go
+A platform team moves a **subset** of tasks to a different pool, queue, or executor, ramps a worker or
+executor migration, or flips a kill switch mid-incident — all centrally, without touching anyone's DAG.
+A DAG author gates a code path or A/B-tests a model inside a task. Both go
 through [OpenFeature](https://openfeature.dev), so it works with the flag backend you already run:
 [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io),
 [Unleash](https://www.getunleash.io), [Statsig](https://statsig.com), or an in-house engine.
 
 <p align="center">
-  <img src="docs/demo.svg" alt="Ramping the placement policy across 40 real Airflow tasks: dag_03's pool moves to the canary at 100%, then the kill switch reverts it" width="760">
+  <img src="docs/demo.svg" alt="Ramping the real placement policy across 40 Airflow tasks: as the flag goes 0 to 100%, more tasks move to the canary pool, then the kill switch reverts all of them" width="760">
 </p>
 
 ## Try it in 30 seconds
@@ -37,9 +36,10 @@ pip install airflow-provider-openfeature
 python examples/quickstart.py
 ```
 
-It builds 40 real Airflow tasks and runs the actual placement policy on them, moving each to a canary
-pool as the flag ramps 0 → 100%, then reverting them on the kill switch. For the same thing against a
-live backend and a running scheduler, follow the [5-minute getting-started](docs/getting-started.md).
+It builds 40 real Airflow tasks and runs the actual `apply_placement` policy on them — the same function
+a live scheduler calls — moving each to a canary pool as the flag ramps 0 → 100%, then reverting on the
+kill switch. Nothing is mocked; there's just no scheduler or backend to stand up. To run the same policy
+against a live backend and a running scheduler, follow the [5-minute getting-started](docs/getting-started.md).
 
 ## Why you need it
 
@@ -49,7 +49,7 @@ brings the same four moves to data pipelines:
 - **Ramp, don't flip.** Roll a change out to 1% of runs, then 10%, then 100%, checking each step
   instead of switching everything at once.
 - **Experiment.** A/B two implementations (a model version, a join strategy, a new library) across a
-  cohort of runs and measure which wins, rather than guessing.
+  subset of runs and measure which wins, rather than guessing.
 - **Kill switch.** Turn a misbehaving feature off during an incident with a flag change, not a redeploy.
 - **Target.** Enable something for one team, tenant, or dataset before everyone else.
 
@@ -59,7 +59,7 @@ Those are the standard [toggle categories](https://martinfowler.com/articles/fea
 same way you canary a feature. Container-canary tools like
 [Argo Rollouts](https://argo-rollouts.readthedocs.io/en/stable/) and [Flagger](https://flagger.app/)
 shift HTTP traffic between versions and, by their own docs, don't handle queue workers; Airflow
-schedules from a pull queue, so a scheduler-level flag is how you ramp a cohort of DAGs.
+schedules from a pull queue, so a scheduler-level flag is how you ramp a subset of DAGs.
 
 ## What you get
 
@@ -83,8 +83,8 @@ Airflow decides how each task runs from a few settings: its
 [Kubernetes pod](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)).
 Normally you change these by editing DAGs or redeploying, and the change hits every DAG at once.
 
-**Change them with a flag instead, for a cohort.** A *cohort* is just the subset you pick: by name, by
-team, or by a percentage that you ramp. A
+**Change them with a flag instead, for a subset of DAGs** — the ones you pick, by name, by
+team, or by a percentage you ramp. A
 [cluster policy](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html)
 reads the flag and applies the setting to that subset, so there is no rollout logic in the DAG itself:
 
@@ -95,7 +95,7 @@ with DAG("features_pipeline", schedule=None, start_date=datetime(2024, 1, 1)) as
 ```
 
 Say you want to try the KubernetesExecutor (each task runs as its own pod) on a handful of DAGs before
-moving everything to it. Set `airflow.task.executor` to that executor for the cohort; those tasks run as
+moving everything to it. Set `airflow.task.executor` to that executor for the subset; those tasks run as
 pods while the rest stay on the shared workers, and turning the flag off puts them back. No redeploy.
 That is the safe way to adopt a change like [#68480](https://github.com/apache/airflow/pull/68480) (a
 faster pod-creation path): the [case study](docs/case-study/) ramps it and measures how long tasks wait
@@ -106,7 +106,7 @@ warehouse, so a rollout comes with a number. Here the same policy runs on real A
 read back from each backend:
 
 <p align="center">
-  <img src="docs/demo-measure-loop.png" alt="Assign a cohort, run it, measure the outcome, and read the control-vs-treatment lift back" width="760">
+  <img src="docs/demo-measure-loop.png" alt="Assign a subset, run it, measure the outcome, and read the control-vs-treatment lift back" width="760">
 </p>
 
 **No vendor lock-in.** The same DAG and policy work on flagd, GrowthBook, Unleash, Statsig, or an
@@ -125,19 +125,19 @@ A nightly `revenue_rollup` ETL is missing its SLA. An engineer has a faster rewr
 an option. Put the rewrite behind a flag and ramp it across regions instead.
 
 **In the DAG**, the task reads the flag through this provider, runs the chosen path, and records the
-outcome. There is no rollout logic in the DAG; the cohort lives in the backend.
+outcome. There is no rollout logic in the DAG; the subset lives in the backend.
 
 ```python
 from openfeature_airflow.gate import flag_enabled
 from openfeature_airflow.measure import track_outcome
 
-use_v2 = flag_enabled("revenue_rollup.use_fast_agg", region)      # the backend decides the cohort
+use_v2 = flag_enabled("revenue_rollup.use_fast_agg", region)      # the backend decides the subset
 result = (rollup_v2 if use_v2 else rollup_v1)(shard)              # run the chosen implementation
 track_outcome("rollup_ms", region, value=elapsed_ms, variant="v2" if use_v2 else "v1")
 ```
 
 **In the backend** (here Unleash), the rollout is a dial. Stickiness on the region key keeps a region
-in its cohort as you raise the percentage. The provider reads any backend identically, so the same flag
+in its group as you raise the percentage. The provider reads any backend identically, so the same flag
 drives it from GrowthBook, Statsig, or flagd with a one-line change.
 
 <p align="center">
@@ -164,11 +164,11 @@ taxonomy, are in [docs/use-cases.md](docs/use-cases.md).
 
 | Use case | What the flag does |
 |---|---|
-| [Canary a faster rollup](example_dags/revenue_rollup_dag.py) | run a rewritten aggregation for a cohort of regions, with a revenue-parity guardrail |
-| [Airflow 2→3 migration](example_dags/migration_2to3_example.py) | route a cohort of DAGs onto a 3.x worker pool, ramp, roll back |
-| [KubernetesExecutor canary](example_dags/kubernetes_executor_rollout_example.py) | shift a cohort to concurrent pod creation ([apache/airflow#68480](https://github.com/apache/airflow/pull/68480)), watch, widen |
+| [Canary a faster rollup](example_dags/revenue_rollup_dag.py) | run a rewritten aggregation for a subset of regions, with a revenue-parity guardrail |
+| [Airflow 2→3 migration](example_dags/migration_2to3_example.py) | route a subset of DAGs onto a 3.x worker pool, ramp, roll back |
+| [KubernetesExecutor canary](example_dags/kubernetes_executor_rollout_example.py) | shift a subset to concurrent pod creation ([apache/airflow#68480](https://github.com/apache/airflow/pull/68480)), watch, widen |
 | [A/B a model](example_dags/ab_test_model_example.py) | pick a model variant per run and emit the exposure + outcome |
-| Worker / queue migration | move a cohort onto a Kubernetes queue gradually |
+| Worker / queue migration | move a subset onto a Kubernetes queue gradually |
 | Kill switch | revert placement for everyone with one flag change |
 
 ## Install
@@ -195,7 +195,7 @@ Then turn on the piece you want (both default to off):
 ```ini
 [openfeature]
 enable_policy = True             # flag-driven pool/queue/executor placement
-enable_exposure_listener = True  # record which cohort each run landed in
+enable_exposure_listener = True  # record which group each run landed in
 ```
 
 Bundled adapters for backends whose OpenFeature provider needs a nudge: `providers.growthbook`,
@@ -221,7 +221,7 @@ Record the outcome for analysis (routes to Statsig, GrowthBook, LaunchDarkly, or
 ```python
 from openfeature_airflow.measure import track_outcome
 
-track_outcome("task_duration_ms", f"{dag_id}:{task_id}", value=elapsed_ms, variant=cohort)
+track_outcome("task_duration_ms", f"{dag_id}:{task_id}", value=elapsed_ms, variant=group)
 ```
 
 See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
@@ -244,7 +244,7 @@ These docs also build into a site: `pip install -e ".[docs]"` then `mkdocs serve
 Everything goes through the [OpenFeature evaluation API](https://openfeature.dev/specification/), so the
 backend is a swap. The package adds three Airflow surfaces, auto-discovered via
 [entry points](https://packaging.python.org/en/latest/specifications/entry-points/); the backend
-decides who is in which cohort.
+decides which subset each run lands in.
 
 ```mermaid
 flowchart TB
@@ -277,21 +277,21 @@ flowchart TB
 It gives you two independent capabilities, both no-ops until you turn them on in config:
 
 - **Placement policy.** A cluster policy consults a flag and overrides a task's `pool` / `queue` /
-  `executor` / `priority_weight` for its cohort. A rollout is a backend config change, not a DAG edit.
+  `executor` / `priority_weight` for the chosen subset. A rollout is a backend config change, not a DAG edit.
 - **In-DAG evaluation.** The hook, sensor, and gate read a flag for a stable entity inside a task, and
-  the exposure listener records which cohort each run landed in, so you can measure it.
+  the exposure listener records which group each run landed in, so you can measure it.
 
 | Surface | Entry point | Purpose |
 |---|---|---|
 | `OpenFeatureHook`, `FeatureFlagSensor`, `openfeature` connection | `apache_airflow_provider` | evaluate a flag in a task |
-| flag-driven placement policy | `airflow.policy` | override `pool`/`queue`/`executor`/`priority_weight` per cohort |
-| exposure listener | `airflow.plugins` | emit the resolved cohort for measurement |
+| flag-driven placement policy | `airflow.policy` | override `pool`/`queue`/`executor`/`priority_weight` per subset |
+| exposure listener | `airflow.plugins` | emit the resolved group for measurement |
 
 The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
 `airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`. Register your own
 flag-driven dimensions for any operator attribute (a Spark version, a checkpoint toggle) with
 `register_placement` — see [docs/extending.md](docs/extending.md). The entity is bucketed
-deterministically, so a task lands in the same cohort every parse until the backend config changes.
+deterministically, so a task lands in the same group every parse until the backend config changes.
 [`docs/architecture.md`](docs/architecture.md) has the step-by-step ramp and exposure sequence diagrams
 and the Airflow version notes.
 

@@ -95,17 +95,17 @@ airflow dags test etl_alpha
 ```
 
 The task ran in `canary_pool`, not the `default_pool` the DAG asked for. flagd put `etl_alpha` in the
-canary cohort; the policy applied it. Confirm from the metadata DB:
+canary subset; the policy applied it. Confirm from the metadata DB:
 
 ```bash
 airflow tasks states-for-dag-run etl_alpha <run_id>   # pool column shows canary_pool
 ```
 
-A DAG that isn't in the cohort (say `etl_gamma`) runs in `default_pool`. Same code, different placement.
+A DAG that isn't in the subset (say `etl_gamma`) runs in `default_pool`. Same code, different placement.
 
 ## 6. Ramp it
 
-Widen the cohort in the flag file. flagd hot-reloads; no restart, no redeploy.
+Widen the subset in the flag file. flagd hot-reloads; no restart, no redeploy.
 
 ```bash
 # add more DAGs to the "in" list, or switch to a percentage with flagd's fractional operator:
@@ -117,7 +117,7 @@ was canary at 25% stays canary at 50%.
 
 ## 7. Kill switch
 
-Something looks wrong. Empty the cohort:
+Something looks wrong. Empty the subset:
 
 ```json
 "targeting": { "if": [ { "in": [ {"var": "dag_id"}, [] ] }, "canary", "default" ] }
@@ -130,11 +130,11 @@ no deploy.
 
 The policy runs at DAG-parse time. For each task it asks OpenFeature to resolve `airflow.task.pool`,
 keyed on the task's `dag_id:task_id`, and applies whatever comes back. flagd decided who was in the
-cohort. Swap flagd for GrowthBook, Unleash, Statsig, or an in-house engine and nothing in your Airflow
+subset. Swap flagd for GrowthBook, Unleash, Statsig, or an in-house engine and nothing in your Airflow
 changes; the backend just answers the same question.
 
 The policy reads three more well-known flags the same way: `airflow.task.queue`,
-`airflow.task.executor`, and `airflow.task.priority_weight`. Set any of them to route a cohort's queue,
+`airflow.task.executor`, and `airflow.task.priority_weight`. Set any of them to route a subset's queue,
 executor, or priority.
 
 ## Next

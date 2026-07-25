@@ -1,4 +1,4 @@
-"""Canary a faster aggregation in a revenue-rollup ETL, one region cohort at a time.
+"""Canary a faster aggregation in a revenue-rollup ETL, one region subset at a time.
 
 The nightly job aggregates orders into daily revenue per region. A faster rewrite (`rollup_v2`) is
 gated behind ``revenue_rollup.use_fast_agg``: each region reads the flag, runs the matching

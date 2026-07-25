@@ -1,16 +1,16 @@
-"""Airflow 2 to 3 migration: route a cohort of DAGs to a 3.x worker pool, ramp, and revert.
+"""Airflow 2 to 3 migration: route a subset of DAGs to a 3.x worker pool, ramp, and revert.
 
 Migrating every DAG to Airflow 3 at once is unsafe: scheduling-semantic changes, removed in-task DB
 access, and REST API changes mean each DAG needs to run against the new runtime before you trust it.
-Airflow's own guidance is to stand up a separate 3.x worker pool and move DAGs onto it a cohort at a
+Airflow's own guidance is to stand up a separate 3.x worker pool and move DAGs onto it a subset at a
 time. This is that, driven by a flag instead of by editing each DAG.
 
 Setup (once): enable the policy and register a backend (see docs/getting-started.md), then define
-`airflow.task.pool` in your backend to return `airflow_3x` for the migrating cohort and `airflow_2x`
-for the rest. Widen the cohort to ramp; empty it to roll back. No DAG edits, no redeploy.
+`airflow.task.pool` in your backend to return `airflow_3x` for the migrating subset and `airflow_2x`
+for the rest. Widen the subset to ramp; empty it to roll back. No DAG edits, no redeploy.
 
 The DAG below asks for `airflow_2x`; the policy overrides it to `airflow_3x` while this DAG is in the
-migration cohort.
+migration subset.
 """
 
 from __future__ import annotations

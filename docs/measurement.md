@@ -8,7 +8,7 @@ from openfeature_airflow.measure import track_outcome
 
 # in your task, after the work is done:
 track_outcome("task_duration_ms", f"{dag_id}:{task_id}", value=elapsed_ms,
-              variant=cohort, dag_id=dag_id)
+              variant=group, dag_id=dag_id)
 ```
 
 `track_outcome` routes through the [OpenFeature tracking API](https://openfeature.dev/specification/sections/tracking/),
@@ -31,7 +31,7 @@ Proven end to end for flagd, Statsig, and the in-house engine in
 
 ## The warehouse path (works with any backend)
 
-Turn on the metric and read the cohort-tagged outcome in [Grafana](https://grafana.com/) or
+Turn on the metric and read the group-tagged outcome in [Grafana](https://grafana.com/) or
 [Prometheus](https://prometheus.io/):
 
 ```ini
@@ -73,11 +73,11 @@ Use [PostHog](https://posthog.com)'s provider for assignment; emit the outcome w
 
 ```python
 posthog.capture(distinct_id=entity, event="task_duration_ms",
-                properties={"variant": cohort, "value": elapsed_ms})
+                properties={"variant": group, "value": elapsed_ms})
 ```
 
 ## Which metric to measure
 
 The honest outcome for a data pipeline is usually one of: task duration, success/failure rate, SLA
 hit rate, rows processed, or cost. Measure it from the task itself (as above) or from Airflow's own
-task metrics, tagged by the cohort the exposure listener recorded.
+task metrics, tagged by the group the exposure listener recorded.

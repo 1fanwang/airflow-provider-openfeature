@@ -28,7 +28,7 @@ not an edit to the DAG.
 ## Setup
 
 **The flag** is a normal Unleash feature with a gradual-rollout strategy, stickiness on the region key
-so a region stays in its cohort as you ramp.
+so a region stays in its group as you ramp.
 
 ![The feature flag in Unleash](img/unleash-flag.png)
 
@@ -78,7 +78,7 @@ the guardrail (`v2 == v1`).
 The result at every step: `v2` runs about **89% faster** (v1 ~77 ms per region, v2 ~9 ms), and the
 revenue is **identical to the cent**. Because the rollout percentage is a per-region probability, the
 enabled set grows in steps as you raise the dial (0, then 4, then 10, then all 12 regions), and a
-region never leaves the cohort once it is in it.
+region never leaves the group once it is in it.
 
 If `v2` had produced a wrong total for any region, the guardrail would have caught it and the fix is
 one dial back to 0% in the Unleash UI, with no code change and no redeploy.
@@ -99,7 +99,7 @@ PYTHONPATH="src:system_tests/case_study" python system_tests/case_study/run_case
 
 The step here is an aggregation rewrite, but the shape is the same for any risky pipeline change: a new
 model version, a different join strategy, a library upgrade, a move to a new pool or executor. Ramp it
-across a cohort, measure the outcome, keep the numbers honest with a guardrail, and revert with a flag
+across a subset, measure the outcome, keep the numbers honest with a guardrail, and revert with a flag
 instead of a deploy. Swap Unleash for [flagd](https://flagd.dev), [GrowthBook](https://www.growthbook.io),
 [Statsig](https://statsig.com), [LaunchDarkly](https://launchdarkly.com), or an in-house engine without
 touching the DAG, since it all goes through [OpenFeature](https://openfeature.dev).

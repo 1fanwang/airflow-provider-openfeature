@@ -1,7 +1,7 @@
 # Architecture
 
 Everything goes through the [OpenFeature](https://openfeature.dev) evaluation API.
-This package adds three Airflow surfaces on top of it; the backend decides who is in which cohort, so
+This package adds three Airflow surfaces on top of it; the backend decides who is in which subset, so
 swapping flagd for GrowthBook, Unleash, or an in-house engine changes no Airflow code.
 
 ## Components
@@ -37,7 +37,7 @@ flowchart TB
 Two independent capabilities:
 
 - **Placement policy** (`policy.py`). A cluster policy consults a flag
-  and overrides a task's `pool` / `queue` / `executor` for its cohort. A rollout is a backend config
+  and overrides a task's `pool` / `queue` / `executor` for its subset. A rollout is a backend config
   change, not a DAG edit.
 - **In-DAG evaluation** (`hooks/`, `sensors/`, `gate.py`), read a flag for a deterministic entity
   inside a task, and record the assignment through the exposure listener for measurement.
@@ -55,17 +55,17 @@ sequenceDiagram
     participant OF as OpenFeature API
     participant TI as TaskInstance
 
-    Eng->>BE: set airflow.task.pool cohort = dag_00x (or 10% ramp)
+    Eng->>BE: set airflow.task.pool subset = dag_00x (or 10% ramp)
     Sched->>Pol: task_policy(task)
     Pol->>OF: get_string(airflow.task.pool, entity=dag_id:task_id, {dag_id})
     OF->>BE: resolve(entity, context)
-    BE-->>OF: "canary_pool" (in cohort) or default
+    BE-->>OF: "canary_pool" (in subset) or default
     OF-->>Pol: value
     Pol->>TI: task.pool = canary_pool
     Note over TI: task runs in the flag-driven pool
 ```
 
-The entity is `dag_id:task_id`, bucketed deterministically, so the same task lands in the same cohort
+The entity is `dag_id:task_id`, bucketed deterministically, so the same task lands in the same subset
 every parse until the backend config changes. Widen or revert by editing the flag; no redeploy.
 
 ## In-DAG evaluation and exposure
@@ -88,7 +88,7 @@ sequenceDiagram
     Lis->>WH: exposure(entity, flag, variant)
 ```
 
-Exposure is what makes an experiment measurable: the listener records which cohort each run landed in,
+Exposure is what makes an experiment measurable: the listener records which group each run landed in,
 so an analysis join lives in whatever platform you already use. On Airflow 2.x the listener fires
 worker-side; on 3.x, call `emit_exposure` from the task or policy, since task-instance listeners moved
 to the Task SDK.
