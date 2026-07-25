@@ -2,8 +2,8 @@
 
 # airflow-provider-openfeature
 
-**Feature flags for Apache Airflow.** Ship a platform change to 1% of your DAGs, ramp it to 100%,
-and roll it back in seconds. No DAG edits, no redeploy.
+**Feature flags for Apache Airflow.** Ramp a change across your DAGs, measure it, and revert with a
+flag, not a redeploy.
 
 [![CI](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
@@ -71,24 +71,38 @@ of DAGs.
 
 ## See it run
 
-Same DAG population and one policy, routed identically across five real backends, and the full
-assign → run → measure → read-out loop with a measured lift. All on real Airflow 3.2.2; commands and
-raw output in [`system_tests/E2E.md`](system_tests/E2E.md).
+**Route a cohort's placement with a flag.** A DAG just declares its work. The cluster policy reads the
+flag and sets the task's `executor` (or `pool`, or `queue`) for the cohort, so there is no rollout logic
+in the DAG:
+
+```python
+# a big fan-out you want to move carefully (full DAG in example_dags/)
+with DAG("features_pipeline", schedule=None, start_date=datetime(2024, 1, 1)) as dag:
+    PythonOperator.partial(task_id="process", python_callable=build).expand(op_args=shards)
+```
+
+Point `airflow.task.executor` at your canary KubernetesExecutor for the cohort and those tasks run
+there; flip the flag off and they revert, no redeploy. This is the safe way to adopt a change like
+[#68480](https://github.com/apache/airflow/pull/68480) (concurrent pod creation): the
+[case study](docs/case-study/) ramps it and measures `queued_duration` for a regression on a real
+cluster before widening.
+
+**Measure the outcome, don't guess.** The exposure and the result flow back to your platform or
+warehouse, so a rollout comes with a number. Here the same policy runs on real Airflow and the lift is
+read back from each backend:
 
 <p align="center">
-  <img src="docs/demo-all-backends.gif" alt="One policy gates a DAG cohort identically across flagd, GrowthBook, in-house, Unleash, and Statsig" width="760">
+  <img src="docs/demo-measure-loop.png" alt="Assign a cohort, run it, measure the outcome, and read the control-vs-treatment lift back" width="760">
 </p>
+
+**No vendor lock-in.** The same DAG and policy work on flagd, GrowthBook, Unleash, Statsig, or an
+in-house engine through OpenFeature, so you use the backend you already run:
 
 <p align="center">
-  <img src="docs/demo-measure-loop.png" alt="Assign, run, measure, and read the control-vs-treatment lift back from flagd, Statsig, and an in-house engine" width="760">
+  <img src="docs/demo-all-backends.gif" alt="The same policy running unchanged on flagd, GrowthBook, an in-house engine, Unleash, and Statsig" width="760">
 </p>
 
-And the KubernetesExecutor canary on a real cluster: a flag routes a DAG cohort to the kubernetes
-executor, each routed task runs as a real pod, and ramping the flag grows the cohort live.
-
-<p align="center">
-  <img src="docs/demo-k8s-canary.png" alt="A flag routes 2 then 7 of 12 DAGs to the kubernetes executor; each becomes a real pod on a kind cluster" width="760">
-</p>
+Commands and raw output for all of this are in [`system_tests/E2E.md`](system_tests/E2E.md).
 
 ## Worked example: canary a pipeline change, end to end
 
