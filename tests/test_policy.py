@@ -158,3 +158,37 @@ class TestPriorityWeight:
         apply_placement(t)
         assert t.priority_weight == 1
 
+
+class _ReadOnlyExecutorTask:
+    """Mimics a mapped operator: `executor` is read-only and raises when assigned."""
+
+    def __init__(self, dag_id, task_id):
+        self.dag_id = dag_id
+        self.task_id = task_id
+        self.pool = "default_pool"
+        self.queue = "default"
+        self.priority_weight = 1
+
+    @property
+    def executor(self):
+        return None
+
+    @executor.setter
+    def executor(self, value):
+        raise AttributeError("can't set attribute 'executor'")
+
+
+class TestReadOnlyAttributeIsSkipped:
+    def test_readonly_executor_does_not_break_policy(self):
+        api.set_provider(
+            InHouseTreatmentProvider(
+                string_flags={
+                    "airflow.task.pool": {"default": "canary_pool"},
+                    "airflow.task.executor": {"default": "LocalExecutor"},
+                }
+            )
+        )
+        t = _ReadOnlyExecutorTask("d1", "x")
+        apply_placement(t)  # a read-only executor must not raise a policy error
+        assert t.pool == "canary_pool"  # the other placements still apply
+

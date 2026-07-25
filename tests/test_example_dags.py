@@ -10,6 +10,7 @@ EXPECTED = {
     "migration_2to3_example",
     "kubernetes_executor_rollout_example",
     "ab_test_model_example",
+    "revenue_rollup_example",
 }
 
 

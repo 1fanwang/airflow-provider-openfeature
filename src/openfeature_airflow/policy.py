@@ -28,6 +28,18 @@ def _entity(task) -> str:
     return f"{dag_id}:{getattr(task, 'task_id', '')}"
 
 
+def _try_set(task, attr: str, value) -> None:
+    """Set an attribute, skipping task types where it is read-only (e.g. a mapped task's executor).
+
+    A cluster policy that raises breaks DAG parsing for the whole file, so a placement that a
+    particular operator does not accept is skipped, never fatal.
+    """
+    try:
+        setattr(task, attr, value)
+    except AttributeError:
+        pass
+
+
 def apply_placement(task) -> None:
     """Override pool/queue/executor/priority for this task's cohort from the registered OpenFeature provider."""
     from openfeature_airflow.gate import number, variant
@@ -37,16 +49,16 @@ def apply_placement(task) -> None:
 
     pool = variant(FLAG_POOL, entity, _UNSET, **attrs)
     if pool != _UNSET:
-        task.pool = pool
+        _try_set(task, "pool", pool)
     queue = variant(FLAG_QUEUE, entity, _UNSET, **attrs)
     if queue != _UNSET:
-        task.queue = queue
+        _try_set(task, "queue", queue)
     executor = variant(FLAG_EXECUTOR, entity, _UNSET, **attrs)
-    if executor != _UNSET and hasattr(task, "executor"):
-        task.executor = executor
+    if executor != _UNSET:
+        _try_set(task, "executor", executor)
     priority = number(FLAG_PRIORITY_WEIGHT, entity, _UNSET_INT, **attrs)
-    if priority != _UNSET_INT and hasattr(task, "priority_weight"):
-        task.priority_weight = priority
+    if priority != _UNSET_INT:
+        _try_set(task, "priority_weight", priority)
 
 
 def _policy_enabled() -> bool:
