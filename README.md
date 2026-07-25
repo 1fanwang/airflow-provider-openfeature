@@ -118,6 +118,13 @@ in-house engine through OpenFeature, so you use the backend you already run:
 
 Commands and raw output for all of this are in [`system_tests/E2E.md`](system_tests/E2E.md).
 
+**It complements your stack; it replaces nothing.** OpenFeature is the seam. Your flag backend still
+stores the flags, does the targeting, and runs the experiment analysis; Airflow still schedules. This
+provider carries the flag decision to the one place they don't reach: the scheduler, at task-placement
+time, so you get more out of the backend you already run. The bundled `FractionalProvider` is only a
+no-backend default for the quickstart and tests; point at your real backend in production and change
+nothing else.
+
 ## Worked example: canary a pipeline change, end to end
 
 A nightly `revenue_rollup` ETL is missing its SLA. An engineer has a faster rewrite of the aggregation
