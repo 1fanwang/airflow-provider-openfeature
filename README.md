@@ -2,7 +2,8 @@
 
 # airflow-provider-openfeature
 
-**Feature flags and progressive delivery for Apache Airflow, through the vendor-neutral [OpenFeature](https://openfeature.dev) API.**
+**Feature flags for Apache Airflow.** Ship a platform change to 1% of your DAGs, ramp it to 100%,
+and roll it back in seconds. No DAG edits, no redeploy.
 
 [![CI](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml)
 [![Publish](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/publish.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/publish.yml)
@@ -14,36 +15,19 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-[![Stars](https://img.shields.io/github/stars/1fanwang/airflow-provider-openfeature?style=flat)](https://github.com/1fanwang/airflow-provider-openfeature/stargazers)
-[![Forks](https://img.shields.io/github/forks/1fanwang/airflow-provider-openfeature?style=flat)](https://github.com/1fanwang/airflow-provider-openfeature/network/members)
-[![Issues](https://img.shields.io/github/issues/1fanwang/airflow-provider-openfeature)](https://github.com/1fanwang/airflow-provider-openfeature/issues)
-[![Pull requests](https://img.shields.io/github/issues-pr/1fanwang/airflow-provider-openfeature)](https://github.com/1fanwang/airflow-provider-openfeature/pulls)
-
 </div>
 
-Evaluate feature flags in DAGs and run **progressive delivery of the platform** (canary, blue-green,
-gradual rollout of pools, queues, and behavior) against any backend: flagd, GrowthBook, Unleash,
-Statsig, or an in-house engine, through one API. Installing changes nothing until you
-opt in.
-
-> A third-party provider, not part of the Apache Airflow monorepo.
+Migrating workers, moving to a new executor, or turning on a risky behavior usually means editing DAGs
+or redeploying, and a bad change hits every pipeline at once. This provider puts those changes behind
+a feature flag: a cohort of tasks moves to a canary pool or a new queue, you watch it, and you revert
+by flipping the flag. It works with the flag backend you already run, through
+[OpenFeature](https://openfeature.dev).
 
 <p align="center">
-  <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then a kill-switch rollback" width="760">
+  <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then flipping the kill switch" width="760">
 </p>
 
-## Contents
-
-- [Try it](#try-it)
-- [Why it's useful](#why-its-useful)
-- [Use cases](#use-cases)
-- [Architecture](#architecture)
-- [What it registers](#what-it-registers-auto-discovered-via-entry-points)
-- [Install](#install) · [Register a backend](#register-a-backend)
-- [Progressive delivery in one flag](#progressive-delivery-in-one-flag)
-- [Proven across backends](#proven-across-backends-with-real-data-flow) · [Docs](#documentation)
-
-## Try it
+## Try it in 30 seconds
 
 No Docker, no backend, no running Airflow:
 
@@ -52,58 +36,121 @@ pip install airflow-provider-openfeature
 python examples/quickstart.py
 ```
 
-It ramps a canary pool from 0% to 100% across 40 DAGs with the deterministic bucketing the policy
-uses, then flips the flag back to 0 (the kill switch). That is the demo above.
+It ramps a canary pool from 0% to 100% across 40 DAGs, then flips the flag back to 0 (the kill
+switch). That is the animation above. For the same thing against a real DAG and a live backend, follow
+the [5-minute getting-started](docs/getting-started.md).
 
-For the full flow against a real DAG and a live backend, follow
-[docs/getting-started.md](docs/getting-started.md): install, point Airflow at flagd, watch a flag move
-a task onto a canary pool, ramp it, then flip the kill switch. About five minutes.
+## Why you need it
 
-## Why it's useful
+- **Deployment is not release.** Shipping new code and exposing it to traffic should be separate steps.
+  A flag lets you deploy once and roll out gradually.
+- **Roll back in seconds.** A bad rollout reverts with a flag change, not a redeploy. Knight Capital
+  lost $460M in 45 minutes for want of a kill switch.
+- **Container canary tools can't do this.** Argo Rollouts and Flagger shift HTTP traffic between
+  versions; by their own docs they don't support queue workers. Airflow schedules from a pull queue, so
+  a scheduler-level flag is the way to canary a cohort of DAGs.
 
-Two problems, one flag API.
+## What you get
 
-**Rolling out platform changes is risky and slow.** Migrating workers, moving to a new executor, or
-turning on a new behavior usually means editing DAGs or redeploying, and a bad change hits everything
-at once. A cluster policy here consults a flag to place each task's `pool` / `queue` / `executor` by
-cohort, so a rollout becomes a backend config change: ramp 1% → 100%, watch, and revert instantly by
-flipping the flag. No DAG edits, no redeploy. Deployment tools like Argo Rollouts or Flagger gate
-containers; they can't express a cohort keyed by `dag_id`, `pool`, or `queue`. A flag can.
+| | |
+|---|---|
+| **One flag moves placement** | A cluster policy reads a flag and sets a task's `pool` / `queue` / `executor` / `priority_weight` by cohort. No DAG edits. |
+| **Ramp and revert live** | Change a percentage in your backend. No redeploy, no scheduler restart. |
+| **Any backend** | flagd, LaunchDarkly, GrowthBook, Statsig, Unleash, or an in-house engine, through OpenFeature. Swap without a rewrite. |
+| **Measure the result** | One call records the cohort outcome to your platform (Statsig, GrowthBook) or your warehouse (OTEL/Grafana). |
+| **Safe to install** | The policy and listener are no-ops until you turn them on in config. |
 
-**Experimenting inside a DAG means writing the config wiring yourself.** The hook, sensor, and gate
-let a task read a flag for a stable entity; the exposure listener records which cohort each run landed
-in, so you can measure it in whatever platform you already use.
+## See it run
 
-Both halves use [OpenFeature](https://openfeature.dev), so the backend (flagd, GrowthBook, Unleash,
-LaunchDarkly, an in-house engine) is a swap, not a rewrite.
+Same DAG population and one policy, routed identically across five real backends, and the full
+assign → run → measure → read-out loop with a measured lift. All on real Airflow 3.2.2; commands and
+raw output in [`system_tests/E2E.md`](system_tests/E2E.md).
 
-## Use cases
+<p align="center">
+  <img src="docs/demo-all-backends.gif" alt="One policy gates a DAG cohort identically across flagd, GrowthBook, in-house, Unleash, and Statsig" width="760">
+</p>
 
-**Progressive delivery of the platform** (the policy), proven end to end in
-[`system_tests/`](system_tests/):
+<p align="center">
+  <img src="docs/demo-measure-loop.png" alt="Assign, run, measure, and read the control-vs-treatment lift back from flagd, Statsig, and an in-house engine" width="760">
+</p>
 
-- **Airflow 2→3 migration.** Route a cohort of DAGs onto a 3.x worker pool, ramp the percentage, roll
-  back by flipping the flag.
-- **Worker / infra migration.** Move a cohort onto a Kubernetes queue gradually instead of all at once.
-- **Executor rollout.** Shift a cohort to `KubernetesExecutor` and watch before widening.
-- **Priority / SLA tuning.** Raise `priority_weight` for a cohort during a backfill or an incident.
-- **Cost control.** Send a cohort of heavy tasks to a cheaper pool.
-- **Kill switch.** Revert placement for everyone with one flag change, no deploy
-  ([`kill_switch.py`](system_tests/kill_switch.py)).
+## Examples
 
-**Experimentation and A/B testing inside DAGs** (the hook / sensor / gate):
+Runnable templates in [`example_dags/`](example_dags/); the patterns, mapped to the standard toggle
+taxonomy, are in [docs/use-cases.md](docs/use-cases.md).
 
-- A/B a model version or algorithm branch inside a task, keyed on a stable entity, with exposure
-  emitted for analysis ([`ab_experiment.py`](system_tests/ab_experiment.py)).
-- Roll a new library or code path out to a cohort of runs before making it the default.
-- Gate a feature per tenant, per team, or per dataset.
+| Use case | What the flag does |
+|---|---|
+| [Airflow 2→3 migration](example_dags/migration_2to3_example.py) | route a cohort of DAGs onto a 3.x worker pool, ramp, roll back |
+| [KubernetesExecutor canary](example_dags/kubernetes_executor_rollout_example.py) | shift a cohort to concurrent pod creation ([apache/airflow#68480](https://github.com/apache/airflow/pull/68480)), watch, widen |
+| [A/B a model](example_dags/ab_test_model_example.py) | pick a model variant per run and emit the exposure + outcome |
+| Worker / queue migration | move a cohort onto a Kubernetes queue gradually |
+| Kill switch | revert placement for everyone with one flag change |
 
-The cohort logic lives in the backend, so none of these need a code change to ramp or revert.
+## Install
 
-## Architecture
+```bash
+pip install airflow-provider-openfeature            # core
+pip install "airflow-provider-openfeature[flagd]"   # + a backend, e.g. flagd
+```
 
-Everything goes through the OpenFeature evaluation API, so the backend is a swap.
-The package adds three Airflow surfaces on top; the backend decides who is in which cohort.
+Point OpenFeature at your backend once, in `airflow_local_settings.py` or a bootstrap:
+
+```python
+from openfeature import api
+from openfeature.contrib.provider.flagd import FlagdProvider
+
+api.set_provider(FlagdProvider(host="localhost", port=8013))
+```
+
+Then turn on the piece you want (both default to off):
+
+```ini
+[openfeature]
+enable_policy = True             # flag-driven pool/queue/executor placement
+enable_exposure_listener = True  # record which cohort each run landed in
+```
+
+Bundled adapters for backends whose OpenFeature provider needs a nudge: `providers.growthbook`,
+`providers.unleash`, `providers.statsig`, `providers.inhouse` (template for a proprietary engine), and
+`providers.fractional` (dependency-free deterministic %-rollout for testing). flagd, LaunchDarkly,
+Flagsmith and others ship their own OpenFeature providers; use those directly.
+
+## Gate a task, or measure an outcome
+
+Evaluate a flag anywhere in a task:
+
+```python
+from openfeature_airflow.gate import flag_enabled
+
+if flag_enabled("airflow.rollout.new_parser", dag_id):
+    ...
+```
+
+Record the outcome for analysis (routes to Statsig, GrowthBook, LaunchDarkly, or your warehouse):
+
+```python
+from openfeature_airflow.measure import track_outcome
+
+track_outcome("task_duration_ms", f"{dag_id}:{task_id}", value=elapsed_ms, variant=cohort)
+```
+
+See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
+
+## Docs
+
+- [Getting started](docs/getting-started.md): a 5-minute walkthrough on real Airflow.
+- [Use cases](docs/use-cases.md): the toggle taxonomy mapped to Airflow, with recipes.
+- [Measurement](docs/measurement.md): closing the loop with your experiment platform or warehouse.
+- [Architecture](docs/architecture.md): the flow and the surfaces it registers.
+- [Extending](docs/extending.md): add a backend.
+- [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md).
+
+<details>
+<summary>How it works</summary>
+
+Everything goes through the OpenFeature evaluation API, so the backend is a swap. The package adds
+three Airflow surfaces, auto-discovered via entry points; the backend decides who is in which cohort.
 
 ```mermaid
 flowchart LR
@@ -113,98 +160,24 @@ flowchart LR
     hook --> API[["OpenFeature<br/>evaluation API"]]
     place --> API
     API --> flagd & GrowthBook & Unleash & inhouse["in-house engine"]
-    listen --> measure["exposure to<br/>warehouse / experiment platform"]
+    listen --> measure["exposure + outcome to<br/>warehouse / experiment platform"]
 ```
-
-See [`docs/architecture.md`](docs/architecture.md) for the placement and evaluation sequence diagrams.
-
-## What it registers (auto-discovered via entry points)
 
 | Surface | Entry point | Purpose |
 |---|---|---|
-| `OpenFeatureHook`, `FeatureFlagSensor`, `openfeature` connection | `apache_airflow_provider` | evaluate a flag in a task; configure the backend |
+| `OpenFeatureHook`, `FeatureFlagSensor`, `openfeature` connection | `apache_airflow_provider` | evaluate a flag in a task |
 | flag-driven placement policy | `airflow.policy` | override `pool`/`queue`/`executor`/`priority_weight` per cohort |
-| exposure listener | `airflow.plugins` | emit the resolved cohort/variant for measurement |
+| exposure listener | `airflow.plugins` | emit the resolved cohort for measurement |
 
-The policy and listener are **no-ops until enabled** in config, so `pip install` is safe:
+The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
+`airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`.
 
-```ini
-[openfeature]
-enable_policy = True             # turn on flag-driven placement
-enable_exposure_listener = True  # emit cohort exposure metrics
-```
-
-## Install
-
-```bash
-pip install airflow-provider-openfeature            # core
-pip install "airflow-provider-openfeature[flagd]"   # + the flagd provider
-pip install "airflow-provider-openfeature[growthbook]"
-pip install "airflow-provider-openfeature[unleash]"
-```
-
-## Register a backend
-
-Point OpenFeature at any provider once, in `airflow_local_settings.py` or a bootstrap:
-
-```python
-from openfeature import api
-
-# self-hosted flagd
-from openfeature.contrib.provider.flagd import FlagdProvider
-api.set_provider(FlagdProvider(host="localhost", port=8013))
-
-# or a bundled adapter
-from openfeature_airflow.providers.growthbook import GrowthBookProvider
-api.set_provider(GrowthBookProvider(features=...))
-```
-
-Bundled adapters: `providers.growthbook`, `providers.unleash`, `providers.inhouse` (template for a
-proprietary engine), and `providers.fractional` (dependency-free deterministic %-rollout for testing).
-flagd, LaunchDarkly, Flagsmith and others ship their own OpenFeature providers; use those directly.
-
-## Progressive delivery in one flag
-
-Enable the policy, then define the flag in your backend. The policy reads these well-known flags,
-keyed on `dag_id:task_id`, and applies each one that is set:
-
-- `airflow.task.pool` → `task.pool`
-- `airflow.task.queue` → `task.queue`
-- `airflow.task.executor` → `task.executor`
-- `airflow.task.priority_weight` → `task.priority_weight` (integer)
-
-Ramp `airflow.task.pool` from 1% to 100% in the backend and a cohort of tasks moves to a canary pool
-with no code change. Author-facing evaluation (gate a single task) uses the hook or sensor instead.
-
-## Proven across backends, with real data flow
-
-The same DAG population and policy route identically across flagd, GrowthBook, Unleash, Statsig,
-and an in-house engine. Beyond parse-time gating, real eval data flows over the network into real task
-execution: in [`system_tests/real_data_flow.py`](system_tests/real_data_flow.py), a cohort config
-fetched from a live backend (flagd over gRPC, GrowthBook over HTTP, Statsig over HTTP) decides which
-pool a real `airflow dags test` task actually runs in, read back from the metadata DB. Full commands
-and raw output are in [`system_tests/E2E.md`](system_tests/E2E.md). Run it:
-
-```bash
-docker run -d --name flagd-e2e -p 8013:8013 -v "$PWD/system_tests/flags/flags.json:/etc/flagd/flags.json" \
-  ghcr.io/open-feature/flagd:latest start --uri file:/etc/flagd/flags.json
-docker compose -f system_tests/docker-compose.unleash.yml up -d
-PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/run_all_backends.py   # identical gating
-python system_tests/real_data_flow.py                                            # live data -> real task run
-```
-
-## Documentation
-
-- [Getting started](docs/getting-started.md): a 5-minute walkthrough: install, flagd, a DAG, ramp, kill switch.
-- [Architecture](docs/architecture.md): the mental model and flow diagrams.
-- [Use cases](docs/use-cases.md): the toggle taxonomy mapped to Airflow, with copy-paste recipes.
-- [Extending](docs/extending.md): add a backend, and how the ecosystem plugs in.
-- [Example DAGs](example_dags/): runnable templates for each pattern.
-- [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md): dev setup, invariants, test commands.
+</details>
 
 ## Status
 
-Alpha (0.1.0). The API may change before 1.0.
+Alpha (0.1.0). The API may change before 1.0. A third-party provider, not part of the Apache Airflow
+monorepo.
 
 ## License
 

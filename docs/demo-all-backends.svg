@@ -1,0 +1,199 @@
+<svg class="rich-terminal" viewBox="0 0 1214 904.0" xmlns="http://www.w3.org/2000/svg">
+    <!-- Generated with Rich https://www.textualize.io -->
+    <style>
+
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Regular"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+        font-style: normal;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Bold"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+        font-style: bold;
+        font-weight: 700;
+    }
+
+    .terminal-2264756016-matrix {
+        font-family: Fira Code, monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .terminal-2264756016-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: arial;
+    }
+
+    .terminal-2264756016-r1 { fill: #c5c8c6;font-weight: bold }
+.terminal-2264756016-r2 { fill: #c5c8c6 }
+.terminal-2264756016-r3 { fill: #4e707b }
+.terminal-2264756016-r4 { fill: #d0b344 }
+.terminal-2264756016-r5 { fill: #68a0b3;font-weight: bold }
+.terminal-2264756016-r6 { fill: #98a84b;font-weight: bold }
+    </style>
+
+    <defs>
+    <clipPath id="terminal-2264756016-clip-terminal">
+      <rect x="0" y="0" width="1194.6" height="853.0" />
+    </clipPath>
+    <clipPath id="terminal-2264756016-line-0">
+    <rect x="0" y="1.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-1">
+    <rect x="0" y="25.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-2">
+    <rect x="0" y="50.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-3">
+    <rect x="0" y="74.7" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-4">
+    <rect x="0" y="99.1" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-5">
+    <rect x="0" y="123.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-6">
+    <rect x="0" y="147.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-7">
+    <rect x="0" y="172.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-8">
+    <rect x="0" y="196.7" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-9">
+    <rect x="0" y="221.1" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-10">
+    <rect x="0" y="245.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-11">
+    <rect x="0" y="269.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-12">
+    <rect x="0" y="294.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-13">
+    <rect x="0" y="318.7" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-14">
+    <rect x="0" y="343.1" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-15">
+    <rect x="0" y="367.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-16">
+    <rect x="0" y="391.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-17">
+    <rect x="0" y="416.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-18">
+    <rect x="0" y="440.7" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-19">
+    <rect x="0" y="465.1" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-20">
+    <rect x="0" y="489.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-21">
+    <rect x="0" y="513.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-22">
+    <rect x="0" y="538.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-23">
+    <rect x="0" y="562.7" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-24">
+    <rect x="0" y="587.1" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-25">
+    <rect x="0" y="611.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-26">
+    <rect x="0" y="635.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-27">
+    <rect x="0" y="660.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-28">
+    <rect x="0" y="684.7" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-29">
+    <rect x="0" y="709.1" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-30">
+    <rect x="0" y="733.5" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-31">
+    <rect x="0" y="757.9" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-32">
+    <rect x="0" y="782.3" width="1195.6" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-2264756016-line-33">
+    <rect x="0" y="806.7" width="1195.6" height="24.65"/>
+            </clipPath>
+    </defs>
+
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="1212" height="902" rx="8"/><text class="terminal-2264756016-title" fill="#c5c8c6" text-anchor="middle" x="606" y="27">airflow-provider-openfeature&#160;·&#160;one&#160;policy,&#160;five&#160;feature-flag&#160;backends</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"/>
+            <circle cx="44" cy="0" r="7" fill="#28c840"/>
+            </g>
+        
+    <g transform="translate(9, 41)" clip-path="url(#terminal-2264756016-clip-terminal)">
+    
+    <g class="terminal-2264756016-matrix">
+    <text class="terminal-2264756016-r1" x="0" y="20" textLength="500.2" clip-path="url(#terminal-2264756016-line-0)">$&#160;python&#160;system_tests/run_all_backends.py</text><text class="terminal-2264756016-r2" x="1195.6" y="20" textLength="12.2" clip-path="url(#terminal-2264756016-line-0)">
+</text><text class="terminal-2264756016-r3" x="0" y="44.4" textLength="951.6" clip-path="url(#terminal-2264756016-line-1)">==============================================================================</text><text class="terminal-2264756016-r2" x="1195.6" y="44.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-1)">
+</text><text class="terminal-2264756016-r2" x="0" y="68.8" textLength="610" clip-path="url(#terminal-2264756016-line-2)">Multi-backend&#160;e2e:&#160;30&#160;DAGs,&#160;canary&#160;cohort&#160;=&#160;10&#160;-&gt;&#160;</text><text class="terminal-2264756016-r4" x="610" y="68.8" textLength="134.2" clip-path="url(#terminal-2264756016-line-2)">canary_pool</text><text class="terminal-2264756016-r2" x="1195.6" y="68.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-2)">
+</text><text class="terminal-2264756016-r2" x="0" y="93.2" textLength="939.4" clip-path="url(#terminal-2264756016-line-3)">Same&#160;DAG&#160;population,&#160;same&#160;task_policy;&#160;only&#160;the&#160;OpenFeature&#160;provider&#160;changes.</text><text class="terminal-2264756016-r2" x="1195.6" y="93.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-3)">
+</text><text class="terminal-2264756016-r3" x="0" y="117.6" textLength="951.6" clip-path="url(#terminal-2264756016-line-4)">==============================================================================</text><text class="terminal-2264756016-r2" x="1195.6" y="117.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-4)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="142" textLength="12.2" clip-path="url(#terminal-2264756016-line-5)">
+</text><text class="terminal-2264756016-r5" x="0" y="166.4" textLength="231.8" clip-path="url(#terminal-2264756016-line-6)">[flagd&#160;(container)]</text><text class="terminal-2264756016-r2" x="231.8" y="166.4" textLength="475.8" clip-path="url(#terminal-2264756016-line-6)">&#160;parsed&#160;30&#160;DAGs&#160;through&#160;the&#160;real&#160;policy</text><text class="terminal-2264756016-r2" x="1195.6" y="166.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-6)">
+</text><text class="terminal-2264756016-r4" x="48.8" y="190.8" textLength="134.2" clip-path="url(#terminal-2264756016-line-7)">canary_pool</text><text class="terminal-2264756016-r2" x="183" y="190.8" textLength="622.2" clip-path="url(#terminal-2264756016-line-7)">:&#160;10&#160;&#160;&#160;default_pool:&#160;20&#160;&#160;&#160;matches&#160;expected&#160;cohort:&#160;</text><text class="terminal-2264756016-r6" x="805.2" y="190.8" textLength="48.8" clip-path="url(#terminal-2264756016-line-7)">True</text><text class="terminal-2264756016-r2" x="1195.6" y="190.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-7)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="215.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-8)">
+</text><text class="terminal-2264756016-r5" x="0" y="239.6" textLength="305" clip-path="url(#terminal-2264756016-line-9)">[GrowthBook&#160;(SDK,&#160;local)]</text><text class="terminal-2264756016-r2" x="305" y="239.6" textLength="475.8" clip-path="url(#terminal-2264756016-line-9)">&#160;parsed&#160;30&#160;DAGs&#160;through&#160;the&#160;real&#160;policy</text><text class="terminal-2264756016-r2" x="1195.6" y="239.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-9)">
+</text><text class="terminal-2264756016-r4" x="48.8" y="264" textLength="134.2" clip-path="url(#terminal-2264756016-line-10)">canary_pool</text><text class="terminal-2264756016-r2" x="183" y="264" textLength="622.2" clip-path="url(#terminal-2264756016-line-10)">:&#160;10&#160;&#160;&#160;default_pool:&#160;20&#160;&#160;&#160;matches&#160;expected&#160;cohort:&#160;</text><text class="terminal-2264756016-r6" x="805.2" y="264" textLength="48.8" clip-path="url(#terminal-2264756016-line-10)">True</text><text class="terminal-2264756016-r2" x="1195.6" y="264" textLength="12.2" clip-path="url(#terminal-2264756016-line-10)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="288.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-11)">
+</text><text class="terminal-2264756016-r5" x="0" y="312.8" textLength="341.6" clip-path="url(#terminal-2264756016-line-12)">[in-house&#160;engine&#160;(template)]</text><text class="terminal-2264756016-r2" x="341.6" y="312.8" textLength="475.8" clip-path="url(#terminal-2264756016-line-12)">&#160;parsed&#160;30&#160;DAGs&#160;through&#160;the&#160;real&#160;policy</text><text class="terminal-2264756016-r2" x="1195.6" y="312.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-12)">
+</text><text class="terminal-2264756016-r4" x="48.8" y="337.2" textLength="134.2" clip-path="url(#terminal-2264756016-line-13)">canary_pool</text><text class="terminal-2264756016-r2" x="183" y="337.2" textLength="622.2" clip-path="url(#terminal-2264756016-line-13)">:&#160;10&#160;&#160;&#160;default_pool:&#160;20&#160;&#160;&#160;matches&#160;expected&#160;cohort:&#160;</text><text class="terminal-2264756016-r6" x="805.2" y="337.2" textLength="48.8" clip-path="url(#terminal-2264756016-line-13)">True</text><text class="terminal-2264756016-r2" x="1195.6" y="337.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-13)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="361.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-14)">
+</text><text class="terminal-2264756016-r5" x="0" y="386" textLength="256.2" clip-path="url(#terminal-2264756016-line-15)">[Unleash&#160;(container)]</text><text class="terminal-2264756016-r2" x="256.2" y="386" textLength="475.8" clip-path="url(#terminal-2264756016-line-15)">&#160;parsed&#160;30&#160;DAGs&#160;through&#160;the&#160;real&#160;policy</text><text class="terminal-2264756016-r2" x="1195.6" y="386" textLength="12.2" clip-path="url(#terminal-2264756016-line-15)">
+</text><text class="terminal-2264756016-r4" x="48.8" y="410.4" textLength="134.2" clip-path="url(#terminal-2264756016-line-16)">canary_pool</text><text class="terminal-2264756016-r2" x="183" y="410.4" textLength="622.2" clip-path="url(#terminal-2264756016-line-16)">:&#160;10&#160;&#160;&#160;default_pool:&#160;20&#160;&#160;&#160;matches&#160;expected&#160;cohort:&#160;</text><text class="terminal-2264756016-r6" x="805.2" y="410.4" textLength="48.8" clip-path="url(#terminal-2264756016-line-16)">True</text><text class="terminal-2264756016-r2" x="1195.6" y="410.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-16)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="434.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-17)">
+</text><text class="terminal-2264756016-r5" x="0" y="459.2" textLength="329.4" clip-path="url(#terminal-2264756016-line-18)">[Statsig&#160;(SDK,&#160;local&#160;mode)]</text><text class="terminal-2264756016-r2" x="329.4" y="459.2" textLength="475.8" clip-path="url(#terminal-2264756016-line-18)">&#160;parsed&#160;30&#160;DAGs&#160;through&#160;the&#160;real&#160;policy</text><text class="terminal-2264756016-r2" x="1195.6" y="459.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-18)">
+</text><text class="terminal-2264756016-r4" x="48.8" y="483.6" textLength="134.2" clip-path="url(#terminal-2264756016-line-19)">canary_pool</text><text class="terminal-2264756016-r2" x="183" y="483.6" textLength="622.2" clip-path="url(#terminal-2264756016-line-19)">:&#160;10&#160;&#160;&#160;default_pool:&#160;20&#160;&#160;&#160;matches&#160;expected&#160;cohort:&#160;</text><text class="terminal-2264756016-r6" x="805.2" y="483.6" textLength="48.8" clip-path="url(#terminal-2264756016-line-19)">True</text><text class="terminal-2264756016-r2" x="1195.6" y="483.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-19)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="508" textLength="12.2" clip-path="url(#terminal-2264756016-line-20)">
+</text><text class="terminal-2264756016-r3" x="0" y="532.4" textLength="951.6" clip-path="url(#terminal-2264756016-line-21)">==============================================================================</text><text class="terminal-2264756016-r2" x="1195.6" y="532.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-21)">
+</text><text class="terminal-2264756016-r2" x="0" y="556.8" textLength="573.4" clip-path="url(#terminal-2264756016-line-22)">IDENTICAL-GATING&#160;CHECK&#160;across&#160;5&#160;live&#160;backends:&#160;</text><text class="terminal-2264756016-r5" x="573.4" y="556.8" textLength="597.8" clip-path="url(#terminal-2264756016-line-22)">[&#x27;flagd&#160;(container)&#x27;,&#160;&#x27;GrowthBook&#160;(SDK,&#160;local)&#x27;,&#160;</text><text class="terminal-2264756016-r2" x="1195.6" y="556.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-22)">
+</text><text class="terminal-2264756016-r5" x="0" y="581.2" textLength="988.2" clip-path="url(#terminal-2264756016-line-23)">&#x27;in-house&#160;engine&#160;(template)&#x27;,&#160;&#x27;Unleash&#160;(container)&#x27;,&#160;&#x27;Statsig&#160;(SDK,&#160;local&#160;mode)&#x27;]</text><text class="terminal-2264756016-r2" x="1195.6" y="581.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-23)">
+</text><text class="terminal-2264756016-r2" x="0" y="605.6" textLength="768.6" clip-path="url(#terminal-2264756016-line-24)">&#160;&#160;&#160;&#160;all&#160;backends&#160;produced&#160;identical&#160;placement&#160;for&#160;all&#160;30&#160;DAGs:&#160;</text><text class="terminal-2264756016-r6" x="768.6" y="605.6" textLength="48.8" clip-path="url(#terminal-2264756016-line-24)">True</text><text class="terminal-2264756016-r2" x="1195.6" y="605.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-24)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="630" textLength="12.2" clip-path="url(#terminal-2264756016-line-25)">
+</text><text class="terminal-2264756016-r3" x="0" y="654.4" textLength="951.6" clip-path="url(#terminal-2264756016-line-26)">==============================================================================</text><text class="terminal-2264756016-r2" x="1195.6" y="654.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-26)">
+</text><text class="terminal-2264756016-r2" x="0" y="678.8" textLength="719.8" clip-path="url(#terminal-2264756016-line-27)">EXPOSURE&#160;capture&#160;(what&#160;the&#160;listener&#160;emits&#160;for&#160;measurement):</text><text class="terminal-2264756016-r2" x="1195.6" y="678.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-27)">
+</text><text class="terminal-2264756016-r2" x="0" y="703.2" textLength="488" clip-path="url(#terminal-2264756016-line-28)">&#160;&#160;&#160;&#160;mig_dag_002:&#160;{&#x27;airflow.task.pool&#x27;:&#160;&#x27;</text><text class="terminal-2264756016-r4" x="488" y="703.2" textLength="134.2" clip-path="url(#terminal-2264756016-line-28)">canary_pool</text><text class="terminal-2264756016-r2" x="622.2" y="703.2" textLength="24.4" clip-path="url(#terminal-2264756016-line-28)">&#x27;}</text><text class="terminal-2264756016-r2" x="1195.6" y="703.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-28)">
+</text><text class="terminal-2264756016-r2" x="0" y="727.6" textLength="488" clip-path="url(#terminal-2264756016-line-29)">&#160;&#160;&#160;&#160;mig_dag_007:&#160;{&#x27;airflow.task.pool&#x27;:&#160;&#x27;</text><text class="terminal-2264756016-r4" x="488" y="727.6" textLength="134.2" clip-path="url(#terminal-2264756016-line-29)">canary_pool</text><text class="terminal-2264756016-r2" x="622.2" y="727.6" textLength="24.4" clip-path="url(#terminal-2264756016-line-29)">&#x27;}</text><text class="terminal-2264756016-r2" x="1195.6" y="727.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-29)">
+</text><text class="terminal-2264756016-r2" x="0" y="752" textLength="231.8" clip-path="url(#terminal-2264756016-line-30)">&#160;&#160;&#160;&#160;mig_dag_015:&#160;{}</text><text class="terminal-2264756016-r2" x="1195.6" y="752" textLength="12.2" clip-path="url(#terminal-2264756016-line-30)">
+</text><text class="terminal-2264756016-r2" x="1195.6" y="776.4" textLength="12.2" clip-path="url(#terminal-2264756016-line-31)">
+</text><text class="terminal-2264756016-r3" x="0" y="800.8" textLength="951.6" clip-path="url(#terminal-2264756016-line-32)">==============================================================================</text><text class="terminal-2264756016-r2" x="1195.6" y="800.8" textLength="12.2" clip-path="url(#terminal-2264756016-line-32)">
+</text><text class="terminal-2264756016-r2" x="0" y="825.2" textLength="427" clip-path="url(#terminal-2264756016-line-33)">ALL&#160;BACKENDS&#160;GATE&#160;IDENTICALLY,&#160;e2e&#160;</text><text class="terminal-2264756016-r6" x="427" y="825.2" textLength="24.4" clip-path="url(#terminal-2264756016-line-33)">OK</text><text class="terminal-2264756016-r2" x="1195.6" y="825.2" textLength="12.2" clip-path="url(#terminal-2264756016-line-33)">
+</text><text class="terminal-2264756016-r3" x="0" y="849.6" textLength="951.6" clip-path="url(#terminal-2264756016-line-34)">==============================================================================</text><text class="terminal-2264756016-r2" x="1195.6" y="849.6" textLength="12.2" clip-path="url(#terminal-2264756016-line-34)">
+</text>
+    </g>
+    </g>
+</svg>
