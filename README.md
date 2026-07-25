@@ -25,7 +25,7 @@ through [OpenFeature](https://openfeature.dev), so it works with the flag backen
 [Unleash](https://www.getunleash.io), [Statsig](https://statsig.com), or an in-house engine.
 
 <p align="center">
-  <img src="docs/demo.svg" alt="Ramping a canary pool from 0 to 100 percent across 40 DAGs, then flipping the kill switch" width="760">
+  <img src="docs/demo.svg" alt="Ramping the placement policy across 40 real Airflow tasks: dag_03's pool moves to the canary at 100%, then the kill switch reverts it" width="760">
 </p>
 
 ## Try it in 30 seconds

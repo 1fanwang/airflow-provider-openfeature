@@ -55,23 +55,22 @@ def place(tasks, percent: int) -> int:
     return moved
 
 
-def bar(n: int, total: int = 40) -> str:
-    return "\u2588" * n + "\u2591" * (total - n)
+def bar(n: int, total: int = 40, width: int = 22) -> str:
+    filled = round(n / total * width)
+    return "\u2588" * filled + "\u2591" * (width - filled)
 
 
 def main() -> None:
     tasks = build_tasks()
     probe = tasks[3]  # watch one real task's pool attribute
-    print("\n  airflow-provider-openfeature  \u00b7  the real placement policy, no backend needed\n")
-    print(f"  ramping {FLAG} across {len(tasks)} real Airflow tasks:\n")
+    print(f"\n  ramping {FLAG} across {len(tasks)} real Airflow tasks (no backend needed):\n")
     time.sleep(_DELAY)
     for percent in (0, 10, 25, 50, 75, 100):
         n = place(tasks, percent)
-        print(f"    flag = {percent:3d}%   {bar(n)}  {n:2d}/40 tasks -> canary_pool"
-              f"   (dag_03.run.pool = {probe.pool})")
+        print(f"    flag {percent:3d}%  {bar(n)}  {n:2d}/40 moved   dag_03.pool = {probe.pool}")
         time.sleep(_DELAY)
     place(tasks, 0)
-    print(f"\n  kill switch: flag back to 0%   {bar(0)}   dag_03.run.pool = {probe.pool}, instant rollback\n")
+    print(f"\n  kill switch \u2192 flag 0%   {bar(0)}   dag_03.pool = {probe.pool} (instant rollback)\n")
 
 
 if __name__ == "__main__":
