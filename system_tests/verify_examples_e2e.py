@@ -148,8 +148,8 @@ def mapped_dag_parses_with_executor_flag() -> bool:
         bag = DagBag(dag_folder=f"{HOME}/dags", include_examples=False, safe_mode=False)
     except TypeError:  # Airflow 3.x dropped include_examples
         bag = DagBag(dag_folder=f"{HOME}/dags")
-    dag = bag.get_dag("kubernetes_executor_rollout_example")
-    return dag is not None and not bag.import_errors
+    # use the in-memory parsed dict, not get_dag() (which hits the DB on 3.x)
+    return "kubernetes_executor_rollout_example" in bag.dags and not bag.import_errors
 
 
 def custom_dimension_on_real_task() -> bool:
