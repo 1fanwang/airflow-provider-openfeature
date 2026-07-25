@@ -33,6 +33,11 @@ so a region stays in its cohort as you ramp.
 
 ![The gradual-rollout strategy at 50%](img/unleash-rollout.png)
 
+The same flag, the same 50%-by-region rollout, configured in a second real backend (GrowthBook). The
+provider reads either one identically, so switching backends is a one-line change:
+
+![The same flag with a 50% rollout by region in GrowthBook](img/growthbook-flag.png)
+
 **The pipeline** ([`pipeline.py`](../../system_tests/case_study/pipeline.py)) generates a realistic
 orders dataset (480k rows across 12 regions and 30 days) and has both rollups. They return identical
 numbers; `v2` just does far fewer passes:
