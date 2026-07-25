@@ -135,7 +135,10 @@ def executor_on_regular_task() -> bool:
 
 def mapped_dag_parses_with_executor_flag() -> bool:
     """A mapped task's executor is read-only; the policy must skip it, never break DAG parsing."""
-    from airflow.dag_processing.dagbag import DagBag
+    try:
+        from airflow.dag_processing.dagbag import DagBag  # Airflow 3.x
+    except ImportError:
+        from airflow.models.dagbag import DagBag  # Airflow 2.x
     from openfeature import api
 
     from openfeature_airflow.policy import apply_placement
