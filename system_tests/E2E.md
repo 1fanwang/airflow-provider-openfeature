@@ -14,6 +14,35 @@ Statsig     statsig 0.72.0 (SDK, local mode)
 in-house    InHouseTreatmentProvider (in-process template)
 ```
 
+## The example DAGs run and behave as documented
+
+`system_tests/verify_examples_e2e.py` runs every example DAG through `airflow dags test` against a real
+metadata DB with the policy + an in-house backend wired in, then checks the behavior the docs claim.
+It also guards the mapped-operator fix.
+
+```
+$ python system_tests/verify_examples_e2e.py
+
+[revenue_rollup_example]              exit=0  tasks=6   all success: True
+    every region ran v2 with the parity guardrail passing: True
+[migration_2to3_example]              exit=0  tasks=2   all success: True
+    policy moved pool airflow_2x -> airflow_3x: True  (pools={'airflow_3x'})
+[ab_test_model_example]               exit=0  tasks=1   all success: True
+    task picked the flagged model variant: True  (model=v2)
+[openfeature_example]                 exit=0  tasks=2   all success: True
+[kubernetes_executor_rollout_example] exit=0  tasks=20  all success: True
+[executor placement]  policy sets task.executor on a regular operator: True
+[mapped-task safety]  executor flag on a mapped task does not break DAG parsing: True
+
+9/9 checks passed
+ALL EXAMPLE DAGS EXECUTE AND BEHAVE AS DOCUMENTED
+```
+
+This run surfaced a real bug: a mapped operator's `executor` is read-only, so setting
+`airflow.task.executor` made the policy raise `AirflowClusterPolicyError` and broke DAG parsing for the
+whole file. The policy now skips a placement the operator does not accept, verified by the last two
+checks and by `tests/test_policy.py::TestReadOnlyAttributeIsSkipped`.
+
 ## Does real data flow?
 
 Yes. A **live flag change in a real flagd daemon flips which pool a real

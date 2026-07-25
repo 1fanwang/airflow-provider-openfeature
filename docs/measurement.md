@@ -11,18 +11,19 @@ track_outcome("task_duration_ms", f"{dag_id}:{task_id}", value=elapsed_ms,
               variant=cohort, dag_id=dag_id)
 ```
 
-`track_outcome` routes through the OpenFeature tracking API, so any backend that implements `track()`
-receives the outcome, and it also increments a tagged `openfeature.outcome.<metric>` StatsD/OTEL
+`track_outcome` routes through the [OpenFeature tracking API](https://openfeature.dev/specification/sections/tracking/),
+so any backend that implements `track()` receives the outcome, and it also increments a tagged
+`openfeature.outcome.<metric>` [StatsD](https://github.com/statsd/statsd)/[OTEL](https://opentelemetry.io/)
 metric so backends without analytics still land the signal in your warehouse.
 
 ## Where the outcome shows up, per backend
 
 | Backend | How the outcome is read out |
 |---|---|
-| flagd / OFREP | no native analytics; the `openfeature.outcome.*` metric goes to StatsD/OTEL → Grafana/Prometheus |
-| Statsig | the bundled adapter's `track()` calls `log_event`; shows in Pulse/metrics |
-| GrowthBook | pass `on_track=` to the adapter; it hands the outcome to your warehouse (GrowthBook measures there) |
-| LaunchDarkly | `track()` → LD `track` events feed LD Experimentation (recipe below) |
+| [flagd](https://flagd.dev) / OFREP | no native analytics; the `openfeature.outcome.*` metric goes to StatsD/OTEL → [Grafana](https://grafana.com/)/[Prometheus](https://prometheus.io/) |
+| [Statsig](https://statsig.com) | the bundled adapter's `track()` calls `log_event`; shows in Pulse/metrics |
+| [GrowthBook](https://www.growthbook.io) | pass `on_track=` to the adapter; it hands the outcome to your warehouse (GrowthBook measures there) |
+| [LaunchDarkly](https://launchdarkly.com) | `track()` → LD `track` events feed LD Experimentation (recipe below) |
 | in-house | the template adapter appends to a `tracked` export list |
 
 Proven end to end for flagd, Statsig, and the in-house engine in
@@ -30,7 +31,8 @@ Proven end to end for flagd, Statsig, and the in-house engine in
 
 ## The warehouse path (works with any backend)
 
-Turn on the metric and read the cohort-tagged outcome in Grafana or Prometheus:
+Turn on the metric and read the cohort-tagged outcome in [Grafana](https://grafana.com/) or
+[Prometheus](https://prometheus.io/):
 
 ```ini
 [metrics]
@@ -55,8 +57,9 @@ api.set_provider(GrowthBookProvider(features=..., on_track=to_warehouse))
 
 ## LaunchDarkly
 
-Use LaunchDarkly's own OpenFeature provider for assignment. For the outcome, call LD `track` in your
-measure step (their provider does not forward OpenFeature `track()` yet):
+Use [LaunchDarkly](https://launchdarkly.com)'s own
+[OpenFeature provider](https://openfeature.dev/ecosystem/) for assignment. For the outcome, call LD
+`track` in your measure step (their provider does not forward OpenFeature `track()` yet):
 
 ```python
 import ldclient
@@ -66,7 +69,7 @@ ldclient.get().track("task_duration_ms", ld_context, metric_value=elapsed_ms)
 
 ## PostHog
 
-Use PostHog's provider for assignment; emit the outcome with `capture`:
+Use [PostHog](https://posthog.com)'s provider for assignment; emit the outcome with `capture`:
 
 ```python
 posthog.capture(distinct_id=entity, event="task_duration_ms",

@@ -12,7 +12,7 @@ code path.
 | Ops / kill switch | Revert instantly during an incident, no redeploy | any flag, flipped off |
 | Permission | Gate a feature per team, tenant, or dataset | gate on context attributes |
 
-**Why not deployment canary (Argo Rollouts, Flagger)?** Those shift HTTP traffic between container
+**Why not deployment canary ([Argo Rollouts](https://argo-rollouts.readthedocs.io/en/stable/), [Flagger](https://flagger.app/))?** Those shift HTTP traffic between container
 versions and [do not support queue workers](https://argo-rollouts.readthedocs.io/en/stable/concepts/).
 Airflow schedules from a pull queue, so they can't express "route these DAGs to the canary pool." A
 flag evaluated in the scheduler policy can, and it reverts in seconds instead of a redeploy cycle.
@@ -60,8 +60,9 @@ deterministic sticky bucketing, so a DAG that's in the cohort at 20% stays in it
 
 ### 3. Canary a KubernetesExecutor change
 
-KubernetesExecutor creates pods serially in the scheduler loop; apache/airflow#68480 adds opt-in
-concurrent pod creation. A change like that wants a canary. Enable it on a canary KubernetesExecutor,
+[KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
+creates pods serially in the scheduler loop; [apache/airflow#68480](https://github.com/apache/airflow/pull/68480)
+adds opt-in concurrent pod creation. A change like that wants a canary. Enable it on a canary KubernetesExecutor,
 route a cohort there with `airflow.task.executor`, watch `queued_duration`, and flip the flag off to
 revert. Per-task `executor` needs Airflow 3.x (or 2.10+ with multiple executors configured).
 
@@ -83,8 +84,9 @@ of heavy tasks to a cheaper pool with the `airflow.task.pool` recipe.
 
 Placement is a flag, so reverting is a config change, not a deploy: empty the cohort or disable the
 flag and the next parse puts every task back on the default. This is what makes the rollouts above
-safe. Knight Capital lost $460M in 45 minutes from a change it had no way to switch off; DORA's 2021
-report ties elite incident recovery to exactly this kind of instant, deploy-free control.
+safe. [Knight Capital lost $460M in 45 minutes](https://en.wikipedia.org/wiki/Knight_Capital_Group#2012_stock_trading_disruption)
+from a change it had no way to switch off; [DORA's 2021 report](https://dora.dev/research/2021/)
+ties elite incident recovery to exactly this kind of instant, deploy-free control.
 
 ## Experiment (the gate + exposure)
 

@@ -184,6 +184,9 @@ pip install airflow-provider-openfeature            # core
 pip install "airflow-provider-openfeature[flagd]"   # + a backend, e.g. flagd
 ```
 
+It is a standard PyPI package, so [uv](https://docs.astral.sh/uv/) works the same way:
+`uv pip install airflow-provider-openfeature`.
+
 Point OpenFeature at your backend once, in `airflow_local_settings.py` or a bootstrap:
 
 ```python
@@ -241,8 +244,10 @@ See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
 
 ## How it works
 
-Everything goes through the OpenFeature evaluation API, so the backend is a swap. The package adds
-three Airflow surfaces, auto-discovered via entry points; the backend decides who is in which cohort.
+Everything goes through the [OpenFeature evaluation API](https://openfeature.dev/specification/), so the
+backend is a swap. The package adds three Airflow surfaces, auto-discovered via
+[entry points](https://packaging.python.org/en/latest/specifications/entry-points/); the backend
+decides who is in which cohort.
 
 ```mermaid
 flowchart TB
