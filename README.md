@@ -40,11 +40,11 @@ Two ways in, both on real Airflow.
 different pool, queue, or executor from a flag. Ramp a worker or executor migration, or flip a kill switch
 mid-incident, without editing anyone's DAG. The
 [getting-started walkthrough](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md)
-does this end to end on a local Airflow in about 5 minutes.
+runs the whole thing on a local Airflow in about 5 minutes.
 
 **You write DAGs.** Gate a code path or A/B a model inside a task with one call, no platform access needed.
 See [Gate a task](#gate-a-task-or-measure-an-outcome) and the runnable
-[example DAGs](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/example_dags/).
+[example DAGs](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags).
 
 ## Why you need it
 
