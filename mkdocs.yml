@@ -44,9 +44,9 @@ plugins:
 nav:
   - Home: index.md
   - Getting started: getting-started.md
+  - Running a rollout: running-a-rollout.md
   - Use cases: use-cases.md
   - Case study: case-study/README.md
   - Measurement: measurement.md
   - Architecture: architecture.md
   - Extending: extending.md
-  - Design & roadmap: design.md

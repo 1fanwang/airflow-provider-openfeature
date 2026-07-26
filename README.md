@@ -6,13 +6,13 @@
 flag, not a redeploy.
 
 [![CI](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/LICENSE)
 
-[![Python](https://img.shields.io/badge/python-3.9%E2%80%933.12-blue?logo=python&logoColor=white)](pyproject.toml)
+[![Python](https://img.shields.io/badge/python-3.9%E2%80%933.12-blue?logo=python&logoColor=white)](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/pyproject.toml)
 [![Airflow](https://img.shields.io/badge/Apache%20Airflow-2.11%20%7C%203.3-017CEE?logo=apacheairflow&logoColor=white)](https://airflow.apache.org)
 [![OpenFeature](https://img.shields.io/badge/OpenFeature-provider-999?logo=openfeature&logoColor=white)](https://openfeature.dev)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/CONTRIBUTING.md)
 
 </div>
 
@@ -24,7 +24,7 @@ through [OpenFeature](https://openfeature.dev), so it works with the flag backen
 [Unleash](https://www.getunleash.io), [Statsig](https://statsig.com), or an in-house engine.
 
 <p align="center">
-  <img src="docs/demo.svg" alt="Ramping the real placement policy across 40 Airflow tasks: as the flag goes 0 to 100%, more tasks move to the canary pool, then the kill switch reverts all of them" width="760">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/demo.svg" alt="Ramping the real placement policy across 40 Airflow tasks: as the flag goes 0 to 100%, more tasks move to the canary pool, then the kill switch reverts all of them" width="760">
 </p>
 
 ## Try it in 30 seconds
@@ -39,7 +39,7 @@ python examples/quickstart.py
 It builds 40 real Airflow tasks and runs the actual `apply_placement` policy on them — the same function
 a live scheduler calls — moving each to a canary pool as the flag ramps 0 → 100%, then reverting on the
 kill switch. Nothing is mocked; there's just no scheduler or backend to stand up. To run the same policy
-against a live backend and a running scheduler, follow the [5-minute getting-started](docs/getting-started.md).
+against a live backend and a running scheduler, follow the [5-minute getting-started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md).
 
 ## Why you need it
 
@@ -98,7 +98,7 @@ Say you want to try the KubernetesExecutor (each task runs as its own pod) on a 
 moving everything to it. Set `airflow.task.executor` to that executor for the subset; those tasks run as
 pods while the rest stay on the shared workers, and turning the flag off puts them back. No redeploy.
 That is the safe way to adopt a change like [#68480](https://github.com/apache/airflow/pull/68480) (a
-faster pod-creation path): the [case study](docs/case-study/) ramps it and measures how long tasks wait
+faster pod-creation path): the [case study](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/case-study/) ramps it and measures how long tasks wait
 to start, checking for a regression on a real cluster before widening.
 
 **Measure the outcome, don't guess.** The exposure and the result flow back to your platform or
@@ -106,17 +106,17 @@ warehouse, so a rollout comes with a number. Here the same policy runs on real A
 read back from each backend:
 
 <p align="center">
-  <img src="docs/demo-measure-loop.png" alt="Assign a subset, run it, measure the outcome, and read the control-vs-treatment lift back" width="760">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/demo-measure-loop.png" alt="Assign a subset, run it, measure the outcome, and read the control-vs-treatment lift back" width="760">
 </p>
 
 **No vendor lock-in.** The same DAG and policy work on flagd, GrowthBook, Unleash, Statsig, or an
 in-house engine through OpenFeature, so you use the backend you already run:
 
 <p align="center">
-  <img src="docs/demo-all-backends.gif" alt="The same policy running unchanged on flagd, GrowthBook, an in-house engine, Unleash, and Statsig" width="760">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/demo-all-backends.gif" alt="The same policy running unchanged on flagd, GrowthBook, an in-house engine, Unleash, and Statsig" width="760">
 </p>
 
-Commands and raw output for all of this are in [`system_tests/E2E.md`](system_tests/E2E.md).
+Commands and raw output for all of this are in [`system_tests/E2E.md`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/system_tests/E2E.md).
 
 **It complements your stack; it replaces nothing.** OpenFeature is the seam. Your flag backend still
 stores the flags, does the targeting, and runs the experiment analysis; Airflow still schedules. This
@@ -148,8 +148,8 @@ in its group as you raise the percentage. The provider reads any backend identic
 drives it from GrowthBook, Statsig, or flagd with a one-line change.
 
 <p align="center">
-  <img src="docs/case-study/img/unleash-flag.png" alt="The revenue_rollup.use_fast_agg feature flag in the Unleash UI" width="49%">
-  <img src="docs/case-study/img/unleash-rollout.png" alt="The gradual-rollout strategy set to 50% in the Unleash UI" width="49%">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/case-study/img/unleash-flag.png" alt="The revenue_rollup.use_fast_agg feature flag in the Unleash UI" width="49%">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/case-study/img/unleash-rollout.png" alt="The gradual-rollout strategy set to 50% in the Unleash UI" width="49%">
 </p>
 
 **The result:** ramping 0 → 100% while Airflow reads the flag on each run, `v2` comes out about **89%
@@ -157,25 +157,25 @@ faster** and the revenue stays **identical to the cent** at every step. A wrong 
 guardrail, and the fix would be one dial back to 0%, with no redeploy.
 
 <p align="center">
-  <img src="docs/case-study/img/run.png" alt="Ramping the revenue-rollup canary 0 to 100% across regions, 89% faster, revenue identical at every step" width="760">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/case-study/img/run.png" alt="Ramping the revenue-rollup canary 0 to 100% across regions, 89% faster, revenue identical at every step" width="760">
 </p>
 
 The full walkthrough, plus a second example that canaries the
 [KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
 on a real [kind](https://kind.sigs.k8s.io/) cluster — a flag routes a subset of DAGs to real pods — is in
-[**docs/case-study**](docs/case-study/).
+[**docs/case-study**](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/case-study/).
 
 ## Examples
 
-Runnable templates in [`example_dags/`](example_dags/); the patterns, mapped to the standard toggle
-taxonomy, are in [docs/use-cases.md](docs/use-cases.md).
+Runnable templates in [`example_dags/`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/example_dags/); the patterns, mapped to the standard toggle
+taxonomy, are in [docs/use-cases.md](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/use-cases.md).
 
 | Use case | What the flag does |
 |---|---|
-| [Canary a faster rollup](example_dags/revenue_rollup_dag.py) | run a rewritten aggregation for a subset of regions, with a revenue-parity guardrail |
-| [Airflow 2→3 migration](example_dags/migration_2to3_example.py) | route a subset of DAGs onto a 3.x worker pool, ramp, roll back |
-| [KubernetesExecutor canary](example_dags/kubernetes_executor_rollout_example.py) | shift a subset to concurrent pod creation ([apache/airflow#68480](https://github.com/apache/airflow/pull/68480)), watch, widen |
-| [A/B a model](example_dags/ab_test_model_example.py) | pick a model variant per run and emit the exposure + outcome |
+| [Canary a faster rollup](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/example_dags/revenue_rollup_dag.py) | run a rewritten aggregation for a subset of regions, with a revenue-parity guardrail |
+| [Airflow 2→3 migration](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/example_dags/migration_2to3_example.py) | route a subset of DAGs onto a 3.x worker pool, ramp, roll back |
+| [KubernetesExecutor canary](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/example_dags/kubernetes_executor_rollout_example.py) | shift a subset to concurrent pod creation ([apache/airflow#68480](https://github.com/apache/airflow/pull/68480)), watch, widen |
+| [A/B a model](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/example_dags/ab_test_model_example.py) | pick a model variant per run and emit the exposure + outcome |
 | Worker / queue migration | move a subset onto a Kubernetes queue gradually |
 | Kill switch | revert placement for everyone with one flag change |
 
@@ -232,21 +232,21 @@ from openfeature_airflow.measure import track_outcome
 track_outcome("task_duration_ms", f"{dag_id}:{task_id}", value=elapsed_ms, variant=group)
 ```
 
-See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
+See [docs/measurement.md](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/measurement.md) for the per-backend readout.
 
 ## Docs
 
-- [Getting started](docs/getting-started.md): a 5-minute walkthrough on real Airflow.
-- [Case study](docs/case-study/): canary a faster pipeline step end to end, with a real Unleash backend.
-- [Use cases](docs/use-cases.md): the toggle taxonomy mapped to Airflow, with recipes.
-- [Measurement](docs/measurement.md): closing the loop with your experiment platform or warehouse.
-- [Architecture](docs/architecture.md): the flow and the surfaces it registers.
-- [Extending](docs/extending.md): add a backend.
-- [Design & roadmap](docs/design.md): why the design looks this way and what's next, grounded in the experimentation literature.
-- [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md).
+- [Getting started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md): a 5-minute walkthrough on real Airflow.
+- [Running a rollout](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/running-a-rollout.md): the end-to-end loop, and how to read a ramp.
+- [Case study](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/case-study/): canary a faster pipeline step end to end, with a real Unleash backend.
+- [Use cases](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/use-cases.md): the toggle taxonomy mapped to Airflow, with recipes.
+- [Measurement](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/measurement.md): closing the loop with your experiment platform or warehouse.
+- [Architecture](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/architecture.md): the flow and the surfaces it registers.
+- [Extending](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/extending.md): add a backend.
+- [Contributing](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/CONTRIBUTING.md) · [AGENTS.md](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/AGENTS.md).
 
 These docs also build into a site: `pip install -e ".[docs]"` then `mkdocs serve` (or see
-[`mkdocs.yml`](mkdocs.yml)); `.github/workflows/docs.yml` publishes it to GitHub Pages.
+[`mkdocs.yml`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/mkdocs.yml)); `.github/workflows/docs.yml` publishes it to GitHub Pages.
 
 ## How it works
 
@@ -299,9 +299,9 @@ It gives you two independent capabilities, both no-ops until you turn them on in
 The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
 `airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`. Register your own
 flag-driven dimensions for any operator attribute (a Spark version, a checkpoint toggle) with
-`register_placement` — see [docs/extending.md](docs/extending.md). The entity is bucketed
+`register_placement` — see [docs/extending.md](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/extending.md). The entity is bucketed
 deterministically, so a task lands in the same group every parse until the backend config changes.
-[`docs/architecture.md`](docs/architecture.md) has the step-by-step ramp and exposure sequence diagrams
+[`docs/architecture.md`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/architecture.md) has the step-by-step ramp and exposure sequence diagrams
 and the Airflow version notes.
 
 ## Status
