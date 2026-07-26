@@ -1,0 +1,23 @@
+name: release-please
+
+# Autonomous releases: release-please watches conventional commits on main and keeps a release PR
+# open with the next version bump and changelog. Merging that PR tags the release, which triggers the
+# signed publish workflow (Sigstore + PyPI attestations).
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: googleapis/release-please-action@8b8fd2cc23b2e18957157a9d923d75aa0c6f6ad5 # v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

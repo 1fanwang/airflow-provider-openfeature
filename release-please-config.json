@@ -1,0 +1,11 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "airflow-provider-openfeature",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": ["src/openfeature_airflow/__init__.py"]
+    }
+  }
+}

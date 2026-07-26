@@ -69,3 +69,18 @@ jobs:
           assert not any(n.startswith("airflow/") for n in names), "wheel ships airflow/ namespace!"
           print("wheel namespace ok:", whl)
           PY
+
+  # One aggregated status check for branch protection. Require only "ci-success" on main and it
+  # fails whenever any matrix, lint, or build job fails, is cancelled, or is skipped.
+  ci-success:
+    needs: [test, lint, build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Verify all required jobs passed
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" == "true" ]]; then
+            echo "A required job failed, was cancelled, or was skipped."
+            exit 1
+          fi
+          echo "All required jobs passed."

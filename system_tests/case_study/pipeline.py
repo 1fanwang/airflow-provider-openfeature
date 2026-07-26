@@ -77,9 +77,11 @@ def rollup_v2(rows: list[dict]) -> dict[tuple[str, str], float]:
 
 
 if __name__ == "__main__":  # quick self-check: v1 and v2 agree
+    import os
     import tempfile
 
-    path = generate_orders_csv(tempfile.mktemp(suffix=".csv"), rows_per_region=2000, days=10)
-    rows = load_region(path, "us-east")
+    with tempfile.TemporaryDirectory() as tmp:
+        path = generate_orders_csv(os.path.join(tmp, "orders.csv"), rows_per_region=2000, days=10)
+        rows = load_region(path, "us-east")
     assert rollup_v1(rows) == rollup_v2(rows), "v1 and v2 disagree!"
     print(f"parity OK on {len(rows)} rows, {len(rollup_v2(rows))} daily buckets")

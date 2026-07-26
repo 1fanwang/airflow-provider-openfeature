@@ -1,0 +1,32 @@
+name: Stale
+
+# Age out issues and PRs that have gone quiet, so the tracker reflects real work.
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays, 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/stale@5bef64f19d7facfb25b37b414482c7164d639639 # v9
+        with:
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-label: stale
+          stale-pr-label: stale
+          exempt-issue-labels: pinned,security,keep
+          exempt-pr-labels: pinned,security,keep
+          stale-issue-message: >
+            No activity for 60 days. This will close in 14 days unless something moves it forward.
+            Comment to keep it open.
+          stale-pr-message: >
+            No activity for 60 days. This will close in 14 days unless something moves it forward.
+            Comment or push to keep it open.
