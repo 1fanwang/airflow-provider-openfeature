@@ -32,7 +32,7 @@ flagd = ["openfeature-provider-flagd>=0.1.0"]
 growthbook = ["growthbook>=1.0.0"]
 unleash = ["UnleashClient>=5.0.0"]
 statsig = ["statsig>=0.40.0"]
-dev = ["pytest>=7.0", "growthbook>=1.0.0", "statsig>=0.40.0", "UnleashClient>=5.0.0"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0", "growthbook>=1.0.0", "statsig>=0.40.0", "UnleashClient>=5.0.0"]
 docs = ["mkdocs-material>=9.5"]
 
 [tool.pytest.ini_options]

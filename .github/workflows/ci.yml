@@ -25,7 +25,12 @@ jobs:
             --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${{ matrix.airflow-version }}/constraints-${{ matrix.python-version }}.txt"
           pip install -e ".[dev,growthbook]"
       - name: Run unit tests
-        run: pytest tests/ -q -m "not integration"
+        run: pytest tests/ -q -m "not integration" --cov=openfeature_airflow --cov-branch --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: py${{ matrix.python-version }}-af${{ matrix.airflow-version }}
       - name: Run example-DAG e2e (airflow dags test, real execution)
         run: python system_tests/verify_examples_e2e.py
 
