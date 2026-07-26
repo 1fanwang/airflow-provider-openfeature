@@ -242,6 +242,7 @@ See [docs/measurement.md](docs/measurement.md) for the per-backend readout.
 - [Measurement](docs/measurement.md): closing the loop with your experiment platform or warehouse.
 - [Architecture](docs/architecture.md): the flow and the surfaces it registers.
 - [Extending](docs/extending.md): add a backend.
+- [Design & roadmap](docs/design.md): why the design looks this way and what's next, grounded in the experimentation literature.
 - [Contributing](CONTRIBUTING.md) · [AGENTS.md](AGENTS.md).
 
 These docs also build into a site: `pip install -e ".[docs]"` then `mkdocs serve` (or see
