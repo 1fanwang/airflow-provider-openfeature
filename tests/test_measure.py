@@ -129,7 +129,10 @@ def test_emit_metric_sends_count_and_value(monkeypatch):
         def gauge(name, value, tags=None):
             calls.append(("gauge", name, value, tags))
 
-    from airflow.sdk.observability import stats
+    try:
+        from airflow.sdk.observability import stats  # Airflow 3.x
+    except ImportError:
+        from airflow import stats  # Airflow 2.x
 
     monkeypatch.setattr(stats, "Stats", FakeStats)
     _emit_metric("duration_ms", 12.5, {"variant": "fast", "attempt": 2})
@@ -151,7 +154,10 @@ def test_emit_metric_allows_count_only(monkeypatch):
         def gauge(name, value, tags=None):
             raise AssertionError("value metric should not be emitted")
 
-    from airflow.sdk.observability import stats
+    try:
+        from airflow.sdk.observability import stats  # Airflow 3.x
+    except ImportError:
+        from airflow import stats  # Airflow 2.x
 
     monkeypatch.setattr(stats, "Stats", FakeStats)
     _emit_metric("success", None, {"variant": "control"})
@@ -164,7 +170,10 @@ def test_emit_metric_is_best_effort(monkeypatch):
         def incr(name, tags=None):
             raise RuntimeError("stats backend down")
 
-    from airflow.sdk.observability import stats
+    try:
+        from airflow.sdk.observability import stats  # Airflow 3.x
+    except ImportError:
+        from airflow import stats  # Airflow 2.x
 
     monkeypatch.setattr(stats, "Stats", BadStats)
     _emit_metric("duration_ms", 12.5, {"variant": "fast"})
