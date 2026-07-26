@@ -44,6 +44,19 @@ See [docs/extending.md](docs/extending.md). In short: implement OpenFeature's `A
 `src/openfeature_airflow/providers/`, add an optional extra in `pyproject.toml`, and a unit test. If
 the backend already ships its own OpenFeature provider, you may not need an adapter here at all.
 
+## Branch protection (repo maintainers)
+
+The `main` branch must be protected so that unfinished or failing CI blocks merges. In
+**Settings → Branches → main → Edit rule**:
+
+1. Enable **Require status checks to pass before merging**.
+2. Enable **Require branches to be up to date before merging**.
+3. Add `ci-success` as the only required check (the CI workflow has a gate job with that name
+   that requires the full test matrix, lint, and build to all pass).
+
+With this one check in place, a PR whose CI has not run yet, is still running, was cancelled,
+or has any failing job will be blocked from merging.
+
 ## Licensing
 
 By contributing you agree your work is licensed under Apache-2.0. The repo uses a root `LICENSE` and
