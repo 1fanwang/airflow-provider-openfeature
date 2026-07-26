@@ -23,6 +23,11 @@ through [OpenFeature](https://openfeature.dev), so it works with the flag backen
 [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io),
 [Unleash](https://www.getunleash.io), [Statsig](https://statsig.com), or an in-house engine.
 
+It installs as an ordinary pip package and plugs into two extension points Airflow and OpenFeature
+already expose: an Airflow [cluster policy](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html)
+and an OpenFeature provider. So it doesn't fork Airflow, patch the scheduler, or make you rewrite a
+DAG, and it stays off until you switch it on in config.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/demo.svg" alt="Ramping the real placement policy across 40 Airflow tasks: as the flag goes 0 to 100%, more tasks move to the canary pool, then the kill switch reverts all of them" width="760">
 </p>
