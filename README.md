@@ -14,6 +14,9 @@ flag, not a redeploy.
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/CONTRIBUTING.md)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/1fanwang/airflow-provider-openfeature)
+[![codecov](https://codecov.io/gh/1fanwang/airflow-provider-openfeature/branch/main/graph/badge.svg)](https://codecov.io/gh/1fanwang/airflow-provider-openfeature)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/1fanwang/airflow-provider-openfeature/badge)](https://securityscorecards.dev/viewer/?uri=github.com/1fanwang/airflow-provider-openfeature)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=1fanwang_airflow-provider-openfeature&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=1fanwang_airflow-provider-openfeature)
 
 </div>
 

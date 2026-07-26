@@ -1,0 +1,25 @@
+# airflow-provider-openfeature
+
+> Feature flags for Apache Airflow: ramp, A/B test, and kill-switch a DAG's behavior and its task
+> placement (pool, queue, executor) through OpenFeature. Works with flagd, LaunchDarkly, GrowthBook,
+> Unleash, Statsig, or an in-house engine.
+
+It installs as a standard pip package and registers on Airflow's and OpenFeature's own entry points: an
+OpenFeature provider (hook, sensor, and an in-DAG gate), a placement cluster policy, and a plugin for the
+exposure listener. It stays off until enabled in config. The four well-known flag keys the placement
+policy reads are `airflow.task.pool`, `airflow.task.queue`, `airflow.task.executor`, and
+`airflow.task.priority_weight`.
+
+## Docs
+
+- [Getting started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md): a 5-minute walkthrough on real Airflow with flagd.
+- [Use cases](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/use-cases.md): the standard toggle taxonomy mapped to Airflow, with recipes.
+- [Running a rollout](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/running-a-rollout.md): the day-to-day ramp, measure, and revert loop.
+- [Architecture](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/architecture.md): the data flow and the three surfaces it registers (policy, hook/sensor/gate, exposure listener).
+- [Measurement](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/measurement.md): record an outcome to your experiment platform or warehouse.
+- [Extending](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/extending.md): add a backend adapter.
+- [Contributing](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/CONTRIBUTING.md): dev setup, tests, and conventions.
+
+## Examples
+
+- [Example DAGs](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags): runnable templates (revenue-rollup canary, 2-to-3 migration, KubernetesExecutor canary, A/B a model).

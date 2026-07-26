@@ -5,17 +5,23 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # OIDC for tokenless Codecov upload on a public repo
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11"]
         airflow-version: ["2.11.0", "3.3.0"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Airflow (with constraints) + the provider
@@ -25,15 +31,19 @@ jobs:
             --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${{ matrix.airflow-version }}/constraints-${{ matrix.python-version }}.txt"
           pip install -e ".[dev,growthbook]"
       - name: Run unit tests
-        run: pytest tests/ -q -m "not integration"
+        run: pytest tests/ -q -m "not integration" --cov=openfeature_airflow --cov-branch --cov-report=xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
+        with:
+          flags: py${{ matrix.python-version }}-af${{ matrix.airflow-version }}
       - name: Run example-DAG e2e (airflow dags test, real execution)
         run: python system_tests/verify_examples_e2e.py
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
       - run: pip install ruff
@@ -42,8 +52,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
       - run: pip install build twine
