@@ -1,5 +1,5 @@
 site_name: airflow-provider-openfeature
-site_description: Feature flags and progressive delivery for Apache Airflow, through OpenFeature.
+site_description: 'Feature flags for Apache Airflow: ramp, A/B test, and kill-switch DAG behavior and task placement through OpenFeature.'
 site_url: https://1fanwang.github.io/airflow-provider-openfeature/
 repo_url: https://github.com/1fanwang/airflow-provider-openfeature
 repo_name: 1fanwang/airflow-provider-openfeature

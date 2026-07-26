@@ -32,19 +32,19 @@ DAG, and it stays off until you switch it on in config.
   <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/demo.svg" alt="Ramping the real placement policy across 40 Airflow tasks: as the flag goes 0 to 100%, more tasks move to the canary pool, then the kill switch reverts all of them" width="760">
 </p>
 
-## Try it in 30 seconds
+## Start here
 
-No Docker, no backend, no running Airflow:
+Two ways in, both on real Airflow.
 
-```bash
-pip install airflow-provider-openfeature
-openfeature-airflow-quickstart
-```
+**You run the Airflow platform.** Install the provider, turn the policy on, and move a subset of DAGs to a
+different pool, queue, or executor from a flag. Ramp a worker or executor migration, or flip a kill switch
+mid-incident, without editing anyone's DAG. The
+[getting-started walkthrough](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md)
+runs the whole thing on a local Airflow in about 5 minutes.
 
-It builds 40 real Airflow tasks and runs the actual `apply_placement` policy on them (the same function
-a live scheduler calls), moving each to a canary pool as the flag ramps 0 → 100%, then reverting on the
-kill switch. Nothing is mocked; there's just no scheduler or backend to stand up. To run the same policy
-against a live backend and a running scheduler, follow the [5-minute getting-started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md).
+**You write DAGs.** Gate a code path or A/B a model inside a task with one call, no platform access needed.
+See [Gate a task](#gate-a-task-or-measure-an-outcome) and the runnable
+[example DAGs](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags).
 
 ## Why you need it
 

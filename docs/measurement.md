@@ -27,7 +27,7 @@ metric so backends without analytics still land the signal in your warehouse.
 | in-house | the template adapter appends to a `tracked` export list |
 
 Proven end to end for flagd, Statsig, and the in-house engine in
-[`system_tests/measure_loop.py`](../system_tests/measure_loop.py) — real backends, real measured lift.
+[`system_tests/measure_loop.py`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/system_tests/measure_loop.py) — real backends, real measured lift.
 
 ## The warehouse path (works with any backend)
 

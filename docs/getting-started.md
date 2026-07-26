@@ -1,5 +1,8 @@
 # Getting started
 
+This is the hands-on platform path: you set up Airflow, enable the policy, and ramp a flag. If you only
+want to gate or A/B a code path inside a DAG you write, see [Use cases](use-cases.md) instead.
+
 By the end of this walkthrough you will:
 
 - install the provider,
@@ -143,6 +146,6 @@ executor, or priority.
 ## Next
 
 - [Use cases](use-cases.md): 2→3 migration, KubernetesExecutor rollout, A/B testing, kill switch, cost routing.
-- [Examples](../example_dags/): runnable DAGs for each pattern.
+- [Examples](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags): runnable DAGs for each pattern.
 - [Register a backend](extending.md): GrowthBook, Unleash, Statsig, PostHog, or your own.
 - Clean up: `docker rm -f flagd`.

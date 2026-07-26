@@ -39,7 +39,7 @@ provider reads either one identically, so switching backends is a one-line chang
 
 ![The same flag with a 50% rollout by region in GrowthBook](img/growthbook-flag.png)
 
-**The pipeline** ([`pipeline.py`](../../system_tests/case_study/pipeline.py)) generates a realistic
+**The pipeline** ([`pipeline.py`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/system_tests/case_study/pipeline.py)) generates a realistic
 orders dataset (480k rows across 12 regions and 30 days) and has both rollups. They return identical
 numbers; `v2` just does far fewer passes:
 
@@ -69,7 +69,7 @@ track_outcome("rollup_ms", region, value=elapsed_ms, variant="v2" if use_v2 else
 
 ## Running the ramp
 
-[`run_case_study.py`](../../system_tests/case_study/run_case_study.py) turns the Unleash dial from 0%
+[`run_case_study.py`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/system_tests/case_study/run_case_study.py) turns the Unleash dial from 0%
 to 100%, and at each step evaluates every region through the provider, runs its real shard, and checks
 the guardrail (`v2 == v1`).
 
@@ -129,5 +129,5 @@ subset, and the pod count, grow with no code change.
 On a real [kind](https://kind.sigs.k8s.io/) cluster the flag routes 2/12 DAGs to real pods (state
 `Running`); a live ramp to 50% grows it to 7/12, every routed task runs as a real pod, and emptying the
 flag reverts it. No redeploy. The reproducer is
-[`k8s_canary_e2e.py`](../../system_tests/k8s_canary_e2e.py).
+[`k8s_canary_e2e.py`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/system_tests/k8s_canary_e2e.py).
 
