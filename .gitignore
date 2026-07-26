@@ -8,3 +8,4 @@ build/
 .venv/
 *.whl
 .DS_Store
+site/
