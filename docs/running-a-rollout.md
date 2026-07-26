@@ -29,7 +29,7 @@ Ramp 0 → 10% → 50% → 100%, and check three things at each step.
   flag rule is wrong. Fix that before reading anything else. `openfeature_airflow.analysis.srm_check`
   runs this as a sample-ratio-mismatch test and tells you when the observed split is off.
 - **The guardrail holds.** Pair the outcome with a correctness check that does not depend on the win you
-  are after. In the [revenue-rollup case study](case-study/) the faster rewrite is accepted only if its
+  are after. In the [revenue-rollup case study](case-study/README.md) the faster rewrite is accepted only if its
   totals match the original to the cent. If the guardrail breaks, revert; the speed number does not matter.
 - **The outcome moved the right way.** Record it with [`track_outcome`](measurement.md) and compare the
   treated DAGs to the rest.
@@ -60,7 +60,7 @@ within each window and the comparison is across time instead of across DAGs.
 
 ## Worked examples
 
-- [Canary a faster pipeline step](case-study/): the revenue-rollup ramp end to end, with a guardrail.
+- [Canary a faster pipeline step](case-study/README.md): the revenue-rollup ramp end to end, with a guardrail.
 - [Use cases](use-cases.md): the 2→3 migration, the KubernetesExecutor canary, A/B a model, and more,
   each with the flag it uses.
 

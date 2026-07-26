@@ -20,14 +20,21 @@ pip install airflow-provider-openfeature
 It is a standard PyPI package, so [uv](https://docs.astral.sh/uv/) works the same way:
 `uv pip install airflow-provider-openfeature`.
 
-## Where to start
+## Pick your path
 
-- **[Getting started](getting-started.md)** — a 5-minute walkthrough on real Airflow.
-- **[Use cases](use-cases.md)** — the standard toggle taxonomy mapped to Airflow, with recipes.
-- **[Case study](case-study/README.md)** — canary a faster pipeline step end to end, with a real backend.
-- **[Measurement](measurement.md)** — close the loop with your experiment platform or warehouse.
-- **[Architecture](architecture.md)** — the flow and the surfaces it registers.
-- **[Extending](extending.md)** — add a backend.
+**I run the Airflow platform.** Install the provider, enable the policy, and move a subset of DAGs to a
+different pool, queue, or executor from a flag, without touching any DAG.
+→ [Getting started](getting-started.md), about 5 minutes on a local Airflow.
 
-The [README on GitHub](https://github.com/1fanwang/airflow-provider-openfeature) has the demos and the
-full picture.
+**I write DAGs.** Gate a code path or A/B a model inside a task with one call, no platform access needed.
+→ [Use cases](use-cases.md) and the [example DAGs](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags).
+
+## More
+
+- [Running a rollout](running-a-rollout.md): the day-to-day ramp, measure, and revert loop.
+- [Case study](case-study/README.md): canary a faster pipeline step end to end, with a real backend.
+- [Measurement](measurement.md): close the loop with your experiment platform or warehouse.
+- [Architecture](architecture.md): the flow and the surfaces it registers.
+- [Extending](extending.md): add a backend.
+
+The [README on GitHub](https://github.com/1fanwang/airflow-provider-openfeature) has the demos and the full picture.

@@ -18,8 +18,8 @@ Airflow schedules from a pull queue, so they can't express "route these DAGs to 
 flag evaluated in the scheduler policy can, and it reverts in seconds instead of a redeploy cycle.
 
 New here? Walk through [getting-started.md](getting-started.md) first. Runnable versions of these are
-in [`../example_dags/`](../example_dags/); the end-to-end drivers are in
-[`../system_tests/`](../system_tests/).
+in [`../example_dags/`](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags); the end-to-end drivers are in
+[`../system_tests/`](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/system_tests).
 
 ## Placement (the policy)
 
