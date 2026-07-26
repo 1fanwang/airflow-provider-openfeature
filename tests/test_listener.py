@@ -55,7 +55,10 @@ class TestEmitExposure:
             def incr(name, tags=None):
                 calls.append((name, tags))
 
-        from airflow.sdk.observability import stats
+        try:
+            from airflow.sdk.observability import stats  # Airflow 3.x
+        except ImportError:
+            from airflow import stats  # Airflow 2.x
 
         monkeypatch.setattr(stats, "Stats", FakeStats)
         _pool_provider(["d1"])
@@ -70,7 +73,10 @@ class TestEmitExposure:
             def incr(name, tags=None):
                 raise RuntimeError("stats backend down")
 
-        from airflow.sdk.observability import stats
+        try:
+            from airflow.sdk.observability import stats  # Airflow 3.x
+        except ImportError:
+            from airflow import stats  # Airflow 2.x
 
         monkeypatch.setattr(stats, "Stats", BadStats)
         _pool_provider(["d1"])
