@@ -31,16 +31,26 @@ def entity_of(evaluation_context) -> str:
 
 @dataclass
 class BoolFlag:
-    """A boolean flag enabled for ``rollout_pct`` percent of entities (0..100)."""
+    """A boolean flag enabled for ``rollout_pct`` percent of entities (0..100).
+
+    ``layer`` overrides the bucketing salt: flags sharing a layer randomize together, flags in
+    different layers (or with distinct keys) randomize independently. See Google's overlapping
+    experiment layers (Tang et al., KDD 2010).
+    """
 
     rollout_pct: int
+    layer: str | None = None
 
 
 @dataclass
 class VariantFlag:
-    """A multi-variant string flag. ``variants`` is ``[(value, weight)]`` with weights summing to 100."""
+    """A multi-variant string flag. ``variants`` is ``[(value, weight)]`` with weights summing to 100.
+
+    ``layer`` overrides the bucketing salt (see :class:`BoolFlag`).
+    """
 
     variants: list[tuple[str, int]]
+    layer: str | None = None
 
 
 class FractionalProvider(AbstractProvider):
@@ -72,7 +82,7 @@ class FractionalProvider(AbstractProvider):
         flag = self._bool_flags.get(flag_key)
         if flag is None:
             return FlagResolutionDetails(value=default_value, reason=Reason.DEFAULT)
-        enabled = _bucket(entity_of(evaluation_context), flag_key) < flag.rollout_pct
+        enabled = _bucket(entity_of(evaluation_context), flag.layer or flag_key) < flag.rollout_pct
         return FlagResolutionDetails(
             value=enabled, variant="on" if enabled else "off", reason=Reason.TARGETING_MATCH
         )
@@ -81,7 +91,7 @@ class FractionalProvider(AbstractProvider):
         flag = self._variant_flags.get(flag_key)
         if flag is None:
             return FlagResolutionDetails(value=default_value, reason=Reason.DEFAULT)
-        bucket = _bucket(entity_of(evaluation_context), flag_key)
+        bucket = _bucket(entity_of(evaluation_context), flag.layer or flag_key)
         cumulative = 0
         for value, weight in flag.variants:
             cumulative += weight

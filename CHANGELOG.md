@@ -5,6 +5,14 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
 
 ## [Unreleased]
 
+### Added
+- `openfeature_airflow.switchback`: time-windowed (switchback) assignment for small pipeline
+  populations that share pools and executors, assigning whole time windows to treatment or control.
+- `openfeature_airflow.analysis`: a sample-ratio-mismatch check (`srm_check`, chi-square, standard
+  library only) and a `lift` helper, to validate a ramp's split before reading any outcome.
+- `layer` on `BoolFlag` / `VariantFlag` to group or namespace the FractionalProvider bucketing salt for
+  orthogonal experiments.
+
 ## [0.1.0] - unreleased (alpha)
 
 ### Added

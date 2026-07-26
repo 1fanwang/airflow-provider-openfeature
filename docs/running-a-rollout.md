@@ -26,7 +26,8 @@ Ramp 0 → 10% → 50% → 100%, and check three things at each step.
 
 - **The split landed where you set it.** Read the pool, queue, or executor back off the tasks
   ([getting started](getting-started.md) step 5 shows how). If you set 25% and 60% of DAGs moved, the
-  flag rule is wrong. Fix that before reading anything else.
+  flag rule is wrong. Fix that before reading anything else. `openfeature_airflow.analysis.srm_check`
+  runs this as a sample-ratio-mismatch test and tells you when the observed split is off.
 - **The guardrail holds.** Pair the outcome with a correctness check that does not depend on the win you
   are after. In the [revenue-rollup case study](case-study/) the faster rewrite is accepted only if its
   totals match the original to the cent. If the guardrail breaks, revert; the speed number does not matter.
@@ -53,7 +54,9 @@ A few things keep a rollout honest, all true of the provider as it ships.
 One trap is specific to a shared cluster. If the treated DAGs and the untreated DAGs pull workers from
 the same pool, a large treatment arm can starve the rest, which makes the change look better than it is.
 Ramp gradually, and watch the untreated group's numbers too. If both groups move together, the pool is
-the cause, not your change.
+the cause, not your change. For a population this small, `openfeature_airflow.switchback` sidesteps the
+trap: assign whole time windows to treatment or control, so the shared pool affects both arms equally
+within each window and the comparison is across time instead of across DAGs.
 
 ## Worked examples
 
@@ -63,6 +66,6 @@ the cause, not your change.
 
 ## What is coming
 
-Measurement is simple today: an exposure and an outcome, read in your own dashboard. Sharper tools for
-small pipeline populations — time-windowed (switchback) assignment, readouts you can watch continuously
-without fooling yourself, and variance reduction — are planned.
+Switchback assignment (`openfeature_airflow.switchback`) and a sample-ratio-mismatch check
+(`openfeature_airflow.analysis`) ship today. Readouts you can watch continuously without inflating false
+positives (always-valid inference) and variance reduction (CUPED) are planned.
