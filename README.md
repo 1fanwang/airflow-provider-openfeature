@@ -17,7 +17,7 @@ flag, not a redeploy.
 </div>
 
 A platform team moves a **subset** of tasks to a different pool, queue, or executor, ramps a worker or
-executor migration, or flips a kill switch mid-incident — all centrally, without touching anyone's DAG.
+executor migration, or flips a kill switch mid-incident, all centrally, without touching anyone's DAG.
 A DAG author gates a code path or A/B-tests a model inside a task. Both go
 through [OpenFeature](https://openfeature.dev), so it works with the flag backend you already run:
 [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io),
@@ -36,8 +36,8 @@ pip install airflow-provider-openfeature
 openfeature-airflow-quickstart
 ```
 
-It builds 40 real Airflow tasks and runs the actual `apply_placement` policy on them — the same function
-a live scheduler calls — moving each to a canary pool as the flag ramps 0 → 100%, then reverting on the
+It builds 40 real Airflow tasks and runs the actual `apply_placement` policy on them (the same function
+a live scheduler calls), moving each to a canary pool as the flag ramps 0 → 100%, then reverting on the
 kill switch. Nothing is mocked; there's just no scheduler or backend to stand up. To run the same policy
 against a live backend and a running scheduler, follow the [5-minute getting-started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md).
 
@@ -67,7 +67,7 @@ schedules from a pull queue, so a scheduler-level flag is how you ramp a subset 
 |---|---|
 | **Move where and how tasks run** | A cluster policy reads a flag and sets a task's pool, queue, executor, or priority for a chosen subset of DAGs, at parse time. No DAG edits. |
 | **Ramp and revert live** | Change a percentage in your backend. No redeploy, no scheduler restart. |
-| **Any backend** | [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io), [Statsig](https://statsig.com), [Unleash](https://www.getunleash.io), or an in-house engine, through [OpenFeature](https://openfeature.dev). Swap without a rewrite. |
+| **Any backend** | [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io), [Statsig](https://statsig.com), [Unleash](https://www.getunleash.io), or an in-house engine, through [OpenFeature](https://openfeature.dev). Switch backends without code changes. |
 | **Measure the result** | One call records the outcome to your experiment platform ([Statsig](https://statsig.com), [GrowthBook](https://www.growthbook.io)) or your warehouse ([OpenTelemetry](https://opentelemetry.io), [Grafana](https://grafana.com)). |
 | **Safe to install** | The policy and listener do nothing until you turn them on in config. |
 
@@ -83,7 +83,7 @@ Airflow decides how each task runs from a few settings: its
 [Kubernetes pod](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)).
 Normally you change these by editing DAGs or redeploying, and the change hits every DAG at once.
 
-**Change them with a flag instead, for a subset of DAGs** — the ones you pick, by name, by
+**Change them with a flag instead, for a subset of DAGs**: the ones you pick, by name, by
 team, or by a percentage you ramp. A
 [cluster policy](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html)
 reads the flag and applies the setting to that subset, so there is no rollout logic in the DAG itself:
@@ -118,12 +118,11 @@ in-house engine through OpenFeature, so you use the backend you already run:
 
 Commands and raw output for all of this are in [`system_tests/E2E.md`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/system_tests/E2E.md).
 
-**It complements your stack; it replaces nothing.** OpenFeature is the seam. Your flag backend still
-stores the flags, does the targeting, and runs the experiment analysis; Airflow still schedules. This
-provider carries the flag decision to the one place they don't reach: the scheduler, at task-placement
-time, so you get more out of the backend you already run. The bundled `FractionalProvider` is only a
-no-backend default for the quickstart and tests; point at your real backend in production and change
-nothing else.
+**It works with your setup; it doesn't replace anything.** Your flag backend keeps storing and targeting
+the flags. Airflow keeps scheduling. This provider reads the flag through OpenFeature and applies it
+where neither of them does: at task placement, in the scheduler. The bundled `FractionalProvider` is
+just a no-backend default for the quickstart and tests; in production you point at your real backend and
+change nothing else.
 
 ## Worked example: canary a pipeline change, end to end
 
@@ -162,7 +161,7 @@ guardrail, and the fix would be one dial back to 0%, with no redeploy.
 
 The full walkthrough, plus a second example that canaries the
 [KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
-on a real [kind](https://kind.sigs.k8s.io/) cluster — a flag routes a subset of DAGs to real pods — is in
+on a real [kind](https://kind.sigs.k8s.io/) cluster (a flag routes a subset of DAGs to real pods), is in
 [**docs/case-study**](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/case-study/).
 
 ## Examples
@@ -299,7 +298,7 @@ It gives you two independent capabilities, both no-ops until you turn them on in
 The policy reads these well-known flags, keyed on `dag_id:task_id`: `airflow.task.pool`,
 `airflow.task.queue`, `airflow.task.executor`, `airflow.task.priority_weight`. Register your own
 flag-driven dimensions for any operator attribute (a Spark version, a checkpoint toggle) with
-`register_placement` — see [docs/extending.md](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/extending.md). The entity is bucketed
+`register_placement`; see [docs/extending.md](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/extending.md). The entity is bucketed
 deterministically, so a task lands in the same group every parse until the backend config changes.
 [`docs/architecture.md`](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/architecture.md) has the step-by-step ramp and exposure sequence diagrams
 and the Airflow version notes.
