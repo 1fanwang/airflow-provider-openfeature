@@ -18,7 +18,7 @@ class UnleashProvider(AbstractProvider):
         self._client = unleash_client
         self._field = context_field
         # Optional: map a boolean toggle (enabled via a constraint) to a string value, for Unleash
-        # setups that gate a cohort without variants.
+        # setups that gate a subset without variants.
         self._enabled_values = enabled_values or {}
 
     def get_metadata(self) -> Metadata:

@@ -1,7 +1,7 @@
-"""Cohort/variant exposure: record which cohort each task landed in, for measurement.
+"""Group/variant exposure: record which group each task landed in, for measurement.
 
 ``emit_exposure`` logs a structured exposure line and increments an ``openfeature.exposure`` metric,
-so a downstream experiment platform can join the cohort assignment to task metrics. It is also wired
+so a downstream experiment platform can join the group assignment to task metrics. It is also wired
 as an ``on_task_instance_running`` listener; that hook fires worker-side on Airflow 2.x. On Airflow 3.x
 task-instance listeners live in the Task SDK, so prefer calling ``emit_exposure`` from your task or
 from the policy. Everything here is a no-op unless ``[openfeature] enable_exposure_listener = True``.
@@ -26,7 +26,7 @@ def _enabled() -> bool:
 
 
 def emit_exposure(dag_id: str, task_id: str, run_id: str | None = None, flags=EXPOSURE_FLAGS) -> dict:
-    """Resolve the given flags for this task cohort and emit an exposure log + metric. Returns the map."""
+    """Resolve the given flags for this task group and emit an exposure log + metric. Returns the map."""
     from openfeature_airflow.gate import variant
 
     entity = f"{dag_id}:{task_id}"

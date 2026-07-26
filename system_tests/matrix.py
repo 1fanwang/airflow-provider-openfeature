@@ -1,13 +1,13 @@
 """Execution-level matrix: backends x placement use cases, real data flow into real task runs.
 
-For each backend, a cohort config from a live source (flagd gRPC, GrowthBook HTTP, Statsig HTTP, or an
+For each backend, a subset config from a live source (flagd gRPC, GrowthBook HTTP, Statsig HTTP, or an
 in-process in-house engine) drives BOTH placement use cases at once through the policy:
 
     UC1  airflow.task.pool  -> canary_pool   (2->3 migration routing)
     UC2  airflow.task.queue -> kubernetes    (Kubernetes worker migration)
 
 A real ``airflow dags test`` runs each DAG; the pool AND queue the TaskInstance actually ran with are
-read back from the metadata DB. An in-cohort DAG must get (canary_pool, kubernetes); an out-of-cohort
+read back from the metadata DB. An in-subset DAG must get (canary_pool, kubernetes); an out-of-subset
 DAG must stay (default_pool, default). Prints a backend x use-case matrix.
 
 Prereqs: Docker (flagd), provider importable. GrowthBook + Statsig HTTP servers start in-process.
@@ -28,7 +28,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 POPULATION = [f"dag_{i:03d}" for i in range(5)]
-COHORT = {"dag_000", "dag_001"}
+SUBSET = {"dag_000", "dag_001"}
 IN_DAG, OUT_DAG = "dag_000", "dag_004"
 FLAG_POOL, FLAG_QUEUE = "airflow.task.pool", "airflow.task.queue"
 CANARY_POOL, DEFAULT_POOL = "canary_pool", "default_pool"
@@ -45,8 +45,8 @@ def _serve(port, handler):
 
 def growthbook_server():
     feats = {
-        FLAG_POOL: {"defaultValue": DEFAULT_POOL, "rules": [{"condition": {"dag_id": {"$in": list(COHORT)}}, "force": CANARY_POOL}]},
-        FLAG_QUEUE: {"defaultValue": DEFAULT_QUEUE, "rules": [{"condition": {"dag_id": {"$in": list(COHORT)}}, "force": K8S_QUEUE}]},
+        FLAG_POOL: {"defaultValue": DEFAULT_POOL, "rules": [{"condition": {"dag_id": {"$in": list(SUBSET)}}, "force": CANARY_POOL}]},
+        FLAG_QUEUE: {"defaultValue": DEFAULT_QUEUE, "rules": [{"condition": {"dag_id": {"$in": list(SUBSET)}}, "force": K8S_QUEUE}]},
     }
     body = json.dumps({"status": 200, "features": feats}).encode()
 
@@ -62,7 +62,7 @@ def statsig_server():
         return {"name": name, "type": "feature_gate", "salt": "s", "enabled": True, "defaultValue": False,
                 "rules": [{"name": "c", "id": "c", "salt": "r", "passPercentage": 100, "returnValue": True,
                            "conditions": [{"type": "unit_id", "idType": "userID", "operator": "any",
-                                           "targetValue": [f"{d}:only" for d in COHORT],
+                                           "targetValue": [f"{d}:only" for d in SUBSET],
                                            "field": None, "additionalValues": {}, "isDeviceBased": False}]}]}
     spec = {"has_updates": True, "time": int(time.time() * 1000),
             "feature_gates": [gate("airflow_task_pool"), gate("airflow_task_queue")],
@@ -103,10 +103,10 @@ elif b == "statsig":
         enabled_values={{"{FLAG_POOL}": "{CANARY_POOL}", "{FLAG_QUEUE}": "{K8S_QUEUE}"}}))
 elif b == "inhouse":
     from openfeature_airflow.providers.inhouse import InHouseTreatmentProvider
-    cohort = {sorted(COHORT)!r}
+    subset = {sorted(SUBSET)!r}
     api.set_provider(InHouseTreatmentProvider(string_flags={{
-        "{FLAG_POOL}": {{"segments": [{{"attribute": "dag_id", "in": cohort, "variant": "{CANARY_POOL}"}}], "default": "{DEFAULT_POOL}"}},
-        "{FLAG_QUEUE}": {{"segments": [{{"attribute": "dag_id", "in": cohort, "variant": "{K8S_QUEUE}"}}], "default": "{DEFAULT_QUEUE}"}}}}))
+        "{FLAG_POOL}": {{"segments": [{{"attribute": "dag_id", "in": subset, "variant": "{CANARY_POOL}"}}], "default": "{DEFAULT_POOL}"}},
+        "{FLAG_QUEUE}": {{"segments": [{{"attribute": "dag_id", "in": subset, "variant": "{K8S_QUEUE}"}}], "default": "{DEFAULT_QUEUE}"}}}}))
 elif b == "unleash":
     from UnleashClient import UnleashClient
     from openfeature_airflow.providers.unleash import UnleashProvider
@@ -187,7 +187,7 @@ def main():
 
     print("=" * 82)
     print("EXECUTION-LEVEL MATRIX, real data -> real `airflow dags test` -> pool+queue from the DB")
-    print(f"cohort {sorted(COHORT)}: UC1 pool->{CANARY_POOL}, UC2 queue->{K8S_QUEUE};  others -> defaults")
+    print(f"subset {sorted(SUBSET)}: UC1 pool->{CANARY_POOL}, UC2 queue->{K8S_QUEUE};  others -> defaults")
     print("=" * 82)
     print(f"{'backend':<22}{'net':<6}{'UC1 pool (in/out)':<26}{'UC2 queue (in/out)':<26}ok")
     print("-" * 82)

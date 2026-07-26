@@ -1,7 +1,7 @@
-"""Kill switch / instant rollback: flip a flag and a cohort reverts, with no code change or redeploy.
+"""Kill switch / instant rollback: flip a flag and a subset reverts, with no code change or redeploy.
 
 Places `dag_003` in a canary pool via the policy, then edits the flag config the flagd daemon watches
-to drop the cohort. flagd hot-reloads, a second real `airflow dags test` runs, and the task reverts to
+to drop the subset. flagd hot-reloads, a second real `airflow dags test` runs, and the task reverts to
 the default pool. The only thing that changed between the two runs is the flag.
 
 Prereqs: Docker (flagd). Run:  python system_tests/kill_switch.py
@@ -27,7 +27,7 @@ ON = {"flags": {"airflow.task.pool": {
     "state": "ENABLED", "variants": {"canary": "canary_pool", "default": "default_pool"},
     "defaultVariant": "default",
     "targeting": {"if": [{"in": [{"var": "dag_id"}, [DAG_ID]]}, "canary", "default"]}}}}
-# Kill switch: same flag, cohort emptied -> everyone falls back to the default pool.
+# Kill switch: same flag, subset emptied -> everyone falls back to the default pool.
 OFF = {"flags": {"airflow.task.pool": {
     "state": "ENABLED", "variants": {"canary": "canary_pool", "default": "default_pool"},
     "defaultVariant": "default", "targeting": {"if": [{"in": [{"var": "dag_id"}, []]}, "canary", "default"]}}}}
@@ -107,15 +107,15 @@ def main():
         print("flagd failed to start (Docker?)"); sys.exit(1)
 
     print("=" * 60)
-    print("Kill switch, flip one flag, the cohort reverts, no redeploy")
+    print("Kill switch, flip one flag, the subset reverts, no redeploy")
     print("=" * 60)
     pool_before, state_before = run_and_read()
     print(f"  RUN 1 (flag targets {DAG_ID}):        pool={pool_before!r} state={state_before!r}")
 
-    write_flags(OFF)   # the kill switch: empty the cohort in the config flagd watches
+    write_flags(OFF)   # the kill switch: empty the subset in the config flagd watches
     time.sleep(4)      # flagd hot-reloads the mounted file
     pool_after, state_after = run_and_read()
-    print("  ...flipped the flag (cohort emptied); flagd hot-reloaded...")
+    print("  ...flipped the flag (subset emptied); flagd hot-reloaded...")
     print(f"  RUN 2 (flag flipped):                 pool={pool_after!r} state={state_after!r}")
 
     subprocess.run(["docker", "rm", "-f", "flagd-ks"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)

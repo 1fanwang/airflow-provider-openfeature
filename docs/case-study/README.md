@@ -106,30 +106,28 @@ touching the DAG, since it all goes through [OpenFeature](https://openfeature.de
 
 ---
 
-## Second example: evaluate an executor change for a regression
+## Second example: canary the KubernetesExecutor on a real cluster
 
 Same shape, applied to the platform itself instead of a DAG's logic.
 
-**The problem.** [KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
-creates worker pods one at a time. When a burst of tasks is queued,
-each pod waits behind the previous pod's create call, so **task queued latency** climbs with the burst
-size. [apache/airflow#68480](https://github.com/apache/airflow/pull/68480) adds opt-in concurrent pod
-creation. Before turning it on, the platform team wants to know: does it actually lower queued latency,
-and does it regress anything?
+**The problem.** Moving a subset of DAGs onto the
+[KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
+(each task runs as its own pod) is an infrastructure change you want to ramp, not flip: turn it on for a
+few DAGs, confirm the pods run, then widen. An executor change like
+[apache/airflow#68480](https://github.com/apache/airflow/pull/68480) (concurrent pod creation) is the
+kind of thing you'd adopt this way.
 
-**The check.** Gate it behind `airflow.executor.k8s_concurrent_pod_creation`, then run both arms on a
-real cluster with the same call the executor uses (`create_namespaced_pod`), and measure queued latency:
+**The check.** Gate the executor behind `airflow.task.executor` and route a subset of DAGs to it with a
+flag resolved live from flagd. For each routed DAG the executor's own action — launch a pod on the
+cluster — runs for real, and the pod state is read back with `kubectl`. Ramp the flag and watch the
+subset, and the pod count, grow with no code change.
 
-- baseline (flag off): create a burst of pods sequentially.
-- treatment (flag on, #68480): create the same burst concurrently.
+<p align="center">
+  <img src="../demo-k8s-canary.svg" alt="A flag routes a subset of DAGs to real pods on a real kind cluster; ramping the flag grows the subset and the pod count" width="760">
+</p>
 
-[`k8s_async_case_study.py`](../../system_tests/case_study/k8s_async_case_study.py) reads the flag
-through this provider from flagd, then measures both:
-
-![Evaluating #68480 for a queued-latency regression on a real cluster](img/k8s-async.png)
-
-Concurrent creation cuts p95 queued latency (30-55% on a local kind cluster; the gap widens with burst
-size and real API latency, which is where #68480's own p99 12.3s → 1.1s benchmark comes from), every
-pod still reaches Running, and the regression check passes. Verdict: safe to ramp behind the flag. If
-the treatment had been worse, the same run would have said so, and the flag stays off.
+On a real [kind](https://kind.sigs.k8s.io/) cluster the flag routes 2/12 DAGs to real pods (state
+`Running`); a live ramp to 50% grows it to 7/12, every routed task runs as a real pod, and emptying the
+flag reverts it. No redeploy. The reproducer is
+[`k8s_canary_e2e.py`](../../system_tests/k8s_canary_e2e.py).
 

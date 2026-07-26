@@ -32,7 +32,7 @@ def _place_all(provider):
 class TestPolicyEndToEndInProcess:
     """Real OpenFeature api + real policy + real provider, no external backend."""
 
-    def test_targeting_places_exactly_the_cohort(self):
+    def test_targeting_places_exactly_the_subset(self):
         placements = _place_all(
             InHouseTreatmentProvider(
                 string_flags={

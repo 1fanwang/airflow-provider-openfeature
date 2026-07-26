@@ -2,7 +2,7 @@
 
 Each DAG's `predict` task, running under a real `airflow dags test`, reads `ml.ranking_model` from real
 flagd (a 50/50 fractional split) and runs the chosen model; the exposure listener records which arm the
-run landed in, so the result is measurable downstream. Shows the split across a cohort and the exposure
+run landed in, so the result is measurable downstream. Shows the split across a subset and the exposure
 each run emitted.
 
 Prereqs: Docker (flagd). Run:  python system_tests/ab_experiment.py

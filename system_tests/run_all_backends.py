@@ -1,6 +1,6 @@
 """Full multi-backend e2e: one Airflow DAG population + one policy, swap the OpenFeature provider.
 
-Proves that flagd, GrowthBook, Unleash, and an in-house engine all gate a real DAG cohort identically
+Proves that flagd, GrowthBook, Unleash, and an in-house engine all gate a real DAG subset identically
 through the same ``task_policy``, and captures the exposure the listener would emit. Run:
 
     PYTHONPATH=<repo>/src:<this dir> python system_tests/run_all_backends.py
@@ -115,7 +115,7 @@ def backend_statsig():
     from openfeature_airflow.providers.statsig import StatsigProvider
 
     sg.initialize("secret-local", StatsigOptions(local_mode=True))
-    for did in CANARY:  # local-mode per-user gate override for the canary cohort
+    for did in CANARY:  # local-mode per-user gate override for the canary subset
         sg.override_gate("airflow_task_pool", True, f"{did}:only")
     api.set_provider(StatsigProvider(sg, gate_map={FLAG: "airflow_task_pool"}, enabled_values={FLAG: "canary_pool"}))
 
@@ -134,7 +134,7 @@ def main():
     expected = {did: ("canary_pool" if did in CANARY else "default_pool") for did in POPULATION}
     results = {}
     print("=" * 78)
-    print(f"Multi-backend e2e: {len(POPULATION)} DAGs, canary cohort = {len(CANARY)} -> canary_pool")
+    print(f"Multi-backend e2e: {len(POPULATION)} DAGs, canary subset = {len(CANARY)} -> canary_pool")
     print("Same DAG population, same task_policy; only the OpenFeature provider changes.")
     print("=" * 78)
     for name, factory in BACKENDS:
@@ -148,7 +148,7 @@ def main():
         ok = pools == expected
         results[name] = pools
         print(f"\n[{name}] parsed {len(pools)} DAGs through the real policy")
-        print(f"    canary_pool: {n_canary}   default_pool: {len(pools)-n_canary}   matches expected cohort: {ok}")
+        print(f"    canary_pool: {n_canary}   default_pool: {len(pools)-n_canary}   matches expected subset: {ok}")
         assert ok, f"{name} routing != expected"
 
     live = list(results)

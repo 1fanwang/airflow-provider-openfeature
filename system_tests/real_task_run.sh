@@ -43,7 +43,7 @@ print(f"  dag_003.only ran with pool={ti.pool!r} state={ti.state!r}")
 PY
 }
 
-echo "RUN #1 (dag_003 in the migration cohort):"
+echo "RUN #1 (dag_003 in the migration subset):"
 airflow dags test dag_003 >/dev/null 2>&1; show_pool
 
 echo "flip the flag (drop dag_003), let flagd hot-reload, run again — see the pool change:"

@@ -56,7 +56,7 @@ def main() -> int:
     for ln in lines:
         events.append([t, "o", _color(ln) + "\r\n"])
         # dwell longer on backend verdicts and the final result, quick on separators
-        t += 0.7 if ("matches expected cohort" in ln or "identical placement" in ln or "GATE IDENTICALLY" in ln) else 0.16
+        t += 0.7 if ("matches expected subset" in ln or "identical placement" in ln or "GATE IDENTICALLY" in ln) else 0.16
     t += 1.5  # hold the final frame
 
     with open(cast, "w") as f:

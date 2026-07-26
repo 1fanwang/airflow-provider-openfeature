@@ -28,11 +28,11 @@ class _TI:
 
 
 class TestEmitExposure:
-    def test_returns_resolved_cohort(self):
+    def test_returns_resolved_group(self):
         _pool_provider(["d1"])
         assert listener.emit_exposure("d1", "t")[FLAG_POOL] == "canary_pool"
 
-    def test_records_default_cohort(self):
+    def test_records_default_group(self):
         _pool_provider(["d1"])
         assert listener.emit_exposure("d2", "t")[FLAG_POOL] == "default_pool"
 

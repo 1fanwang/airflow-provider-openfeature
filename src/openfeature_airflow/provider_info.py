@@ -34,14 +34,14 @@ def get_provider_info() -> dict[str, Any]:
                 "options": {
                     "enable_policy": {
                         "description": "Enable the flag-driven placement cluster policy "
-                        "(overrides pool/queue/executor per task cohort).",
+                        "(overrides pool/queue/executor per task subset).",
                         "type": "boolean",
                         "default": "False",
                         "version_added": "0.1.0",
                         "example": None,
                     },
                     "enable_exposure_listener": {
-                        "description": "Emit a cohort/variant exposure metric per task instance.",
+                        "description": "Emit a group/variant exposure metric per task instance.",
                         "type": "boolean",
                         "default": "False",
                         "version_added": "0.1.0",

@@ -16,7 +16,7 @@ def _bucket(entity: str, flag_key: str) -> int:
     """Return a deterministic bucket in ``0..99`` for ``(entity, flag_key)``.
 
     Stable across processes and machines (uses ``hashlib`` rather than the salted builtin ``hash``),
-    so the same entity always lands in the same cohort for a given flag.
+    so the same entity always lands in the same group for a given flag.
     """
     digest = hashlib.sha256(f"{flag_key}:{entity}".encode()).digest()
     return int.from_bytes(digest[:8], "big") % 100

@@ -4,10 +4,10 @@ Registered on the ``airflow.policy`` entry point so it loads automatically, but 
 ``[openfeature] enable_policy = True`` is set -- installing the package changes nothing by default.
 
 When enabled, it consults the globally-registered OpenFeature provider and, for each task, applies every
-registered placement dimension whose flag resolves to a value for that task's cohort. The four built-in
+registered placement dimension whose flag resolves to a value for that task's subset. The four built-in
 dimensions cover ``pool`` / ``queue`` / ``executor`` / ``priority_weight``; register more with
 ``register_placement`` to flag-drive any operator attribute. The backend (flagd, GrowthBook, Unleash, an
-in-house engine, ...) decides who is in which cohort -- canary %, targeting rule, blue-green -- so a
+in-house engine, ...) decides who is in which subset -- canary %, targeting rule, blue-green -- so a
 rollout is a backend config change, not a code change. Keyed on ``dag_id:task_id``.
 """
 
@@ -45,7 +45,7 @@ def _try_set(task, attr: str, value) -> None:
 
 @dataclass
 class PlacementDimension:
-    """A flag-driven placement: when ``flag_key`` resolves for a task's cohort, run ``setter(task, value)``.
+    """A flag-driven placement: when ``flag_key`` resolves for a task's subset, run ``setter(task, value)``.
 
     ``kind`` selects the resolver: ``"string"`` reads a variant, ``"number"`` reads an integer.
     """
@@ -61,7 +61,7 @@ _DIMENSIONS: list[PlacementDimension] = []
 def register_placement(flag_key: str, setter: Callable[[object, object], None], *, kind: str = "string") -> None:
     """Add a custom flag-driven placement dimension the policy applies alongside the built-ins.
 
-    ``setter(task, value)`` runs when ``flag_key`` resolves to a value for the task's cohort; use it to
+    ``setter(task, value)`` runs when ``flag_key`` resolves to a value for the task's subset; use it to
     set any operator attribute (a canary executor, a Spark version, an ``enable_checkpoint`` boolean via
     ``lambda t, v: setattr(t, "enable_checkpoint", v == "true")``). ``kind`` is ``"string"`` (a variant)
     or ``"number"`` (an int). Call it from ``airflow_local_settings`` or a bootstrap. A setter that
@@ -81,7 +81,7 @@ register_placement(FLAG_PRIORITY_WEIGHT, _attr("priority_weight"), kind="number"
 
 
 def apply_placement(task) -> None:
-    """Apply every registered placement dimension whose flag resolves for this task's cohort."""
+    """Apply every registered placement dimension whose flag resolves for this task's subset."""
     from openfeature_airflow.gate import number, variant
 
     entity = _entity(task)

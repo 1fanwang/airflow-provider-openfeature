@@ -14,7 +14,7 @@ and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2
   operator attribute, applied in the same policy pass as the built-ins.
 - Author-facing `OpenFeatureHook`, `FeatureFlagSensor`, and a code-path `gate` for evaluating flags
   inside DAGs.
-- Exposure listener that records the resolved cohort/variant for measurement.
+- Exposure listener that records the resolved group/variant for measurement.
 - `measure.track_outcome` for recording an experiment outcome through the OpenFeature tracking API,
   with native `track()` bridges on the Statsig, GrowthBook, and in-house adapters plus a tagged
   StatsD/OTEL metric for backends without analytics.

@@ -1,10 +1,10 @@
 """Real eval data flowing from a live backend into REAL Airflow task execution.
 
-For each backend, the cohort config is fetched **over the network** (flagd gRPC, GrowthBook HTTP
+For each backend, the subset config is fetched **over the network** (flagd gRPC, GrowthBook HTTP
 features, Statsig HTTP config-spec) and drives which pool a real ``airflow dags test`` TaskInstance
 actually runs in -- the pool is read back from the metadata DB after the run, not asserted at parse.
 
-A DAG in the canary cohort (dag_000) must run in ``canary_pool``; one outside it (dag_004) in
+A DAG in the canary subset (dag_000) must run in ``canary_pool``; one outside it (dag_004) in
 ``default_pool`` -- for every backend, from live network data, with no code change between backends.
 
 Prereqs: Docker (for flagd), and the provider importable (``pip install -e ..`` or the wheel).
@@ -187,9 +187,9 @@ def main():
     canary_dag, default_dag = "dag_000", "dag_004"
     print("=" * 84)
     print("REAL eval data -> REAL task execution. Pool read from the metadata DB after `airflow dags test`.")
-    print(f"canary cohort = {sorted(CANARY)}  ->  {CANARY_POOL};   everyone else -> {DEFAULT_POOL}")
+    print(f"canary subset = {sorted(CANARY)}  ->  {CANARY_POOL};   everyone else -> {DEFAULT_POOL}")
     print("=" * 84)
-    print(f"{'backend (network source)':<36} {canary_dag+' (in cohort)':<22} {default_dag+' (out)':<20} ok")
+    print(f"{'backend (network source)':<36} {canary_dag+' (in subset)':<22} {default_dag+' (out)':<20} ok")
     print("-" * 84)
 
     all_ok = True

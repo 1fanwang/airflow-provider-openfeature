@@ -6,7 +6,7 @@ Agent + contributor guide for `airflow-provider-openfeature`. Read this before c
 
 A third-party Apache Airflow provider that wires [OpenFeature](https://openfeature.dev) into Airflow.
 Two capabilities over one flag API: evaluate flags inside a DAG (hook / sensor / gate), and gate the
-platform by cohort (a cluster policy places `pool` / `queue` / `executor`). OpenFeature is the abstraction layer,
+platform by subset (a cluster policy places `pool` / `queue` / `executor`). OpenFeature is the abstraction layer,
 so any backend that ships an OpenFeature provider works without code here.
 
 ## Architecture invariants (do not break these)

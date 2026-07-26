@@ -1,12 +1,12 @@
 """Flag-driven KubernetesExecutor canary, proven on a real cluster (kind).
 
 A flag (`airflow.task.executor`, resolved live from a real flagd container) decides which DAGs run on
-the kubernetes executor. For the routed cohort we launch a **real pod on a real Kubernetes cluster** --
+the kubernetes executor. For the routed subset we launch a **real pod on a real Kubernetes cluster** --
 the same action KubernetesExecutor performs per task -- and read the pod state back with kubectl. Then
-we ramp the flag (25% -> 50%) and watch the cohort, and the pod count, grow with no code change.
+we ramp the flag (25% -> 50%) and watch the subset, and the pod count, grow with no code change.
 
 This is the reliable core of the KubernetesExecutor-canary use case (cf. apache/airflow#68480) without
-standing up a full executor: the provider's job is to route the cohort by flag; here that routing puts
+standing up a full executor: the provider's job is to route the subset by flag; here that routing puts
 real work on real k8s.
 
 Prereqs: Docker + a reachable cluster (a local `kind` cluster is ideal). Set the namespace with
@@ -59,7 +59,7 @@ def flagd_up():
     time.sleep(4)
 
 
-def routed_cohort() -> list[str]:
+def routed_subset() -> list[str]:
     from openfeature_airflow.gate import variant
 
     return [d for d in POPULATION if variant(FLAG, d, "local", dag_id=d) == "kubernetes"]
@@ -93,20 +93,20 @@ def pod_states() -> dict:
 
 
 def show(ramp_label: str):
-    cohort = routed_cohort()
-    print(f"\n[ramp {ramp_label}] flag routes {len(cohort)}/{len(POPULATION)} DAGs to kubernetes: {sorted(cohort)}")
-    for d in cohort:
+    subset = routed_subset()
+    print(f"\n[ramp {ramp_label}] flag routes {len(subset)}/{len(POPULATION)} DAGs to kubernetes: {sorted(subset)}")
+    for d in subset:
         launch_pod(d)
     # wait for the launched pods to reach a terminal/running phase
     for _ in range(30):
-        st = {k: v for k, v in pod_states().items() if k in cohort}
-        if st and all(v in ("Running", "Succeeded") for v in st.values()) and len(st) == len(cohort):
+        st = {k: v for k, v in pod_states().items() if k in subset}
+        if st and all(v in ("Running", "Succeeded") for v in st.values()) and len(st) == len(subset):
             break
         time.sleep(2)
     st = pod_states()
     running = {k: v for k, v in st.items() if v in ("Running", "Succeeded")}
     print(f"           real pods on the cluster: {len(running)}  states={dict(sorted(st.items()))}")
-    return cohort, running
+    return subset, running
 
 
 def main():
@@ -118,8 +118,8 @@ def main():
     from openfeature.contrib.provider.flagd import FlagdProvider
 
     print("=" * 84)
-    print("KubernetesExecutor canary on a REAL cluster: a flag routes the cohort, routed tasks become")
-    print("real pods. Ramp the flag, watch the cohort and the pods grow. No code change.")
+    print("KubernetesExecutor canary on a REAL cluster: a flag routes the subset, routed tasks become")
+    print("real pods. Ramp the flag, watch the subset and the pods grow. No code change.")
     print("=" * 84)
 
     set_ramp(25)
@@ -133,7 +133,7 @@ def main():
 
     ok = set(c25).issubset(set(c50)) and len(c50) > len(c25) and len(p50) == len(c50)
     print("\n" + "=" * 84)
-    print(f"cohort grew {len(c25)} -> {len(c50)} and every routed task ran as a real pod: {ok}")
+    print(f"subset grew {len(c25)} -> {len(c50)} and every routed task ran as a real pod: {ok}")
     print("KUBERNETES CANARY e2e OK" if ok else "KUBERNETES CANARY e2e FAILED")
     print("=" * 84)
 

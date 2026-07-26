@@ -1,7 +1,7 @@
 """The measure half of assign -> expose -> measure -> decide.
 
 ``track_outcome`` records an experiment outcome (task duration, success, cost) for an entity, tagged
-with its cohort. It routes through the OpenFeature tracking API so any backend with a native event
+with its group. It routes through the OpenFeature tracking API so any backend with a native event
 API receives it (Statsig ``log_event``, LaunchDarkly ``track``, a GrowthBook/PostHog callback), and
 increments a tagged ``openfeature.outcome.<metric>`` StatsD/OTEL metric so backends without analytics
 (flagd) still land the signal in your warehouse. Safe no-op if the provider has no tracking.
@@ -14,7 +14,7 @@ from openfeature.evaluation_context import EvaluationContext
 
 
 def track_outcome(metric: str, entity: str, value: float = 1.0, **attrs) -> None:
-    """Emit an outcome for ``entity`` (keyed like the gate), tagged with cohort attributes."""
+    """Emit an outcome for ``entity`` (keyed like the gate), tagged with group attributes."""
     clean = {k: v for k, v in attrs.items() if v is not None}
     ctx = EvaluationContext(targeting_key=entity, attributes=clean)
     try:

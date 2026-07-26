@@ -33,13 +33,13 @@ def _register_pool_flag(canary):
 
 
 class TestPlacementPolicy:
-    def test_overrides_pool_for_cohort(self):
+    def test_overrides_pool_for_subset(self):
         _register_pool_flag(["d1"])
         t = _Task("d1", "x")
         apply_placement(t)
         assert t.pool == "canary_pool"
 
-    def test_leaves_non_cohort_on_default(self):
+    def test_leaves_non_subset_on_default(self):
         _register_pool_flag(["d1"])
         t = _Task("d2", "x")
         apply_placement(t)
@@ -70,13 +70,13 @@ def _register_multi(canary):
 
 
 class TestQueuePlacement:
-    def test_queue_overridden_for_cohort(self):
+    def test_queue_overridden_for_subset(self):
         _register_multi(["d1"])
         t = _Task("d1", "x")
         apply_placement(t)
         assert t.queue == "kubernetes"
 
-    def test_queue_untouched_off_cohort(self):
+    def test_queue_untouched_off_subset(self):
         _register_multi(["d1"])
         t = _Task("d2", "x")
         apply_placement(t)

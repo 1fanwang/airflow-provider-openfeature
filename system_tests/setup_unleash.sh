@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Create the airflow.task.pool toggle in Unleash for the multi-backend e2e.
-# Enables the flag for the canary cohort (mig_dag_000..009) via a dag_id constraint,
+# Enables the flag for the canary subset (mig_dag_000..009) via a dag_id constraint,
 # so UnleashProvider(enabled_values={"airflow.task.pool": "canary_pool"}) returns canary_pool
-# for that cohort and default_pool for the rest. Idempotent.
+# for that subset and default_pool for the rest. Idempotent.
 #
 #   docker compose -f system_tests/docker-compose.unleash.yml up -d
 #   bash system_tests/setup_unleash.sh
@@ -13,7 +13,7 @@ FLAG=airflow.task.pool
 PROJ=default
 ENV=development
 
-# canary cohort as a JSON array
+# canary subset as a JSON array
 VALUES=$(python3 -c 'import json;print(json.dumps([f"mig_dag_{i:03d}" for i in range(10)]))')
 
 echo "context field dag_id"
@@ -24,7 +24,7 @@ echo "feature flag $FLAG"
 curl -s -X POST "$BASE/api/admin/projects/$PROJ/features" -H "$ADMIN" -H 'content-type: application/json' \
   -d "{\"name\":\"$FLAG\",\"type\":\"release\"}" -o /dev/null -w "  -> %{http_code}\n" || true
 
-echo "strategy (dag_id IN canary cohort) in $ENV"
+echo "strategy (dag_id IN canary subset) in $ENV"
 curl -s -X POST "$BASE/api/admin/projects/$PROJ/features/$FLAG/environments/$ENV/strategies" \
   -H "$ADMIN" -H 'content-type: application/json' \
   -d "{\"name\":\"default\",\"constraints\":[{\"contextName\":\"dag_id\",\"operator\":\"IN\",\"values\":$VALUES}]}" \

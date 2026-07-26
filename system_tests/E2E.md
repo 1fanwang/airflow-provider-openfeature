@@ -51,12 +51,12 @@ Yes. A **live flag change in a real flagd daemon flips which pool a real
 Airflow task executes in.** Not a parse-time attribute, an actual `TaskInstance` run.
 
 ```
-=== REAL TASK RUN #1 (flagd: dag_003 in the migration cohort) ===
+=== REAL TASK RUN #1 (flagd: dag_003 in the migration subset) ===
   TaskInstance dag_003.only ran with pool = 'airflow_3x'  state = 'success'
 
-  ...edited the flag config flagd watches: drop dag_003 from the cohort; flagd hot-reloads...
+  ...edited the flag config flagd watches: drop dag_003 from the subset; flagd hot-reloads...
 
-=== REAL TASK RUN #2 (flagd live-changed: dag_003 no longer in cohort) ===
+=== REAL TASK RUN #2 (flagd live-changed: dag_003 no longer in subset) ===
   TaskInstance dag_003.only NOW ran with pool = 'airflow_2x'  state = 'success'
 ```
 
@@ -76,7 +76,7 @@ Which backends flow eval data over the wire:
 
 ## Execution-level matrix, backends × placement use cases
 
-`system_tests/matrix.py`: each backend's cohort config, fetched live, drives a real `airflow dags
+`system_tests/matrix.py`: each backend's subset config, fetched live, drives a real `airflow dags
 test`; the pool (UC1, 2→3 migration) and queue (UC2, Kubernetes worker migration) the TaskInstance ran
 with are read back from the metadata DB.
 
@@ -118,10 +118,10 @@ $ curl ... -d '{"context":{"dag_id":"dag_020"}}'
 
 ```
 REAL DATA FLOW: flagd daemon -> gRPC -> OpenFeature provider -> task_policy -> task.pool
-  dag_017 BEFORE (migration cohort = dag_000..014): airflow_2x
+  dag_017 BEFORE (migration subset = dag_000..014): airflow_2x
   ...edited flags.json (ramp 15 -> 20 DAGs); waiting for flagd hot-reload...
-  dag_017 AFTER  (migration cohort = dag_000..019): airflow_3x
-  dag_017 RESTORED (cohort back to dag_000..014): airflow_2x
+  dag_017 AFTER  (migration subset = dag_000..019): airflow_3x
+  dag_017 RESTORED (subset back to dag_000..014): airflow_2x
 ```
 
 Editing the flag config the daemon watches moved `dag_017` into the rollout, the Airflow placement
@@ -153,11 +153,11 @@ Backend portability of UC1 (2->3 migration routing), same policy, other backends
 
 ```
 $ PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/run_all_backends.py
-[flagd (container)]           canary_pool: 10  default_pool: 20  matches expected cohort: True
-[GrowthBook (SDK, local)]     canary_pool: 10  default_pool: 20  matches expected cohort: True
-[in-house engine (template)]  canary_pool: 10  default_pool: 20  matches expected cohort: True
-[Unleash (container)]         canary_pool: 10  default_pool: 20  matches expected cohort: True
-[Statsig (SDK, local mode)]   canary_pool: 10  default_pool: 20  matches expected cohort: True
+[flagd (container)]           canary_pool: 10  default_pool: 20  matches expected subset: True
+[GrowthBook (SDK, local)]     canary_pool: 10  default_pool: 20  matches expected subset: True
+[in-house engine (template)]  canary_pool: 10  default_pool: 20  matches expected subset: True
+[Unleash (container)]         canary_pool: 10  default_pool: 20  matches expected subset: True
+[Statsig (SDK, local mode)]   canary_pool: 10  default_pool: 20  matches expected subset: True
 
 IDENTICAL-GATING CHECK across 5 live backends:
     all backends produced identical placement for all 30 DAGs: True
@@ -197,8 +197,8 @@ adapter is kept in a private repo. `InHouseTreatmentProvider` is the public temp
 
 ## Measure loop: assign -> run -> measure -> read out
 
-`system_tests/measure_loop.py` closes the loop. A DAG population is split into a `fastpath` cohort and a
-`control` cohort; each task does cohort-dependent work, times itself, and reports the duration through
+`system_tests/measure_loop.py` closes the loop. A DAG population is split into a `fastpath` group and a
+`control` group; each task does group-dependent work, times itself, and reports the duration through
 `track_outcome`. The outcome is read back from **each backend's own readout surface**, and the
 control-vs-fastpath lift is printed from the measured durations (nothing synthetic).
 
@@ -206,13 +206,13 @@ control-vs-fastpath lift is printed from the measured durations (nothing synthet
 $ PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/measure_loop.py
 
 [flagd (gRPC container)]  readout: no native analytics -> OTEL/StatsD warehouse (openfeature.outcome.* metric)
-    cohort      runs    mean ms   median ms
+    group      runs    mean ms   median ms
     control        8       69.2        70.2
     fastpath       8       22.4        23.0
     -> fastpath 67.7% faster (measured)
 
 [Statsig (server SDK, real log_event)]  readout: 16 events -> sg.log_event (Pulse/metrics in a hosted project)
-    cohort      runs    mean ms   median ms
+    group      runs    mean ms   median ms
     control        8       74.1        69.1
     fastpath       8       21.7        21.5
     -> fastpath 70.7% faster (measured)
@@ -236,9 +236,9 @@ readout proven for: ['flagd', 'statsig', 'in-house']
 
 `system_tests/k8s_canary_e2e.py` proves the flagship rollout on a real Kubernetes cluster (a local
 `kind` cluster here). A flag (`airflow.task.executor`, resolved live from a real flagd container) routes
-a cohort of DAGs to the kubernetes executor; each routed task is launched as a **real pod** (the action
+a subset of DAGs to the kubernetes executor; each routed task is launched as a **real pod** (the action
 KubernetesExecutor performs per task), and the pod state is read back with `kubectl`. Ramping the flag
-25% → 50% via flagd hot-reload grows the cohort and the pod count with no code change.
+25% → 50% via flagd hot-reload grows the subset and the pod count with no code change.
 
 ```
 $ PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/k8s_canary_e2e.py
@@ -250,12 +250,12 @@ $ PYTHONPATH="$PWD/src:$PWD/system_tests" python system_tests/k8s_canary_e2e.py
     ['etl_dag_02', 'etl_dag_06', 'etl_dag_07', 'etl_dag_08', 'etl_dag_09', 'etl_dag_10', 'etl_dag_11']
            real pods on the cluster: 7  states={'etl_dag_02':'Succeeded', 'etl_dag_06':'Running', ...}
 
-cohort grew 2 -> 7 and every routed task ran as a real pod: True
+subset grew 2 -> 7 and every routed task ran as a real pod: True
 ```
 
-The 25% cohort is a subset of the 50% cohort (flagd `fractional` is sticky per entity), so a ramp only
+The 25% subset is a subset of the 50% subset (flagd `fractional` is sticky per entity), so a ramp only
 adds DAGs. This is the reliable core of the KubernetesExecutor-canary use case (cf. apache/airflow#68480)
-without standing up a full executor: the provider routes the cohort by flag, and that routing puts real
+without standing up a full executor: the provider routes the subset by flag, and that routing puts real
 work on real k8s.
 
 

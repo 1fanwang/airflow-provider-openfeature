@@ -160,8 +160,9 @@ guardrail, and the fix would be one dial back to 0%, with no redeploy.
   <img src="docs/case-study/img/run.png" alt="Ramping the revenue-rollup canary 0 to 100% across regions, 89% faster, revenue identical at every step" width="760">
 </p>
 
-The full walkthrough, plus a second example that evaluates the KubernetesExecutor async pod-creation
-change ([#68480](https://github.com/apache/airflow/pull/68480)) for a queued-latency regression, is in
+The full walkthrough, plus a second example that canaries the
+[KubernetesExecutor](https://airflow.apache.org/docs/apache-airflow-providers-cncf-kubernetes/stable/kubernetes_executor.html)
+on a real [kind](https://kind.sigs.k8s.io/) cluster — a flag routes a subset of DAGs to real pods — is in
 [**docs/case-study**](docs/case-study/).
 
 ## Examples

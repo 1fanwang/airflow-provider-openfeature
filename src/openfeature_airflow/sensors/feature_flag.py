@@ -19,7 +19,7 @@ class FeatureFlagSensor(BaseSensorOperator):
     """
     Wait until a boolean feature flag resolves to the expected value for a targeting entity.
 
-    Use it to gate a downstream task on a rollout reaching a cohort, for example holding a task until
+    Use it to gate a downstream task on a rollout reaching a subset, for example holding a task until
     a flag is enabled for its ``dag_id``.
 
     :param flag_key: the OpenFeature flag key to evaluate.

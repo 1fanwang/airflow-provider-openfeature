@@ -4,7 +4,7 @@
 - UC1  Airflow 2->3 migration       pool routing airflow_3x / airflow_2x        (policy)
 - UC2  Kubernetes worker migration  queue routing kubernetes / default          (policy)
 - UC3  KubernetesExecutor concurrent pods   code-path gate ramped by cluster     (gate)
-- UC4  Disruption checkpointing     code-path gate for a task cohort             (gate)
+- UC4  Disruption checkpointing     code-path gate for a task subset             (gate)
 
 Run:
     python system_tests/run_use_cases.py            # needs flagd on :8113 with use_case_flags.json
@@ -99,7 +99,7 @@ def main():
     print(f"UC3  k8s concurrent pods   {len(enabled_clusters)}/20 clusters enabled (code-path gate)      ok={uc3_ok}")
     assert uc3_ok
 
-    # UC4, Disruption checkpointing (code-path gate, by task cohort)
+    # UC4, Disruption checkpointing (code-path gate, by task subset)
     ckpt_on = [d for d in POPULATION if flag_enabled("airflow.task.resumable_checkpointing", f"{d}:only", dag_id=d)]
     uc4_ok = set(ckpt_on) == CKPT_SET
     print(f"UC4  disruption checkpoint {len(ckpt_on)}/30 tasks get resumable checkpointing (gate)   ok={uc4_ok}")
