@@ -33,7 +33,7 @@ No Docker, no backend, no running Airflow:
 
 ```bash
 pip install airflow-provider-openfeature
-python examples/quickstart.py
+openfeature-airflow-quickstart
 ```
 
 It builds 40 real Airflow tasks and runs the actual `apply_placement` policy on them — the same function

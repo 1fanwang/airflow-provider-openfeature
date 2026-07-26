@@ -69,7 +69,8 @@ ldclient.get().track("task_duration_ms", ld_context, metric_value=elapsed_ms)
 
 ## PostHog
 
-Use [PostHog](https://posthog.com)'s provider for assignment; emit the outcome with `capture`:
+[PostHog](https://posthog.com) is a product-analytics platform, so it fits the readout side: emit the
+outcome with `capture` and analyze it next to your other product metrics.
 
 ```python
 posthog.capture(distinct_id=entity, event="task_duration_ms",

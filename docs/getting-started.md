@@ -79,7 +79,10 @@ config flag turns it on.
 ```python
 # $AIRFLOW_HOME/dags/etl_alpha.py
 from airflow import DAG
-from airflow.providers.standard.operators.empty import EmptyOperator
+try:
+    from airflow.providers.standard.operators.empty import EmptyOperator  # Airflow 3.x
+except ImportError:
+    from airflow.operators.empty import EmptyOperator  # Airflow 2.x
 import datetime
 
 with DAG(dag_id="etl_alpha", schedule=None, start_date=datetime.datetime(2024, 1, 1), catchup=False) as dag:
@@ -140,6 +143,6 @@ executor, or priority.
 ## Next
 
 - [Use cases](use-cases.md): 2→3 migration, KubernetesExecutor rollout, A/B testing, kill switch, cost routing.
-- [Examples](../examples/): runnable DAGs for each pattern.
-- [Register a backend](../README.md#register-a-backend): GrowthBook, Unleash, Statsig, or your own.
+- [Examples](../example_dags/): runnable DAGs for each pattern.
+- [Register a backend](extending.md): GrowthBook, Unleash, Statsig, PostHog, or your own.
 - Clean up: `docker rm -f flagd`.

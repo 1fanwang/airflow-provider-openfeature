@@ -15,7 +15,7 @@ from airflow.listeners import hookimpl
 
 log = logging.getLogger(__name__)
 
-EXPOSURE_FLAGS = ("airflow.task.pool", "airflow.task.queue", "airflow.task.executor")
+EXPOSURE_FLAGS = ("airflow.task.pool", "airflow.task.queue", "airflow.task.executor", "airflow.task.priority_weight")
 _UNSET = "__unset__"
 
 

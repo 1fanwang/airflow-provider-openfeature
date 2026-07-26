@@ -34,7 +34,7 @@ def get_provider_info() -> dict[str, Any]:
                 "options": {
                     "enable_policy": {
                         "description": "Enable the flag-driven placement cluster policy "
-                        "(overrides pool/queue/executor per task subset).",
+                        "(overrides pool/queue/executor/priority_weight per task subset).",
                         "type": "boolean",
                         "default": "False",
                         "version_added": "0.1.0",

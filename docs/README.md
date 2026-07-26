@@ -19,5 +19,6 @@ Following the [Diátaxis](https://diataxis.fr) split:
 - **Explanation**: [architecture.md](architecture.md), the why and the mental model.
 - **Reference**: the config options and entry points in `pyproject.toml` and `provider_info.py`.
 
-Markdown with Mermaid renders on GitHub, so no site build is needed yet. A hosted site would be a
-Docusaurus or Sphinx build of this same `docs/` tree.
+These pages build into a [MkDocs Material](https://squidfunk.github.io/mkdocs-material/) site via
+`mkdocs.yml`; `.github/workflows/docs.yml` deploys it to GitHub Pages. Markdown with Mermaid also
+renders directly on GitHub.

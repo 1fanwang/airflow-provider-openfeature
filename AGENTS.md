@@ -22,7 +22,7 @@ so any backend that ships an OpenFeature provider works without code here.
 - **Third-party namespace.** The package is `openfeature_airflow`, never `airflow.providers.*`. The
   wheel must not ship an `airflow/` namespace; CI asserts this. Do not add `airflow/__init__.py`.
 - **Well-known flag keys are a public contract**: `airflow.task.pool`, `airflow.task.queue`,
-  `airflow.task.executor`. Add keys; don't rename existing ones.
+  `airflow.task.executor`, `airflow.task.priority_weight`. Add keys; don't rename existing ones.
 - **Lazy imports in policy/listener code.** Import `airflow.*` and backend SDKs inside functions, not
   at module top level, so importing the policy module never triggers Airflow settings init.
 

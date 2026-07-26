@@ -37,7 +37,7 @@ flowchart TB
 Two independent capabilities:
 
 - **Placement policy** (`policy.py`). A cluster policy consults a flag
-  and overrides a task's `pool` / `queue` / `executor` for its subset. A rollout is a backend config
+  and overrides a task's `pool` / `queue` / `executor` / `priority_weight` for its subset. A rollout is a backend config
   change, not a DAG edit.
 - **In-DAG evaluation** (`hooks/`, `sensors/`, `gate.py`), read a flag for a deterministic entity
   inside a task, and record the assignment through the exposure listener for measurement.

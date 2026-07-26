@@ -81,7 +81,7 @@ no DAG edits.
 - Never hardcode a backend. The core imports only `openfeature-sdk`.
 - Adapters stay thin and sit behind the OpenFeature interface.
 - The policy reads documented well-known flag keys (`airflow.task.pool`, `airflow.task.queue`,
-  `airflow.task.executor`). Add keys without breaking existing ones.
+  `airflow.task.executor`, `airflow.task.priority_weight`). Add keys without breaking existing ones.
 - Config-gated no-ops plus entry-point discovery: installing changes nothing until a flag turns it
   on.
 
