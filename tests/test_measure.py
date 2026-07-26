@@ -7,7 +7,7 @@ from openfeature import api
 from openfeature.provider import AbstractProvider
 from openfeature.provider.metadata import Metadata
 
-from openfeature_airflow.measure import track_outcome
+from openfeature_airflow.measure import _emit_metric, track_outcome
 from openfeature_airflow.providers.inhouse import InHouseTreatmentProvider
 
 
@@ -115,3 +115,56 @@ def test_statsig_track_calls_log_event():
         assert events[0].metadata["variant"] == "fastpath"
     finally:
         sg.log_event = orig
+
+
+def test_emit_metric_sends_count_and_value(monkeypatch):
+    calls = []
+
+    class FakeStats:
+        @staticmethod
+        def incr(name, tags=None):
+            calls.append(("incr", name, tags))
+
+        @staticmethod
+        def gauge(name, value, tags=None):
+            calls.append(("gauge", name, value, tags))
+
+    from airflow.sdk.observability import stats
+
+    monkeypatch.setattr(stats, "Stats", FakeStats)
+    _emit_metric("duration_ms", 12.5, {"variant": "fast", "attempt": 2})
+    assert calls == [
+        ("incr", "openfeature.outcome.duration_ms", {"variant": "fast", "attempt": "2"}),
+        ("gauge", "openfeature.outcome.duration_ms.value", 12.5, {"variant": "fast", "attempt": "2"}),
+    ]
+
+
+def test_emit_metric_allows_count_only(monkeypatch):
+    calls = []
+
+    class FakeStats:
+        @staticmethod
+        def incr(name, tags=None):
+            calls.append((name, tags))
+
+        @staticmethod
+        def gauge(name, value, tags=None):
+            raise AssertionError("value metric should not be emitted")
+
+    from airflow.sdk.observability import stats
+
+    monkeypatch.setattr(stats, "Stats", FakeStats)
+    _emit_metric("success", None, {"variant": "control"})
+    assert calls == [("openfeature.outcome.success", {"variant": "control"})]
+
+
+def test_emit_metric_is_best_effort(monkeypatch):
+    class BadStats:
+        @staticmethod
+        def incr(name, tags=None):
+            raise RuntimeError("stats backend down")
+
+    from airflow.sdk.observability import stats
+
+    monkeypatch.setattr(stats, "Stats", BadStats)
+    _emit_metric("duration_ms", 12.5, {"variant": "fast"})

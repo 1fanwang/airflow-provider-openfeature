@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 try:  # Airflow 3.x Task SDK compat shim
     from airflow.providers.common.compat.sdk import AirflowNotFoundException, BaseHook
-except ImportError:  # Airflow 2.x
+except ImportError:  # pragma: no cover - Airflow 2.x import shim
     from airflow.exceptions import AirflowNotFoundException
     from airflow.hooks.base import BaseHook
 
@@ -99,4 +99,3 @@ class OpenFeatureHook(BaseHook):
         return self.get_client().get_string_value(
             flag_key, default, self._evaluation_context(entity, attributes)
         )
-

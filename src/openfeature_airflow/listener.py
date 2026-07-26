@@ -43,7 +43,7 @@ def emit_exposure(dag_id: str, task_id: str, run_id: str | None = None, flags=EX
         try:
             try:
                 from airflow.sdk.observability.stats import Stats  # Airflow 3.x
-            except ImportError:
+            except ImportError:  # pragma: no cover - Airflow 2.x import shim
                 from airflow.stats import Stats  # Airflow 2.x
 
             for flag, value in treatments.items():
@@ -63,4 +63,3 @@ def on_task_instance_running(previous_state=None, task_instance=None, session=No
         )
     except Exception as exc:  # never break a task on exposure emission
         log.debug("openfeature exposure listener skipped: %s", exc)
-
