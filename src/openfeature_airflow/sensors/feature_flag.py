@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 try:  # Airflow 3.x Task SDK compat shim
     from airflow.providers.common.compat.sdk import BaseSensorOperator
-except ImportError:  # Airflow 2.x
+except ImportError:  # pragma: no cover - Airflow 2.x import shim
     from airflow.sensors.base import BaseSensorOperator
 
 from openfeature_airflow.hooks.openfeature import OpenFeatureHook
@@ -55,4 +55,3 @@ class FeatureFlagSensor(BaseSensorOperator):
     def poke(self, context: Context) -> bool:
         entity = self.entity or context["dag"].dag_id
         return self.hook.is_enabled(self.flag_key, entity, default=False, **self.attributes) == self.expected
-

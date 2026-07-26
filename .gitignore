@@ -9,3 +9,4 @@ build/
 *.whl
 .DS_Store
 site/
+.coverage

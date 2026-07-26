@@ -22,7 +22,7 @@ from airflow import DAG  # noqa: E402
 
 try:
     from airflow.providers.standard.operators.empty import EmptyOperator  # noqa: E402
-except ImportError:  # Airflow 2.x
+except ImportError:  # pragma: no cover - Airflow 2.x import shim
     from airflow.operators.empty import EmptyOperator
 
 from openfeature import api  # noqa: E402
@@ -73,5 +73,5 @@ def main() -> None:
     print(f"\n  kill switch \u2192 flag 0%   {bar(0)}   dag_03.pool = {probe.pool} (instant rollback)\n")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover - console entry point
     main()

@@ -31,7 +31,7 @@ jobs:
             --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-${{ matrix.airflow-version }}/constraints-${{ matrix.python-version }}.txt"
           pip install -e ".[dev,growthbook]"
       - name: Run unit tests
-        run: pytest tests/ -q -m "not integration" --cov=openfeature_airflow --cov-branch --cov-report=xml
+        run: pytest tests/ -q -m "not integration" --cov=openfeature_airflow --cov-branch --cov-report=xml --cov-fail-under=95
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
         with:

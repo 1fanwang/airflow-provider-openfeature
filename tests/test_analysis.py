@@ -1,6 +1,6 @@
 import math
 
-from openfeature_airflow.analysis import _chi2_sf, lift, srm_check
+from openfeature_airflow.analysis import _chi2_sf, _gammap_series, _gammaq, _gammaq_cf, lift, srm_check
 
 
 class TestChiSquareSF:
@@ -16,6 +16,15 @@ class TestChiSquareSF:
         assert _chi2_sf(0.0, 1) == 1.0
         assert _chi2_sf(-1.0, 1) == 1.0
         assert _chi2_sf(1000.0, 1) < 1e-6
+
+    def test_uses_series_for_small_x(self):
+        assert math.isclose(_gammaq(5.0, 1.0), 0.9963401531726563)
+
+    def test_series_can_exhaust_iteration_limit(self):
+        assert _gammap_series(2.0, 1.0, iters=1, eps=0.0) > 0.0
+
+    def test_continued_fraction_can_exhaust_iteration_limit(self):
+        assert _gammaq_cf(2.0, 5.0, iters=1) > 0.0
 
 
 class TestSRM:

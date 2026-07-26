@@ -30,7 +30,7 @@ def _emit_metric(metric: str, value: float, tags: dict) -> None:
     try:
         try:
             from airflow.sdk.observability.stats import Stats  # Airflow 3.x
-        except ImportError:
+        except ImportError:  # pragma: no cover - Airflow 2.x import shim
             from airflow.stats import Stats  # Airflow 2.x
 
         str_tags = {k: str(v) for k, v in tags.items()}

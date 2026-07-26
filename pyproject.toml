@@ -39,6 +39,7 @@ docs = ["mkdocs-material>=9.5"]
 testpaths = ["tests"]
 markers = ["integration: needs external backends/docker; run with RUN_INTEGRATION=1"]
 filterwarnings = ["ignore::DeprecationWarning"]
+addopts = ["--cov=openfeature_airflow", "--cov-branch", "--cov-fail-under=95"]
 
 [tool.ruff]
 line-length = 120
