@@ -13,6 +13,7 @@ flag, not a redeploy.
 [![OpenFeature](https://img.shields.io/badge/OpenFeature-provider-999?logo=openfeature&logoColor=white)](https://openfeature.dev)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/CONTRIBUTING.md)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/1fanwang/airflow-provider-openfeature)
 
 </div>
 
@@ -68,13 +69,11 @@ schedules from a pull queue, so a scheduler-level flag is how you ramp a subset 
 
 ## What you get
 
-| | |
-|---|---|
-| **Move where and how tasks run** | A cluster policy reads a flag and sets a task's pool, queue, executor, or priority for a chosen subset of DAGs, at parse time. No DAG edits. |
-| **Ramp and revert live** | Change a percentage in your backend. No redeploy, no scheduler restart. |
-| **Any backend** | [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io), [Statsig](https://statsig.com), [Unleash](https://www.getunleash.io), or an in-house engine, through [OpenFeature](https://openfeature.dev). Switch backends without code changes. |
-| **Measure the result** | One call records the outcome to your experiment platform ([Statsig](https://statsig.com), [GrowthBook](https://www.growthbook.io)) or your warehouse ([OpenTelemetry](https://opentelemetry.io), [Grafana](https://grafana.com)). |
-| **Safe to install** | The policy and listener do nothing until you turn them on in config. |
+- **Move where and how tasks run.** A cluster policy reads a flag and sets a task's pool, queue, executor, or priority for a chosen subset of DAGs, at parse time. No DAG edits.
+- **Ramp and revert live.** Change a percentage in your backend. No redeploy, no scheduler restart.
+- **Any backend.** [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io), [Statsig](https://statsig.com), [Unleash](https://www.getunleash.io), or an in-house engine, through [OpenFeature](https://openfeature.dev). Switch backends without code changes.
+- **Measure the result.** One call records the outcome to your experiment platform ([Statsig](https://statsig.com), [GrowthBook](https://www.growthbook.io)) or your warehouse ([OpenTelemetry](https://opentelemetry.io), [Grafana](https://grafana.com)).
+- **Safe to install.** The policy and listener do nothing until you turn them on in config.
 
 ## See it run
 
