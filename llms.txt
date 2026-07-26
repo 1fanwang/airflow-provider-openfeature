@@ -4,10 +4,11 @@
 > placement (pool, queue, executor) through OpenFeature. Works with flagd, LaunchDarkly, GrowthBook,
 > Unleash, Statsig, or an in-house engine.
 
-It installs as a standard pip package and plugs into two extension points Airflow and OpenFeature
-already expose: an Airflow cluster policy and an OpenFeature provider. It stays off until enabled in
-config. The four well-known flag keys the placement policy reads are `airflow.task.pool`,
-`airflow.task.queue`, `airflow.task.executor`, and `airflow.task.priority_weight`.
+It installs as a standard pip package and registers on Airflow's and OpenFeature's own entry points: an
+OpenFeature provider (hook, sensor, and an in-DAG gate), a placement cluster policy, and a plugin for the
+exposure listener. It stays off until enabled in config. The four well-known flag keys the placement
+policy reads are `airflow.task.pool`, `airflow.task.queue`, `airflow.task.executor`, and
+`airflow.task.priority_weight`.
 
 ## Docs
 
