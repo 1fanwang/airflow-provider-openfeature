@@ -120,6 +120,27 @@ schedules from a pull queue, so a scheduler-level flag is how you ramp a subset 
 - **Measure the result.** One call records the outcome to your experiment platform ([Statsig](https://statsig.com), [GrowthBook](https://www.growthbook.io)) or your warehouse ([OpenTelemetry](https://opentelemetry.io), [Grafana](https://grafana.com)).
 - **Safe to install.** The policy and listener do nothing until you turn them on in config.
 
+## When to reach for this
+
+Airflow is already Python, so a fair question is why take a dependency instead of writing the flag
+logic yourself. The answer differs by which half you mean.
+
+The reason to install it is the **placement policy**. A task's `pool`, `queue`, and `executor` are read
+by the scheduler *before* the task's own code runs, so you can't change them from inside a task or from
+`dag_run.conf`. The [cluster-policy](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html)
+hook is the one place Airflow lets you set them at parse time for a task you don't own, and this turns
+that into a flag the platform team controls: ramp a subset, kill-switch it, revert in seconds, no DAG
+edits and no redeploy. The deterministic cohorts and the exposure record are the parts you tend to get
+wrong by hand (a plain `hash()` is [salted per process](https://docs.python.org/3/reference/datamodel.html#object.__hash__),
+so a home-grown percentage drifts across restarts).
+
+The **in-task gate** (hook, sensor, `gate`) is a convenience over the [OpenFeature](https://openfeature.dev)
+SDK. If you already run a flag client, calling it in a task is fine. What the wrapper adds is a
+vendor-neutral API, so you can swap flagd, Flipt, or an in-house engine without touching DAGs, plus the
+exposure wiring through Airflow's own metrics. If you don't need those, skip it.
+
+So: if moving placement for a subset of DAGs from a flag isn't a problem you have, you don't need this.
+
 ## See it run
 
 Airflow decides how each task runs from a few settings: its
