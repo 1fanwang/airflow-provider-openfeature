@@ -94,23 +94,23 @@ See [Gate a task](#gate-a-task-or-measure-an-outcome) and the runnable
 
 ## Why
 
-Feature flags are the standard way to change software behavior at runtime without shipping code. This
-brings the same four moves to data pipelines:
+The distinctive move is **placement**: a flag sets a task's `pool`, `queue`, or `executor` for a chosen
+subset of DAGs, at parse time. You can't do that from inside a task or from `dag_run.conf`, because the
+scheduler reads those fields *before* the task runs. So a platform team can ramp a worker migration or a
+new executor across a slice of DAGs and revert in seconds from a flag change, with no DAG edits and no
+redeploy.
 
-- **Ramp, don't flip.** Roll a change out to 1% of runs, then 10%, then 100%, checking each step
-  instead of switching everything at once.
-- **Experiment.** A/B two implementations (a model version, a join strategy, a new library) across a
-  subset of runs and measure which wins, rather than guessing.
-- **Kill switch.** Turn a misbehaving feature off during an incident with a flag change, not a redeploy.
-- **Target.** Enable something for one team, tenant, or dataset before everyone else.
+- **Move where and how tasks run.** Route a subset to a pool, queue, or executor from a flag, and kill-switch it back during an incident.
+- **The usual toggle moves, for pipeline behavior.** The same flag drives the standard [toggle categories](https://martinfowler.com/articles/feature-toggles.html) — ramp a percentage, A/B two implementations, target a team or dataset — through one [OpenFeature](https://openfeature.dev) call.
 
-Those are the standard [toggle categories](https://martinfowler.com/articles/feature-toggles.html)
-(release, experiment, ops, permission). The Airflow-specific part: the same flag can also move a task's
-`pool`, `queue`, or `executor`, so you canary infrastructure (a worker migration, a new executor) the
-same way you canary a feature. Container-canary tools like
-[Argo Rollouts](https://argo-rollouts.readthedocs.io/en/stable/) and [Flagger](https://flagger.app/)
-shift HTTP traffic between versions and, by their own docs, don't handle queue workers; Airflow
-schedules from a pull queue, so a scheduler-level flag is how you ramp a subset of DAGs.
+Container-canary tools like [Argo Rollouts](https://argo-rollouts.readthedocs.io/en/stable/) and
+[Flagger](https://flagger.app/) shift HTTP traffic between versions and, by their own docs, don't handle
+queue workers; Airflow schedules from a pull queue, so a scheduler-level flag is how you ramp a subset
+of DAGs.
+
+Placement and the kill switch are the proven uses. Ramp-with-cohort-measurement and the in-task A/B are
+lighter on evidence, and the in-task path has a [fork caveat on Airflow 3.x](docs/extending.md#fork-safety-airflow-3x);
+[use-cases.md](docs/use-cases.md#how-proven-is-each-of-these) ranks them.
 
 ## What you get
 
