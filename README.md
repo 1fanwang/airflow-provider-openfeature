@@ -45,7 +45,7 @@ DAG, and it stays off until you switch it on in config.
 </p>
 
 <p align="center">
-  <b><a href="https://ofopenfeature780983.eastus.cloudapp.azure.com/">▶ Try the live demo</a></b> &mdash; a real Airflow 3.x and a real <a href="https://flipt.io">Flipt</a> backend. Change a flag, watch tasks change pool. No install, no login.
+  <b><a href="https://ofopenfeature780983.eastus.cloudapp.azure.com/">▶ Try the live demo</a></b>: a real Airflow 3.x and a real <a href="https://flipt.io">Flipt</a> backend. Change a flag, watch tasks change pool. No install, no login.
 </p>
 
 ## Quickstart
@@ -92,7 +92,7 @@ runs the whole thing on a local Airflow in about 5 minutes.
 See [Gate a task](#gate-a-task-or-measure-an-outcome) and the runnable
 [example DAGs](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags).
 
-## Why you need it
+## Why
 
 Feature flags are the standard way to change software behavior at runtime without shipping code. This
 brings the same four moves to data pipelines:
