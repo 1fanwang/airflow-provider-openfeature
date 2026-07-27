@@ -1,8 +1,10 @@
 name: release-please
 
 # Autonomous releases: release-please watches conventional commits on main and keeps a release PR
-# open with the next version bump and changelog. Merging that PR tags the release, which triggers the
-# signed publish workflow (Sigstore + PyPI attestations).
+# open with the next version bump and changelog. Merging that PR creates the tag and GitHub Release,
+# and the publish job below signs and ships the build to PyPI in the SAME run. It has to run here, not
+# in a separate tag-triggered workflow: a tag pushed by the Actions token does not start a new workflow
+# run (GitHub suppresses that), so a standalone publish-on-tag never fires for a release-please release.
 on:
   push:
     branches: [main]
@@ -16,8 +18,44 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: googleapis/release-please-action@8b8fd2cc23b2e18957157a9d923d75aa0c6f6ad5 # v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: write  # attach signed assets to the release
+      id-token: write  # trusted publishing (OIDC) + keyless Sigstore signing
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.11"
+      - run: pip install build==1.5.0
+      - run: python -m build
+      - name: Publish to PyPI with attestations (PEP 740)
+        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247 # release/v1
+        with:
+          attestations: true
+      - name: Sign the artifacts with Sigstore (keyless, via OIDC)
+        uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
+        with:
+          inputs: ./dist/*.tar.gz ./dist/*.whl
+      - name: Attach the signed assets to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >
+          gh release upload "${{ needs.release-please.outputs.tag_name }}"
+          dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber

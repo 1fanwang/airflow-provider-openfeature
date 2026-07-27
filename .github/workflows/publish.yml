@@ -1,12 +1,19 @@
 name: Publish to PyPI
 
+# Automated releases publish from the release-please workflow (a tag pushed by the Actions token does
+# not start a tag-triggered run). This workflow covers the other two cases: a hand-cut "vX.Y.Z" tag
+# pushed by a person, and a manual re-publish of an existing tag via the Actions tab.
 on:
   push:
-    # release-please tags this single package as "airflow-provider-openfeature-vX.Y.Z"; the plain
-    # "vX.Y.Z" form is also accepted for hand-cut tags. Both must match or a release never publishes.
     tags:
       - "v[0-9]*"
       - "*-v[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to build, sign, and publish (e.g. airflow-provider-openfeature-v0.2.1)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -16,10 +23,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      contents: write  # create the GitHub Release and upload signed assets
+      contents: write  # create or update the GitHub Release and upload signed assets
       id-token: write  # trusted publishing (OIDC) + keyless Sigstore signing
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref_name }}
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.11"
@@ -33,10 +42,13 @@ jobs:
         uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
-      - name: Create a GitHub Release with the signed assets
+      - name: Attach the signed assets to the release (create it if a hand-cut tag has none)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release create "${GITHUB_REF_NAME}"
-          dist/*.tar.gz dist/*.whl dist/*.sigstore*
-          --title "${GITHUB_REF_NAME}" --generate-notes
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber
+          else
+            gh release create "$TAG" dist/*.tar.gz dist/*.whl dist/*.sigstore* --title "$TAG" --generate-notes
+          fi
