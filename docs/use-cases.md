@@ -19,7 +19,7 @@ flag evaluated in the scheduler policy can, and it reverts in seconds instead of
 
 ## How proven is each of these?
 
-Worth being straight about which of these rest on real, documented practice and which are extrapolation.
+It's worth being straight about which of these rest on documented practice and which are extrapolation.
 
 **Placement is the proven part.** Routing tasks to a pool, queue, or executor from a cluster policy,
 with no DAG edits, is how teams already run shared Airflow at scale. Shopify governs pools and queues
@@ -35,7 +35,8 @@ part that matters most during an incident.
 cohorts are standard for user-facing features; there's little public evidence of teams ramping
 *infrastructure placement* by a DAG-run hash rather than moving a namespace or a DAG family at a time.
 The in-task A/B and per-cohort measurement are a smaller, separate story, and they carry a real
-limitation: on Airflow 3.x with the LocalExecutor, a forked PythonOperator worker can deadlock, so the
+limitation: on Airflow 3.x with the LocalExecutor, a forked PythonOperator worker can deadlock (see the
+[fork-safety note in extending.md](extending.md#fork-safety-airflow-3x)), so the
 in-task path is a 2.x or CeleryExecutor/KubernetesExecutor story, not a 3.x-LocalExecutor one. Treat the
 sections below in that order of confidence: reach for placement first.
 
@@ -116,7 +117,7 @@ Evaluate a flag for a stable entity inside a task, run the chosen branch, and le
 record the assignment. This matches how experimentation platforms work: assign, emit an exposure event,
 and measure downstream in your warehouse.
 
-> Runtime note: this path runs inside a task worker. On Airflow 3.x with the LocalExecutor a forked
+> Runtime note: this path runs inside a task worker. On Airflow 3.x with the LocalExecutor, a forked
 > PythonOperator worker can deadlock (an Airflow-internal fork limitation, not specific to this
 > provider), so run the in-task examples on Airflow 2.x, on the CeleryExecutor / KubernetesExecutor, or
 > with `airflow tasks test`. The placement policy above is unaffected — it runs at parse time.
