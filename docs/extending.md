@@ -76,6 +76,32 @@ A setter that raises is skipped, so a bad dimension never breaks DAG parsing. Th
 used to be an in-operator `if flag_enabled(...)` into a policy the platform team ramps centrally, with
 no DAG edits.
 
+## Fork safety (Airflow 3.x)
+
+The placement policy evaluates flags at parse time in the dag-processor, so it is unaffected by task
+forking. In-task evaluation (the hook, sensor, and `gate`) runs inside a task worker, and Airflow 3.x's
+LocalExecutor forks that worker from a multi-threaded Task SDK supervisor. A backend client that opens a
+connection pool or a polling thread in `__init__` can be inherited across that fork and deadlock the
+child.
+
+Two things help:
+
+- Prefer an HTTP-per-call backend (OFREP, Flipt, GO Feature Flag, GrowthBook) for the in-task path.
+- Build the client per process, after the fork, with `ForkSafeProvider`:
+
+```python
+from openfeature import api
+from openfeature.contrib.provider.flipt import FliptProvider
+from openfeature_airflow.providers.forksafe import ForkSafeProvider
+
+api.set_provider(ForkSafeProvider(lambda: FliptProvider(base_url="http://flipt:8080")))
+```
+
+The wrapped provider is built on the first evaluation, which happens in the child. This removes the
+provider's client as a source of fork deadlocks. It does not make forking safe on its own: if the parent
+is multi-threaded for reasons outside the provider, the child can still deadlock during Airflow's own
+worker startup, before any flag code runs.
+
 ## Rules that keep it extensible
 
 - Never hardcode a backend. The core imports only `openfeature-sdk`.
