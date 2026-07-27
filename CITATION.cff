@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: airflow-provider-openfeature
+abstract: >-
+  An Apache Airflow provider that moves task placement (pool, queue, executor)
+  and behavior with feature flags through OpenFeature, with no DAG changes.
+type: software
+authors:
+  - name: "1fanwang"
+    email: "1fannnw@gmail.com"
+repository-code: "https://github.com/1fanwang/airflow-provider-openfeature"
+url: "https://1fanwang.github.io/airflow-provider-openfeature/"
+license: Apache-2.0
+version: 0.1.0
+keywords:
+  - apache-airflow
+  - airflow-provider
+  - feature-flags
+  - openfeature
+  - progressive-delivery
+  - canary
+  - experimentation
