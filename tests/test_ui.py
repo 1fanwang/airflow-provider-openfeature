@@ -50,3 +50,35 @@ def test_state_reports_moved_tasks(monkeypatch):
 def test_real_tasks_is_safe_without_airflow_db():
     # No Airflow metadata DB available in unit tests -> empty, never raises.
     assert ui._real_tasks() == []
+
+
+def test_real_tasks_swallows_db_errors(monkeypatch):
+    def boom(*args, **kwargs):
+        raise RuntimeError("no db")
+
+    monkeypatch.setattr("airflow.utils.session.create_session", boom)
+    assert ui._real_tasks() == []
+
+
+def test_provider_name_falls_back_to_unknown(monkeypatch):
+    def boom():
+        raise RuntimeError("no provider")
+
+    monkeypatch.setattr("openfeature.api.get_provider_metadata", boom)
+    assert ui._provider_name() == "unknown"
+
+
+def test_fastapi_apps_registers_when_enabled(monkeypatch):
+    monkeypatch.setattr(ui, "_enabled", lambda: True)
+    monkeypatch.setattr(ui, "_build_app", lambda: "APP")
+    assert ui.fastapi_apps() == [{"name": "OpenFeature", "app": "APP", "url_prefix": "/openfeature"}]
+
+
+def test_fastapi_apps_safe_when_build_fails(monkeypatch):
+    monkeypatch.setattr(ui, "_enabled", lambda: True)
+
+    def boom():
+        raise RuntimeError("no fastapi")
+
+    monkeypatch.setattr(ui, "_build_app", boom)
+    assert ui.fastapi_apps() == []
