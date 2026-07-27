@@ -153,4 +153,4 @@ here. A proprietary engine is a **private** adapter that depends on this package
 - Root `LICENSE` + `NOTICE` only; no per-file license headers.
 - Comments explain why, not what. One line unless a real gotcha needs more.
 - Conventional-commit titles; PR bodies are why + what changed + how tested. Sign off every commit
-  (`git commit -s`, DCO); no `Co-authored-by`.
+  (`git commit -s`, DCO).
