@@ -3,6 +3,23 @@
 Notable changes to this project. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.1.0...airflow-provider-openfeature-v0.2.0) (2026-07-27)
+
+
+### Features
+
+* add ForkSafeProvider for per-process, fork-safe client init ([#13](https://github.com/1fanwang/airflow-provider-openfeature/issues/13)) ([ad06e1b](https://github.com/1fanwang/airflow-provider-openfeature/commit/ad06e1b9d69dd05361884a77512b4a4e8e2a6e1d))
+
+
+### Documentation
+
+* front-load a Quickstart, surface demo + docs, add term links ([#17](https://github.com/1fanwang/airflow-provider-openfeature/issues/17)) ([5a8b630](https://github.com/1fanwang/airflow-provider-openfeature/commit/5a8b6302681a14e41c2f2fc82f1b9810328467ba))
+* lead onboarding with real Airflow and route by persona ([#1](https://github.com/1fanwang/airflow-provider-openfeature/issues/1)) ([fc6a2e3](https://github.com/1fanwang/airflow-provider-openfeature/commit/fc6a2e3dcfe50c1183d8fe3c2e006bdc06de9cad))
+* point the live-demo references at Flipt ([#12](https://github.com/1fanwang/airflow-provider-openfeature/issues/12)) ([2c97938](https://github.com/1fanwang/airflow-provider-openfeature/commit/2c9793843ecb8c493d3614b6d5d2fc0452bdd53f))
+* README list + DeepWiki badge; drop CodeRabbit config ([#2](https://github.com/1fanwang/airflow-provider-openfeature/issues/2)) ([6818651](https://github.com/1fanwang/airflow-provider-openfeature/commit/68186518e19abb065d4854c20d649cfa4fabf44f))
+* surface the live demo as the zero-install way in ([#11](https://github.com/1fanwang/airflow-provider-openfeature/issues/11)) ([7aa2999](https://github.com/1fanwang/airflow-provider-openfeature/commit/7aa2999e5cb4d0b19304d4d6a0cee8d37a3e4f6f))
+* vision-first AGENTS.md, shared with every agent via symlinks ([#16](https://github.com/1fanwang/airflow-provider-openfeature/issues/16)) ([f839848](https://github.com/1fanwang/airflow-provider-openfeature/commit/f8398486b9cf64333fc287ecfe4b9ad102bc2e20))
+
 ## [Unreleased]
 
 ### Added
