@@ -3,6 +3,14 @@
 Notable changes to this project. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.2.1...airflow-provider-openfeature-v0.2.2) (2026-07-27)
+
+
+### Bug Fixes
+
+* make release asset-attach best-effort for immutable releases ([#26](https://github.com/1fanwang/airflow-provider-openfeature/issues/26)) ([fea58bd](https://github.com/1fanwang/airflow-provider-openfeature/commit/fea58bd8fbd8f331ec669ff4f0ef6ffb837e467e))
+* publish releases from the release-please run ([#23](https://github.com/1fanwang/airflow-provider-openfeature/issues/23)) ([7dfed06](https://github.com/1fanwang/airflow-provider-openfeature/commit/7dfed06dc5fec333f1f86a58f7e627b1bf16e023))
+
 ## [0.2.1](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.2.0...airflow-provider-openfeature-v0.2.1) (2026-07-27)
 
 

@@ -2,9 +2,15 @@ name: release-please
 
 # Autonomous releases: release-please watches conventional commits on main and keeps a release PR
 # open with the next version bump and changelog. Merging that PR creates the tag and GitHub Release,
-# and the publish job below signs and ships the build to PyPI in the SAME run. It has to run here, not
-# in a separate tag-triggered workflow: a tag pushed by the Actions token does not start a new workflow
-# run (GitHub suppresses that), so a standalone publish-on-tag never fires for a release-please release.
+# then the job below hands off to publish.yml to sign and ship the build to PyPI.
+#
+# Why dispatch publish.yml instead of publishing here directly:
+#   1. A tag pushed by the Actions token does not start a tag-triggered workflow run (GitHub
+#      suppresses that), so publish.yml's `push: tags` trigger never fires for a release-please tag.
+#      workflow_dispatch is the documented exception — it fires even when triggered by GITHUB_TOKEN.
+#   2. PyPI trusted publishing binds the OIDC identity to a single workflow filename. It is registered
+#      for publish.yml; publishing from release-please.yml is rejected as `invalid-publisher`. Routing
+#      through publish.yml keeps one registered publisher and one copy of the build/sign/upload steps.
 on:
   push:
     branches: [main]
@@ -32,30 +38,10 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     runs-on: ubuntu-latest
-    environment: pypi
     permissions:
-      contents: write  # attach signed assets to the release
-      id-token: write  # trusted publishing (OIDC) + keyless Sigstore signing
+      actions: write  # dispatch publish.yml (workflow_dispatch fires even from GITHUB_TOKEN)
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          ref: ${{ needs.release-please.outputs.tag_name }}
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        with:
-          python-version: "3.11"
-      - run: pip install build==1.5.0
-      - run: python -m build
-      - name: Publish to PyPI with attestations (PEP 740)
-        uses: pypa/gh-action-pypi-publish@ba38be9e461d3875417946c167d0b5f3d385a247 # release/v1
-        with:
-          attestations: true
-      - name: Sign the artifacts with Sigstore (keyless, via OIDC)
-        uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
-        with:
-          inputs: ./dist/*.tar.gz ./dist/*.whl
-      - name: Attach the signed assets to the release
+      - name: Dispatch publish.yml to build, sign, and ship the new tag to PyPI
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release upload "${{ needs.release-please.outputs.tag_name }}"
-          dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber
+        run: gh workflow run publish.yml -R "${{ github.repository }}" -f tag="${{ needs.release-please.outputs.tag_name }}"
