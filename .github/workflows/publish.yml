@@ -2,7 +2,11 @@ name: Publish to PyPI
 
 on:
   push:
-    tags: ["v*"]
+    # release-please tags this single package as "airflow-provider-openfeature-vX.Y.Z"; the plain
+    # "vX.Y.Z" form is also accepted for hand-cut tags. Both must match or a release never publishes.
+    tags:
+      - "v[0-9]*"
+      - "*-v[0-9]*"
 
 permissions:
   contents: read
