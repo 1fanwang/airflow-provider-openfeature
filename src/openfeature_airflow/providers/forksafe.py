@@ -25,8 +25,10 @@ for the in-task evaluation path with a threaded or pooled backend.
 
 from __future__ import annotations
 
+import threading
 from typing import Callable
 
+from openfeature.evaluation_context import EvaluationContext
 from openfeature.provider import AbstractProvider
 from openfeature.provider.metadata import Metadata
 
@@ -37,16 +39,35 @@ class ForkSafeProvider(AbstractProvider):
     def __init__(self, factory: Callable[[], AbstractProvider]) -> None:
         self._factory = factory
         self._real: AbstractProvider | None = None
+        self._lock = threading.Lock()
+        self._init_ctx: EvaluationContext | None = None
 
     def _ensure(self) -> AbstractProvider:
+        # Double-checked locking: the fast path skips the lock once built; the lock keeps two threads
+        # from constructing two real providers on the first concurrent evaluation.
         if self._real is None:
-            self._real = self._factory()
+            with self._lock:
+                if self._real is None:
+                    real = self._factory()
+                    self._initialize(real, self._init_ctx or EvaluationContext())
+                    self._real = real
         return self._real
+
+    @staticmethod
+    def _initialize(real: AbstractProvider, ctx: EvaluationContext) -> None:
+        # Run the real provider's lifecycle now, in this process, after construction.
+        init = getattr(real, "initialize", None)
+        if not callable(init):
+            return
+        try:
+            init(ctx)
+        except TypeError:
+            init()
 
     def initialize(self, evaluation_context=None) -> None:
         # Deliberately do not build the real provider: set_provider() calls this in the parent, and an
-        # eager build there is what we are avoiding.
-        return None
+        # eager build there is what we are avoiding. Keep the context for the lazy build.
+        self._init_ctx = evaluation_context
 
     def shutdown(self) -> None:
         if self._real is not None:

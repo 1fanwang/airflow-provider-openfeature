@@ -12,6 +12,10 @@ from openfeature_airflow.providers.forksafe import ForkSafeProvider
 class _Fake(AbstractProvider):
     def __init__(self) -> None:
         self.shut = False
+        self.init_ctx = "UNSET"
+
+    def initialize(self, evaluation_context=None) -> None:
+        self.init_ctx = evaluation_context
 
     def get_metadata(self) -> Metadata:
         return Metadata(name="Fake")
@@ -39,25 +43,52 @@ class _Fake(AbstractProvider):
 
 
 def test_factory_deferred_until_first_eval():
-    calls = []
+    built = []
 
     def factory():
-        calls.append(1)
-        return _Fake()
+        f = _Fake()
+        built.append(f)
+        return f
 
     p = ForkSafeProvider(factory)
     p.initialize()  # set_provider() calls this in the parent; must not build the real provider
-    assert calls == []
+    assert built == []
     assert p.get_metadata().name == "ForkSafeProvider"
     assert p.get_provider_hooks() == []
 
     assert p.resolve_boolean_details("f", False).value is True
-    assert calls == [1]  # built on first evaluation
+    assert len(built) == 1  # built on first evaluation
+    assert built[0].init_ctx != "UNSET"  # real provider's initialize() ran after construction
 
     p.resolve_string_details("f", "d")
-    assert calls == [1]  # built only once
+    assert len(built) == 1  # built only once
     assert p.get_metadata().name == "Fake"  # delegates after build
     assert p.get_provider_hooks() == ["hook"]
+
+
+def test_concurrent_first_eval_builds_once():
+    import threading
+
+    built = []
+    start = threading.Barrier(8)
+
+    def factory():
+        built.append(1)
+        return _Fake()
+
+    p = ForkSafeProvider(factory)
+
+    def worker():
+        start.wait()  # line all threads up so they hit the first eval together
+        p.resolve_boolean_details("f", False)
+
+    threads = [threading.Thread(target=worker) for _ in range(8)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    assert built == [1]  # the lock kept 8 concurrent first-evals to a single construction
 
 
 def test_delegates_every_type():
@@ -67,6 +98,17 @@ def test_delegates_every_type():
     assert p.resolve_integer_details("f", 0).value == 7
     assert p.resolve_float_details("f", 0.0).value == 1.5
     assert p.resolve_object_details("f", None).value == {"a": 1}
+
+
+def test_real_provider_initialize_without_context_arg():
+    class _NoCtxInit(_Fake):
+        def initialize(self):  # no context param -> the wrapper must fall back to init()
+            self.init_ctx = "no-ctx"
+
+    inst = _NoCtxInit()
+    p = ForkSafeProvider(lambda: inst)
+    p.resolve_boolean_details("f", False)  # build: init(ctx) raises TypeError, then init() runs
+    assert inst.init_ctx == "no-ctx"
 
 
 def test_shutdown_is_safe_before_and_after_build():
