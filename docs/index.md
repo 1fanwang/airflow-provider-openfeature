@@ -11,6 +11,9 @@ through [OpenFeature](https://openfeature.dev), so it works with the flag backen
 [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io),
 [Unleash](https://www.getunleash.io), [Statsig](https://statsig.com), or an in-house engine.
 
+[**Try the live demo →**](https://ofopenfeature780983.eastus.cloudapp.azure.com/) A real Airflow 3.x
+and a real Unleash backend, no install and no login. Flip a flag, watch tasks change pool.
+
 ## Install
 
 ```bash

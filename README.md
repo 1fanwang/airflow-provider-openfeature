@@ -36,9 +36,14 @@ DAG, and it stays off until you switch it on in config.
   <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/demo.svg" alt="Ramping the real placement policy across 40 Airflow tasks: as the flag goes 0 to 100%, more tasks move to the canary pool, then the kill switch reverts all of them" width="760">
 </p>
 
+<p align="center">
+  <b><a href="https://ofopenfeature780983.eastus.cloudapp.azure.com/">▶ Try the live demo</a></b> &mdash; a real Airflow 3.x and a real <a href="https://www.getunleash.io">Unleash</a> backend. Flip a flag, watch tasks change pool. No install, no login.
+</p>
+
 ## Start here
 
-Two ways in, both on real Airflow.
+Two ways in, both on real Airflow. Or skip the setup and
+[poke at the live demo](https://ofopenfeature780983.eastus.cloudapp.azure.com/) first.
 
 **You run the Airflow platform.** Install the provider, turn the policy on, and move a subset of DAGs to a
 different pool, queue, or executor from a flag. Ramp a worker or executor migration, or flip a kill switch
@@ -242,6 +247,7 @@ See [docs/measurement.md](https://github.com/1fanwang/airflow-provider-openfeatu
 
 ## Docs
 
+- [Live demo](https://ofopenfeature780983.eastus.cloudapp.azure.com/) (no login) and its [source repo](https://github.com/1fanwang/airflow-provider-openfeature-example): a real Airflow 3.x + Unleash you can flip flags on.
 - [Getting started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md): a 5-minute walkthrough on real Airflow.
 - [Running a rollout](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/running-a-rollout.md): the end-to-end loop, and how to read a ramp.
 - [Case study](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/case-study/): canary a faster pipeline step end to end, with a real Unleash backend.
