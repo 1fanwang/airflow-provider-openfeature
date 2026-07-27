@@ -54,7 +54,7 @@ here. `providers/inhouse.py` is the public template for that pattern.
 
 The policy ships four flag-driven dimensions (`pool`, `queue`, `executor`, `priority_weight`). If your
 operators carry other attributes you want to ramp behind a flag, like a Spark version, a checkpoint
-toggle, or a routing key, register your own dimension. `register_placement(flag_key, setter, kind=...)`
+toggle, or a routing key, you can register your own dimension. `register_placement(flag_key, setter, kind=...)`
 adds it to the same policy pass; `setter(task, value)` runs when the flag resolves for a task's subset:
 
 ```python
