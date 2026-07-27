@@ -1,8 +1,11 @@
 name: Publish to PyPI
 
-# Automated releases publish from the release-please workflow (a tag pushed by the Actions token does
-# not start a tag-triggered run). This workflow covers the other two cases: a hand-cut "vX.Y.Z" tag
-# pushed by a person, and a manual re-publish of an existing tag via the Actions tab.
+# The single place that builds, signs, and ships a release to PyPI. Two entry points:
+#   - Automated: release-please.yml dispatches this workflow after it creates a release tag (a tag
+#     pushed by the Actions token can't trigger a `push: tags` run, so it hands off via workflow_dispatch).
+#   - Manual: a hand-cut "vX.Y.Z" tag pushed by a person, or a re-publish of an existing tag from the
+#     Actions tab. PyPI trusted publishing is registered for THIS workflow file, so all publishing
+#     routes through here to keep one OIDC publisher identity.
 on:
   push:
     tags:
