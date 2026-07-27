@@ -3,6 +3,13 @@
 Notable changes to this project. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.2.2...airflow-provider-openfeature-v0.2.3) (2026-07-27)
+
+
+### Documentation
+
+* ground positioning in evidence (README Why + use-cases ranking) ([#25](https://github.com/1fanwang/airflow-provider-openfeature/issues/25)) ([613dc6f](https://github.com/1fanwang/airflow-provider-openfeature/commit/613dc6fc3e4427e284213eee6a5420eb1120a2ec))
+
 ## [0.2.2](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.2.1...airflow-provider-openfeature-v0.2.2) (2026-07-27)
 
 
