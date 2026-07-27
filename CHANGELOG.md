@@ -3,6 +3,20 @@
 Notable changes to this project. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.2.0...airflow-provider-openfeature-v0.2.1) (2026-07-27)
+
+
+### Bug Fixes
+
+* publish on release-please's component-prefixed tags ([#21](https://github.com/1fanwang/airflow-provider-openfeature/issues/21)) ([fb784a7](https://github.com/1fanwang/airflow-provider-openfeature/commit/fb784a7cd58bd1046b66b587fcefba620693b08a))
+
+
+### Documentation
+
+* add 'When to reach for this' and guard the determinism claim ([#20](https://github.com/1fanwang/airflow-provider-openfeature/issues/20)) ([4314c98](https://github.com/1fanwang/airflow-provider-openfeature/commit/4314c98c4f26e750125c8c3badf41b2e364dd737))
+* drop a personal git preference from the public agent guide ([#22](https://github.com/1fanwang/airflow-provider-openfeature/issues/22)) ([6e37809](https://github.com/1fanwang/airflow-provider-openfeature/commit/6e37809adcc6970b913538e203bed2765b9042c1))
+* final prose pass (em-dashes, header) ([#18](https://github.com/1fanwang/airflow-provider-openfeature/issues/18)) ([25a77b2](https://github.com/1fanwang/airflow-provider-openfeature/commit/25a77b24bfa45f6d05fbcb8551c1e5fe2469281e))
+
 ## [0.2.0](https://github.com/1fanwang/airflow-provider-openfeature/compare/airflow-provider-openfeature-v0.1.0...airflow-provider-openfeature-v0.2.0) (2026-07-27)
 
 
