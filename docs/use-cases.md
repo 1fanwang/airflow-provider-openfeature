@@ -17,6 +17,28 @@ versions and [do not support queue workers](https://argo-rollouts.readthedocs.io
 Airflow schedules from a pull queue, so they can't express "route these DAGs to the canary pool." A
 flag evaluated in the scheduler policy can, and it reverts in seconds instead of a redeploy cycle.
 
+## How proven is each of these?
+
+Worth being straight about which of these rest on real, documented practice and which are extrapolation.
+
+**Placement is the proven part.** Routing tasks to a pool, queue, or executor from a cluster policy,
+with no DAG edits, is how teams already run shared Airflow at scale. Shopify governs pools and queues
+for [10,000+ DAGs through a `dag_policy` reading a YAML manifest](https://shopify.engineering/lessons-learned-apache-airflow-scale);
+the Airflow docs give the [`SparkOperator` → `spark` queue example](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/cluster-policies.html)
+directly; pool starvation from a noisy neighbour is a documented, unresolved production problem
+([AIP-100](https://cwiki.apache.org/confluence/spaces/AIRFLOW/pages/406618462/), [#45636](https://github.com/apache/airflow/issues/45636));
+and executor migration is real enough that [~20% of Airflow users run hybrid executors](https://cwiki.apache.org/confluence/spaces/AIRFLOW/pages/287607682/AIP-61+Hybrid+Execution).
+What this provider adds over a hand-written policy is the flag: revert without a redeploy, which is the
+part that matters most during an incident.
+
+**The ramp, the cohorts, and the in-task experiment are less established.** Percentage ramps and sticky
+cohorts are standard for user-facing features; there's little public evidence of teams ramping
+*infrastructure placement* by a DAG-run hash rather than moving a namespace or a DAG family at a time.
+The in-task A/B and per-cohort measurement are a smaller, separate story, and they carry a real
+limitation: on Airflow 3.x with the LocalExecutor, a forked PythonOperator worker can deadlock, so the
+in-task path is a 2.x or CeleryExecutor/KubernetesExecutor story, not a 3.x-LocalExecutor one. Treat the
+sections below in that order of confidence: reach for placement first.
+
 New here? Walk through [getting-started.md](getting-started.md) first. Runnable versions of these are
 in [`../example_dags/`](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/example_dags); the end-to-end drivers are in
 [`../system_tests/`](https://github.com/1fanwang/airflow-provider-openfeature/tree/main/system_tests).
@@ -93,6 +115,11 @@ ties elite incident recovery to exactly this kind of instant, deploy-free contro
 Evaluate a flag for a stable entity inside a task, run the chosen branch, and let the exposure listener
 record the assignment. This matches how experimentation platforms work: assign, emit an exposure event,
 and measure downstream in your warehouse.
+
+> Runtime note: this path runs inside a task worker. On Airflow 3.x with the LocalExecutor a forked
+> PythonOperator worker can deadlock (an Airflow-internal fork limitation, not specific to this
+> provider), so run the in-task examples on Airflow 2.x, on the CeleryExecutor / KubernetesExecutor, or
+> with `airflow tasks test`. The placement policy above is unaffected — it runs at parse time.
 
 ### 6. A/B a model or algorithm
 
