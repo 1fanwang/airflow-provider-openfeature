@@ -20,6 +20,23 @@ class TestFractionalProvider:
         assert _bucket("dag:t", "flag") == _bucket("dag:t", "flag")
         assert 0 <= _bucket("dag:t", "flag") < 100
 
+    def test_bucket_is_seed_independent(self):
+        # Golden values: sha256 bucketing must not depend on PYTHONHASHSEED, so the same entity lands
+        # in the same bucket across processes and restarts. A salted builtin hash() would drift and
+        # fail this. Regenerate only if the bucketing algorithm intentionally changes.
+        assert _bucket("dag_a:task_1", "airflow.task.pool") == 48
+        assert _bucket("dag_a:task_2", "airflow.task.pool") == 25
+
+    def test_cohort_is_monotonic(self):
+        # A task in the cohort at a lower percentage stays in at a higher one, so raising a ramp only
+        # adds entities and never reshuffles who was already in.
+        entities = [f"dag_a:task_{i}" for i in range(500)]
+
+        def in_at(pct):
+            return {e for e in entities if _bucket(e, "airflow.task.pool") < pct}
+
+        assert in_at(30) <= in_at(50) <= in_at(70)
+
     def test_boolean_matches_bucket_rule(self):
         provider = FractionalProvider(bool_flags={"f": BoolFlag(30)})
         for i in range(50):
