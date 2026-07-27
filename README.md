@@ -37,7 +37,7 @@ DAG, and it stays off until you switch it on in config.
 </p>
 
 <p align="center">
-  <b><a href="https://ofopenfeature780983.eastus.cloudapp.azure.com/">▶ Try the live demo</a></b> &mdash; a real Airflow 3.x and a real <a href="https://www.getunleash.io">Unleash</a> backend. Flip a flag, watch tasks change pool. No install, no login.
+  <b><a href="https://ofopenfeature780983.eastus.cloudapp.azure.com/">▶ Try the live demo</a></b> &mdash; a real Airflow 3.x and a real <a href="https://flipt.io">Flipt</a> backend. Change a flag, watch tasks change pool. No install, no login.
 </p>
 
 ## Start here
@@ -247,7 +247,7 @@ See [docs/measurement.md](https://github.com/1fanwang/airflow-provider-openfeatu
 
 ## Docs
 
-- [Live demo](https://ofopenfeature780983.eastus.cloudapp.azure.com/) (no login) and its [source repo](https://github.com/1fanwang/airflow-provider-openfeature-example): a real Airflow 3.x + Unleash you can flip flags on.
+- [Live demo](https://ofopenfeature780983.eastus.cloudapp.azure.com/) (no login) and its [source repo](https://github.com/1fanwang/airflow-provider-openfeature-example): a real Airflow 3.x + Flipt you can change flags on.
 - [Getting started](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md): a 5-minute walkthrough on real Airflow.
 - [Running a rollout](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/running-a-rollout.md): the end-to-end loop, and how to read a ramp.
 - [Case study](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/case-study/): canary a faster pipeline step end to end, with a real Unleash backend.
