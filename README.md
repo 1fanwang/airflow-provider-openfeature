@@ -75,6 +75,32 @@ same way you canary a feature. Container-canary tools like
 shift HTTP traffic between versions and, by their own docs, don't handle queue workers; Airflow
 schedules from a pull queue, so a scheduler-level flag is how you ramp a subset of DAGs.
 
+<details>
+<summary><b>Why not just write your own 20-line cluster policy?</b></summary>
+
+You can, and for a one-off it's fine. The obvious version:
+
+```python
+def task_policy(task):
+    if hash(f"{task.dag_id}:{task.task_id}") % 100 < 30:   # 30% canary
+        task.pool = "canary_pool"
+```
+
+has two problems once you rely on it:
+
+- **It's not deterministic.** Python salts `hash()` for strings per process (`PYTHONHASHSEED`), so the
+  same task can land in a different cohort each time the dag-processor restarts, or across multiple
+  schedulers. Your "30%" drifts, and raising it to 50% reshuffles who was already in, so a before/after
+  comparison can't be trusted. The bundled in-process rollout provider buckets with `hashlib.sha256` for
+  a stable cohort (the first 30% stay inside the next 50%); an external backend does its own sticky
+  bucketing.
+- **No measurement, and the dial lives in code.** There's no exposure record to join outcomes on, and the
+  percentage is fixed in code, so you redeploy to move it. Point OpenFeature at a backend and the
+  percentage lives there (change it live, revert in seconds), and one call records the exposure.</details>
+
+Not much code, but it's the code that's easy to get subtly wrong.
+</details>
+
 ## What you get
 
 - **Move where and how tasks run.** A cluster policy reads a flag and sets a task's pool, queue, executor, or priority for a chosen subset of DAGs, at parse time. No DAG edits.
