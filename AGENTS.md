@@ -17,19 +17,23 @@ does nothing until it is switched on in config.
 
 ## Who it's for, and the use cases
 
-The primary user is a **platform or infrastructure team** running Airflow for many teams, where changing
-task routing today means a DAG edit, a review, and a deploy. The recurring jobs, stated generally:
+Two users, from opposite ends of an Airflow install, both first-class.
+
+**The platform or infrastructure team** changes how and where pipelines run without touching anyone's
+DAG. Today that means a DAG edit, a review, and a deploy; here it is a flag. Its jobs, stated generally:
 
 - **Ramp an infrastructure change to a subset.** Move a slice of tasks to a new executor, worker pool,
   or a faster code path; watch it; widen it; revert at once.
 - **Kill-switch during an incident.** Turn a misbehaving feature or DAG family off with a flag change,
   not a redeploy.
 - **Target before rollout.** Enable something for one team, tenant, or dataset first.
-- **Experiment and measure.** A/B a model, a join strategy, or a library inside a task and record the
-  exposure and outcome for a real comparison.
 
-The secondary user is a **DAG author** who wants to gate a code path or A/B a choice inside a task, with
-one call and no platform access.
+**The DAG author or owner** gates a code path or A/B's a choice inside their own task, with one call and
+no platform access:
+
+- **Experiment and measure.** A/B a model, a join strategy, or a library, and record the exposure and
+  outcome for a real comparison.
+- **Gate a code path.** Put a new implementation behind a flag and ramp it from inside the task.
 
 The same flag can move a task's `pool`, `queue`, `executor`, or `priority_weight`, so infrastructure gets
 canaried the way a feature does. That is the wedge: nothing else ramps a *subset of Airflow tasks* at the
@@ -54,9 +58,10 @@ change here.
 - **OpenFeature is the only integration point.** Core imports `openfeature-sdk` and nothing
   backend-specific. Backends are optional extras and thin adapters under `providers/`, each an
   `AbstractProvider` (`get_metadata` + `resolve_*` + `get_provider_hooks`).
-- **Three surfaces, three entry points** (`pyproject.toml`): `apache_airflow_provider` → `provider_info`
-  (hook/sensor/connection); `airflow.policy` → `policy` (placement); `airflow.plugins` →
-  `OpenFeaturePlugin` (exposure listener).
+- **Three surfaces, three entry points** (`pyproject.toml`): `apache_airflow_provider` →
+  `provider_info:get_provider_info` (hook/sensor/connection); `airflow.policy` →
+  `openfeature_airflow.policy` (placement); `airflow.plugins` →
+  `openfeature_airflow.plugin:OpenFeaturePlugin` (exposure listener).
 - **Install is a no-op.** `enable_policy`, `enable_exposure_listener`, and any UI stay off until set in
   `[openfeature]` config. No side effects on import.
 - **Third-party namespace.** The package is `openfeature_airflow`, never `airflow.providers.*`. The wheel
@@ -101,7 +106,8 @@ RUN_INTEGRATION=1 pytest tests/integration   # real backends (needs docker + an 
 ```
 
 The coverage gate is 95% (`--cov-fail-under=95`). CI runs the matrix Python 3.10/3.11 × Airflow 2.11/3.3,
-plus lint, build, CodeQL, Scorecard, and Sonar.
+plus lint and build. Code scanning (CodeQL), Scorecard, and SonarCloud run as additional checks (via
+GitHub default setup and their apps, not workflow files here).
 
 ## Keep everything in sync
 
