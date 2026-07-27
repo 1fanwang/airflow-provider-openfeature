@@ -5,6 +5,10 @@
 **Feature flags for Apache Airflow.** Ramp a change across your DAGs, measure it, and revert with a
 flag, not a redeploy.
 
+[![PyPI](https://img.shields.io/pypi/v/airflow-provider-openfeature?logo=pypi&logoColor=white&color=006dad)](https://pypi.org/project/airflow-provider-openfeature/)
+[![Live demo](https://img.shields.io/badge/live%20demo-online-2ea043?logo=apacheairflow&logoColor=white)](https://ofopenfeature780983.eastus.cloudapp.azure.com/)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-526cfe?logo=materialformkdocs&logoColor=white)](https://1fanwang.github.io/airflow-provider-openfeature/)
+
 [![CI](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml/badge.svg)](https://github.com/1fanwang/airflow-provider-openfeature/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/LICENSE)
 
@@ -20,8 +24,12 @@ flag, not a redeploy.
 
 </div>
 
-A platform team moves a **subset** of tasks to a different pool, queue, or executor, ramps a worker or
-executor migration, or flips a kill switch mid-incident, all centrally, without touching anyone's DAG.
+A platform team moves a **subset** of tasks to a different
+[pool](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/pools.html),
+[queue](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/executor/celery.html), or
+[executor](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/executor/index.html),
+ramps a worker or executor migration, or flips a kill switch mid-incident, all centrally, without
+touching anyone's [DAG](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html).
 A DAG author gates a code path or A/B-tests a model inside a task. Both go
 through [OpenFeature](https://openfeature.dev), so it works with the flag backend you already run:
 [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io),
@@ -39,6 +47,35 @@ DAG, and it stays off until you switch it on in config.
 <p align="center">
   <b><a href="https://ofopenfeature780983.eastus.cloudapp.azure.com/">▶ Try the live demo</a></b> &mdash; a real Airflow 3.x and a real <a href="https://flipt.io">Flipt</a> backend. Change a flag, watch tasks change pool. No install, no login.
 </p>
+
+## Quickstart
+
+Install with a backend, here [flagd](https://flagd.dev):
+
+```bash
+pip install "airflow-provider-openfeature[flagd]"
+```
+
+Point [OpenFeature](https://openfeature.dev) at that backend once, in
+[`airflow_local_settings.py`](https://airflow.apache.org/docs/apache-airflow/stable/administration-and-deployment/modules_management.html)
+or any bootstrap, and turn the policy on:
+
+```python
+from openfeature import api
+from openfeature.contrib.provider.flagd import FlagdProvider
+
+api.set_provider(FlagdProvider(host="localhost", port=8013))
+```
+
+```ini
+[openfeature]
+enable_policy = True   # flag-driven pool / queue / executor placement, no DAG edits
+```
+
+Set the flag `airflow.task.pool` in your backend and the next DAG parse moves that subset of tasks to the
+pool you picked. Nothing else changes. Full walkthrough: the
+[5-minute getting-started guide](https://github.com/1fanwang/airflow-provider-openfeature/blob/main/docs/getting-started.md)
+and the [documentation site](https://1fanwang.github.io/airflow-provider-openfeature/).
 
 ## Start here
 
