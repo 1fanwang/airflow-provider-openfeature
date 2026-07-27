@@ -53,9 +53,10 @@ jobs:
         uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
-      - name: Attach the signed assets to the release
+      - name: Attach the signed assets to the release (best effort; release-please marks it immutable)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >
-          gh release upload "${{ needs.release-please.outputs.tag_name }}"
-          dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber
+          TAG: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          gh release upload "$TAG" dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber \
+            || echo "note: could not attach assets (immutable release); PyPI attestations provide provenance"

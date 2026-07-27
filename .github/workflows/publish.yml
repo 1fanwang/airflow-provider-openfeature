@@ -48,7 +48,8 @@ jobs:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber
+            gh release upload "$TAG" dist/*.tar.gz dist/*.whl dist/*.sigstore* --clobber \
+              || echo "note: could not attach assets (immutable release); PyPI attestations provide provenance"
           else
             gh release create "$TAG" dist/*.tar.gz dist/*.whl dist/*.sigstore* --title "$TAG" --generate-notes
           fi
