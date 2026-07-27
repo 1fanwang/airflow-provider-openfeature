@@ -13,6 +13,7 @@ def test_provider_info_shape():
     assert ct["hook-class-name"].endswith("OpenFeatureHook")
 
     opts = info["config"]["openfeature"]["options"]
-    assert set(opts) == {"enable_policy", "enable_exposure_listener"}
+    assert set(opts) == {"enable_policy", "enable_exposure_listener", "enable_ui"}
     assert opts["enable_policy"]["type"] == "boolean"
     assert opts["enable_policy"]["default"] == "False"  # install must be a no-op by default
+    assert opts["enable_ui"]["default"] == "False"  # the UI is opt-in

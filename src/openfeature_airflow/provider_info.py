@@ -47,6 +47,14 @@ def get_provider_info() -> dict[str, Any]:
                         "version_added": "0.1.0",
                         "example": None,
                     },
+                    "enable_ui": {
+                        "description": "Add an Airflow 3.x UI panel that shows which flags are moving "
+                        "which tasks (read-only; no-op on Airflow 2.x).",
+                        "type": "boolean",
+                        "default": "False",
+                        "version_added": "0.2.0",
+                        "example": None,
+                    },
                 },
             }
         },

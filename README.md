@@ -40,6 +40,13 @@ DAG, and it stays off until you switch it on in config.
 
 Two ways in, both on real Airflow.
 
+**Or just look at it running.** A public, no-login instance runs the provider on Airflow 3.3.0 with a
+real Unleash backend: [Airflow UI](https://ofopenfeature780983.eastus.cloudapp.azure.com/),
+[the flag-effect panel](https://ofopenfeature780983.eastus.cloudapp.azure.com/openfeature/), and the
+[Unleash UI](https://ofopenfeature780983.eastus.cloudapp.azure.com/unleash/) where you flip the flag and
+watch tasks move. Full runnable stack (docker compose, Codespaces):
+[airflow-provider-openfeature-example](https://github.com/1fanwang/airflow-provider-openfeature-example).
+
 **You run the Airflow platform.** Install the provider, turn the policy on, and move a subset of DAGs to a
 different pool, queue, or executor from a flag. Ramp a worker or executor migration, or flip a kill switch
 mid-incident, without editing anyone's DAG. The
@@ -77,6 +84,19 @@ schedules from a pull queue, so a scheduler-level flag is how you ramp a subset 
 - **Any backend.** [flagd](https://flagd.dev), [LaunchDarkly](https://launchdarkly.com), [GrowthBook](https://www.growthbook.io), [Statsig](https://statsig.com), [Unleash](https://www.getunleash.io), or an in-house engine, through [OpenFeature](https://openfeature.dev). Switch backends without code changes.
 - **Measure the result.** One call records the outcome to your experiment platform ([Statsig](https://statsig.com), [GrowthBook](https://www.growthbook.io)) or your warehouse ([OpenTelemetry](https://opentelemetry.io), [Grafana](https://grafana.com)).
 - **Safe to install.** The policy and listener do nothing until you turn them on in config.
+
+## See the policy in the Airflow UI
+
+The policy moves tasks invisibly, so an operator looking at Airflow can't tell why a task is in
+`canary_pool` or what else a flag is touching. Set `AIRFLOW__OPENFEATURE__ENABLE_UI=True` and the
+provider adds an **OpenFeature** tab (Airflow 3.x) that reads your real tasks and shows which flags are
+moving which, right now, whatever backend you run:
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/1fanwang/airflow-provider-openfeature/main/docs/openfeature-panel.png" width="820" alt="An Airflow tab listing which tasks the OpenFeature policy is moving to canary_pool and via which flag">
+</p>
+
+It is read-only and off by default, and it never replaces a backend's own admin UI.
 
 ## See it run
 
