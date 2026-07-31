@@ -6,8 +6,16 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     labels: [dependencies]
+    groups:
+      # One PR for the routine sweep; majors still get their own PR to review.
+      python:
+        patterns: ["*"]
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     labels: [dependencies, ci]
+    groups:
+      actions:
+        patterns: ["*"]
