@@ -29,7 +29,7 @@ jobs:
       contents: write  # create or update the GitHub Release and upload signed assets
       id-token: write  # trusted publishing (OIDC) + keyless Sigstore signing
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.inputs.tag || github.ref_name }}
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -42,7 +42,7 @@ jobs:
         with:
           attestations: true
       - name: Sign the artifacts with Sigstore (keyless, via OIDC)
-        uses: sigstore/gh-action-sigstore-python@f514d46b907ebcd5bedc05145c03b69c1edd8b46 # v3.0.0
+        uses: sigstore/gh-action-sigstore-python@5b79a39c381910c090341a2c9b0bf022c8b387e1 # v3.4.0
         with:
           inputs: ./dist/*.tar.gz ./dist/*.whl
       - name: Attach the signed assets to the release (create it if a hand-cut tag has none)
